@@ -365,5 +365,22 @@ FodyWeavers.xsd
 *.pem
 *.exe
 
-# Mac Files
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Spotlight
+.Spotlight-V100
+.Trashes
+
+# Other OS metadata
+ehthumbs.db
+Thumbs.db
+
