@@ -364,3 +364,6 @@ FodyWeavers.xsd
 *.cer
 *.pem
 *.exe
+
+# Mac Files
+.DS_Store
