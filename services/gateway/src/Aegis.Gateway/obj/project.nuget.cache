@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "BEgvZx1q8YY=",
+  "success": true,
+  "projectFilePath": "/Users/erich/Dev/dotnet/aegis-gateway/services/gateway/src/Aegis.Gateway/Aegis.Gateway.csproj",
+  "expectedPackageFiles": [
+    "/Users/erich/.nuget/packages/microsoft.aspnetcore.openapi/10.0.0/microsoft.aspnetcore.openapi.10.0.0.nupkg.sha512",
+    "/Users/erich/.nuget/packages/microsoft.openapi/2.0.0/microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
