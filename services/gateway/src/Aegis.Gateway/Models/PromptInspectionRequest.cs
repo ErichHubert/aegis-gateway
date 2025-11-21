@@ -4,9 +4,9 @@ namespace Aegis.Gateway.Models;
 
 internal sealed class PromptInspectionRequest
 {
-    [JsonPropertyName("text")]
-    public string Text { get; set; } = string.Empty;
+    [JsonPropertyName("prompt")]        
+    public string Prompt { get; set; } = string.Empty;
 
     [JsonPropertyName("meta")]
-    public PromptInspectionMeta Meta { get; set; } = new();
+    public PromptInspectionMeta? Meta { get; set; } = new();
 }
