@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Aegis.Gateway/Aegis.Gateway.csproj" />
+    <Project Path="Aegis.Gateway/Aegis.Gateway.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="Aegis.Gateway.Tests/Aegis.Gateway.Tests.csproj" />
   </Folder>
 </Solution>
