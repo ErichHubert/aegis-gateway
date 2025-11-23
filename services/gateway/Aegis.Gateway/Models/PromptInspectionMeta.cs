@@ -6,4 +6,5 @@ public class PromptInspectionMeta
 {
     [JsonPropertyName("userId")]
     public string? UserId { get; set; }
+    public string? Source { get; set; }
 }
