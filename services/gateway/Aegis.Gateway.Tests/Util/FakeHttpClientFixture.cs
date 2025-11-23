@@ -1,22 +1,19 @@
 using System.Net;
 using System.Text;
-using Aegis.Gateway.Services;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Aegis.Gateway.Tests.Util;
 
-public class PromptInspectionClientFixture
+public class FakeHttpClientFixture
 {
     public sealed record CapturedRequest(HttpRequestMessage Request, string? Body);
     
-    public PromptInspectionClient CreateFakeClientWithJsonResponse(
+    public HttpClient CreateFakeClientWithJsonResponse(
         string json,
         out List<CapturedRequest> capturedRequests,
         HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        return CreateFakeClient(
-            handlerFunc: (request, ct) =>
+        return CreateFakeHttpClient(
+            handlerFunc: (_, _) =>
             {
                 var response = new HttpResponseMessage(statusCode)
                 {
@@ -27,12 +24,12 @@ public class PromptInspectionClientFixture
             out capturedRequests);
     }
 
-    public PromptInspectionClient CreateFakeClientWithStatusCode(
+    public HttpClient CreateFakeClientWithStatusCode(
         HttpStatusCode statusCode,
         out List<CapturedRequest> capturedRequests)
     {
-        return CreateFakeClient(
-            handlerFunc: (request, ct) =>
+        return CreateFakeHttpClient(
+            handlerFunc: (_, _) =>
             {
                 var response = new HttpResponseMessage(statusCode);
                 return Task.FromResult(response);
@@ -40,7 +37,7 @@ public class PromptInspectionClientFixture
             out capturedRequests);
     }
     
-    public PromptInspectionClient CreateFakeClient(
+    public HttpClient CreateFakeHttpClient(
         Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handlerFunc,
         out List<CapturedRequest> capturedRequests)
     {
@@ -56,7 +53,14 @@ public class PromptInspectionClientFixture
             }
             
             requests.Add(new CapturedRequest(request, body));
-            return await handlerFunc(request, ct);
+            
+            var response = await handlerFunc(request, ct);
+            
+            // This reads the stream into memory, calculates the length, 
+            // and automatically sets the Content-Length header.
+            await response.Content.LoadIntoBufferAsync(ct);
+            
+            return response;
         });
 
         var httpClient = new HttpClient(handler)
@@ -64,9 +68,7 @@ public class PromptInspectionClientFixture
             BaseAddress = new Uri("http://anyservice")
         };
 
-        ILogger<PromptInspectionClient> logger = NullLogger<PromptInspectionClient>.Instance;
-
         capturedRequests = requests;
-        return new PromptInspectionClient(httpClient, logger);
+        return httpClient;
     }
 }
