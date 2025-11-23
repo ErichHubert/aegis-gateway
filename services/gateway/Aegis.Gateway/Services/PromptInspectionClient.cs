@@ -26,7 +26,7 @@ public sealed class PromptInspectionClient(
         using var response = await httpClient.PostAsync("/inspect", content, ct);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<PromptInspectionResponse>(JsonSerializerOptions.Web, ct);
+        var result = await response.Content.ReadFromJsonAsync<PromptInspectionResponse>(ct);
 
         if (result is null)
             throw new InvalidOperationException("Prompt Inspection Service returned null");

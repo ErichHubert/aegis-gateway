@@ -1,12 +1,19 @@
+using System.Net;
 using System.Text.Json;
 using Aegis.Gateway.Models;
+using Aegis.Gateway.Services;
 using Aegis.Gateway.Tests.Util;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Aegis.Gateway.Tests.Services;
 
-public class PromptInspectionClientTests(PromptInspectionClientFixture fixture)
-    : IClassFixture<PromptInspectionClientFixture>
+public class PromptInspectionClientTests(FakeHttpClientFixture fixture) 
+    : IClassFixture<FakeHttpClientFixture>
 {
+    private readonly Mock<ILogger<PromptInspectionClient>> _loggerMock = new();
+    private readonly FakeHttpClientFixture _fixture = fixture;
+
     [Fact]
     public async Task InspectAsync_Sends_Single_Request_With_Expected_Payload()
     {
@@ -18,7 +25,7 @@ public class PromptInspectionClientTests(PromptInspectionClientFixture fixture)
                            }
                            """;
 
-        var client = fixture.CreateFakeClientWithJsonResponse(expectedJson, out var capturedRequests);
+        HttpClient fakeHttpClient = _fixture.CreateFakeClientWithJsonResponse(expectedJson, out var capturedRequests);
 
         var prompt = "Test prompt";
         var meta = new PromptInspectionMeta
@@ -27,6 +34,7 @@ public class PromptInspectionClientTests(PromptInspectionClientFixture fixture)
         };
 
         // Act
+        var client = new PromptInspectionClient(fakeHttpClient, _loggerMock.Object);
         await client.InspectAsync(prompt, meta);
 
         // Assert
@@ -51,5 +59,40 @@ public class PromptInspectionClientTests(PromptInspectionClientFixture fixture)
         Assert.True(root.TryGetProperty("meta", out var metaProp));
         Assert.Equal("alice", metaProp.GetProperty("userId").GetString());
         
+        Assert.Equal("application/json; charset=utf-8",
+            request.Content!.Headers.ContentType!.ToString());
+    }
+    
+    [Fact]
+    public async Task InspectAsync_ThrowsHttpRequestException_WhenStatusCodeIsNotSuccess()
+    {
+        // Arrange
+        HttpClient fakeHttpClient = _fixture.CreateFakeClientWithStatusCode(
+            HttpStatusCode.NotFound, out _);
+        
+        // Act & Assert
+        var client = new PromptInspectionClient(fakeHttpClient, _loggerMock.Object);
+        
+        await Assert.ThrowsAsync<HttpRequestException>(async () =>
+        {
+            await client.InspectAsync("any prompt");
+        });
+    }
+    
+    [Fact]
+    public async Task InspectAsync_ThrowsInvalidOperationException_WhenServiceReturnsNullBody()
+    {
+        // Arrange
+        string jsonNull = "null";
+        HttpClient fakeHttpClient = _fixture.CreateFakeClientWithJsonResponse(
+            jsonNull, out _, HttpStatusCode.NoContent);
+
+        // Act & Assert
+        var client = new PromptInspectionClient(fakeHttpClient, _loggerMock.Object);
+        
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        {
+            await client.InspectAsync("any prompt");
+        });
     }
 }
