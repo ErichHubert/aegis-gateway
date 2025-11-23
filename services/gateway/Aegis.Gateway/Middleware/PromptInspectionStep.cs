@@ -2,70 +2,42 @@ using System.Text;
 using System.Text.Json;
 using Aegis.Gateway.Models;
 using Aegis.Gateway.Services;
+using Microsoft.AspNetCore.Mvc;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 
 namespace Aegis.Gateway.Middleware;
 
 public sealed class PromptInspectionStep(
-    RequestDelegate next, 
+    RequestDelegate next,
     IPromptInspectionClient promptInspectionClient,
-    ILogger<PromptInspectionStep> logger,
-    CancellationToken ct = default)
+    ILogger<PromptInspectionStep> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
-        logger.LogInformation("Prompt inspection started");
+        var ct = context.RequestAborted;
 
         var proxyFeature = context.Features.Get<IReverseProxyFeature>();
         var routeConfig = proxyFeature?.Route.Config;
-        
-        if(!ShouldInspectRoute(routeConfig))
+
+        if (!ShouldInspectRoute(routeConfig))
         {
-            logger.LogInformation("Prompt inspection is disabled for provided route. Prompt inspection skipped.");
+            logger.LogDebug("Prompt inspection disabled for route {RouteId}. Skipping.", routeConfig?.RouteId);
             await next(context);
             return;
-        } 
-        
-        context.Request.EnableBuffering();
-
-        string body;
-        using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, leaveOpen: true))
-        {
-            body = await reader.ReadToEndAsync(ct);
         }
 
-        context.Request.Body.Position = 0;
+        logger.LogInformation("Prompt inspection started for route {RouteId}", routeConfig?.RouteId);
 
+        var body = await ReadRequestBodyAsync(context.Request, ct);
         var promptText = ExtractPromptFromOllamaRequest(body);
+        var meta = CreateMeta(context, routeConfig);
 
-        var meta = new PromptInspectionMeta
-        {
-            UserId = context.User.Identity?.Name,
-            Source = routeConfig?.RouteId 
-        };
+        var piResponse = await promptInspectionClient.InspectAsync(promptText, meta, ct);
 
-        PromptInspectionResponse promptInspectionResponse;
-        try
+        if (!piResponse.IsAllowed)
         {
-            promptInspectionResponse = await promptInspectionClient.InspectAsync(promptText, meta, ct);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error calling Prompt Inspection service");
-            context.Response.StatusCode = StatusCodes.Status502BadGateway;
-            await context.Response.WriteAsJsonAsync(new { error = "Error calling Prompt Inspection service" }, ct);
-            return;
-        }
-
-        if (!promptInspectionResponse.IsAllowed)
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsJsonAsync(new
-            {
-                error = "Request blocked by policy",
-                findings = promptInspectionResponse.Findings
-            }, ct);
+            await WriteBlockedResponseAsync(context, piResponse, ct);
             return;
         }
 
@@ -80,7 +52,49 @@ public sealed class PromptInspectionStep(
         return routeConfig.Metadata.TryGetValue("InspectPrompt", out var value)
                && string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
     }
-    
+
+    private static async Task<string> ReadRequestBodyAsync(HttpRequest request, CancellationToken ct)
+    {
+        request.EnableBuffering();
+
+        using var reader = new StreamReader(request.Body, Encoding.UTF8, leaveOpen: true);
+        var body = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
+
+        request.Body.Position = 0;
+        return body;
+    }
+
+    private static PromptInspectionMeta CreateMeta(HttpContext context, RouteConfig? routeConfig) =>
+        new()
+        {
+            UserId = context.User.Identity?.Name,
+            Source = routeConfig?.RouteId
+        };
+
+    private async Task WriteBlockedResponseAsync(
+        HttpContext context,
+        PromptInspectionResponse piResponse,
+        CancellationToken ct)
+    {
+        var problem = new ProblemDetails
+        {
+            Status = StatusCodes.Status403Forbidden,
+            Title = "Request blocked by policy",
+            Type = "https://aegis-gateway/errors/prompt-blocked",
+            Detail = "The request was blocked based on LLM safety and data loss prevention rules.",
+            Instance = context.Request.Path,
+            Extensions =
+            {
+                ["findings"] = piResponse.Findings
+            }
+        };
+
+        context.Response.StatusCode = problem.Status ?? StatusCodes.Status403Forbidden;
+        context.Response.ContentType = "application/problem+json";
+
+        await context.Response.WriteAsJsonAsync(problem, ct);
+    }
+
     private static string ExtractPromptFromOllamaRequest(string json)
     {
         if (string.IsNullOrWhiteSpace(json))

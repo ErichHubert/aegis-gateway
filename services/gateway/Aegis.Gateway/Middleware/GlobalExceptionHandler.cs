@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Aegis.Gateway.Middleware;
 
 public class GlobalExceptionHandler(
-    ILogger<GlobalExceptionHandler> logger
-    ) : IExceptionHandler
+    ILogger<GlobalExceptionHandler> logger,
+    IHostEnvironment environment
+) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -14,19 +15,40 @@ public class GlobalExceptionHandler(
     {
         var traceId = httpContext.TraceIdentifier;
 
-        logger.LogError(exception, "An unhandled exception occurred while processing the request. TraceId: {TraceId}", traceId);
+        logger.LogError(
+            exception,
+            "An unhandled exception occurred while processing the request. TraceId: {TraceId}",
+            traceId);
 
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        var statusCode = StatusCodes.Status500InternalServerError;
+        var problem = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = "Internal Server Error",
+            Type = "https://tools.ietf.org/html/rfc9110#section-15.6.1",
+            Instance = httpContext.Request.Path,
+            Extensions =  { { "traceId", traceId } }
+        };
 
-        await httpContext.Response.WriteAsJsonAsync(
-            new ProblemDetails
-            {
-                Status = httpContext.Response.StatusCode,
-                Title = "Internal Server Error",
-                Type = "https://tools.ietf.org/html/rfc9110#section-15.6.1",
-                Extensions = { ["traceId"] = httpContext.TraceIdentifier }
-            },
-            cancellationToken);
+        problem.Detail = environment.IsProduction() 
+            ? exception.ToString() 
+            : "An unexpected error occurred. Please contact support with the trace ID.";
+
+        // If the response has already started, we can't write a proper body anymore
+        if (httpContext.Response.HasStarted)
+        {
+            logger.LogWarning(
+                "The response has already started, the global exception handler will not modify the response. TraceId: {TraceId}",
+                traceId);
+
+            return false;
+        }
+
+        httpContext.Response.Clear();
+        httpContext.Response.StatusCode = statusCode;
+        httpContext.Response.ContentType = "application/problem+json";
+
+        await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken);
 
         return true;
     }
