@@ -37,9 +37,9 @@ async def inspect(req: PromptInspectionRequest):
 
     findings: List[Finding] = []
 
-    isAllowed = True
+    isallowed = True
     if "block" in req.prompt.lower():
-        isAllowed = False
+        isallowed = False
         findings.append(Finding(
             type="demo_rule",
             message="Prompt contains the word 'block', demo decision=block"
@@ -52,6 +52,6 @@ async def inspect(req: PromptInspectionRequest):
     ))
 
     return PromptInspectionResponse(
-        isAllowed=isAllowed,
+        isAllowed=isallowed,
         findings=findings
     )
