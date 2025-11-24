@@ -1,4 +1,4 @@
-namespace Aegis.Gateway.Services;
+namespace Aegis.Gateway.Infrastructure.PromptInspection;
 
 public sealed record PromptInspectionSettings
 {

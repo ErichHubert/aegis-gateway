@@ -1,4 +1,4 @@
-using Aegis.Gateway.Services;
+using Aegis.Gateway.Infrastructure.PromptInspection;
 using Microsoft.Extensions.Options;
 
 namespace Aegis.Gateway.Extensions;

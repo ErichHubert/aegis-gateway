@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Models;
-using Aegis.Gateway.Services;
 using Aegis.Gateway.Tests.Util;
 using Microsoft.Extensions.Logging;
 using Moq;

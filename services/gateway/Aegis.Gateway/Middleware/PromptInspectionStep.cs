@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Models;
 using Aegis.Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace Aegis.Gateway.Middleware;
 public sealed class PromptInspectionStep(
     RequestDelegate next,
     IPromptInspectionClient promptInspectionClient,
+    IPromptExtractorResolver promptExtractorResolver,
     ILogger<PromptInspectionStep> logger)
 {
     public async Task InvokeAsync(HttpContext context)
@@ -30,7 +32,7 @@ public sealed class PromptInspectionStep(
         logger.LogInformation("Prompt inspection started for route {RouteId}", routeConfig?.RouteId);
 
         var body = await ReadRequestBodyAsync(context.Request, ct);
-        var promptText = ExtractPromptFromOllamaRequest(body);
+        var promptText = promptExtractorResolver.ExtractPrompt(routeConfig, body);
         var meta = CreateMeta(context, routeConfig);
 
         var piResponse = await promptInspectionClient.InspectAsync(promptText, meta, ct);
@@ -93,30 +95,5 @@ public sealed class PromptInspectionStep(
         context.Response.ContentType = "application/problem+json";
 
         await context.Response.WriteAsJsonAsync(problem, ct);
-    }
-
-    private static string ExtractPromptFromOllamaRequest(string json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-            return json;
-
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            if (root.TryGetProperty("prompt", out var promptProp) &&
-                promptProp.ValueKind == JsonValueKind.String)
-            {
-                return promptProp.GetString() ?? json;
-            }
-
-            return json;
-        }
-        catch
-        {
-            // If anything goes wrong, just return the raw JSON
-            return json;
-        }
     }
 }

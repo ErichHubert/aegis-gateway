@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Aegis.Gateway.Models;
 
-namespace Aegis.Gateway.Services;
+namespace Aegis.Gateway.Infrastructure.PromptInspection;
 
 public sealed class PromptInspectionClient(
     HttpClient httpClient,
