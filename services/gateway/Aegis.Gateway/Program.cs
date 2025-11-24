@@ -23,5 +23,6 @@ builder.Logging.AddConsole();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
 app.MapReverseProxy(proxyPipeline => proxyPipeline.UseMiddleware<PromptInspectionStep>());
 app.Run();
