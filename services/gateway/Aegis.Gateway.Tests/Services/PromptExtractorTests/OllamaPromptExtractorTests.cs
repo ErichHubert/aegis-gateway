@@ -1,19 +1,20 @@
 using System.Text.Json;
 using Aegis.Gateway.Services.PromptExtractors;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace Aegis.Gateway.Tests.Services.PromptExtractorTests;
 
 public sealed class OllamaPromptExtractorTests
 {
-    private readonly Mock<ILogger<OllamaPromptExtractor>> _loggerMock = new();
+    private readonly ILogger<OllamaPromptExtractor> _logger = NullLogger<OllamaPromptExtractor>.Instance;
 
     [Fact]
     public void Name_ShouldBe_Ollama()
     {
         // Arrange
-        var extractor = new OllamaPromptExtractor(_loggerMock.Object);
+        var extractor = new OllamaPromptExtractor(_logger);
 
         // Act
         string name = extractor.Name;
@@ -29,7 +30,7 @@ public sealed class OllamaPromptExtractorTests
     public void TryExtract_EmptyOrWhitespaceJson_ReturnsFalse_AndEmptyPrompt(string? json)
     {
         // Arrange
-        var extractor = new OllamaPromptExtractor(_loggerMock.Object);
+        var extractor = new OllamaPromptExtractor(_logger);
 
         // Act
         bool result = extractor.TryExtract(json!, out var prompt);
@@ -43,7 +44,7 @@ public sealed class OllamaPromptExtractorTests
     public void TryExtract_ValidPrompt_ReturnsTrue_AndPromptValue()
     {
         // Arrange
-        var extractor = new OllamaPromptExtractor(_loggerMock.Object);
+        var extractor = new OllamaPromptExtractor(_logger);
         var json = """
                    {
                      "model": "llama3",
@@ -63,7 +64,7 @@ public sealed class OllamaPromptExtractorTests
     public void TryExtract_MissingPromptProperty_ReturnsFalse()
     {
         // Arrange
-        var extractor = new OllamaPromptExtractor(_loggerMock.Object);
+        var extractor = new OllamaPromptExtractor(_logger);
         var json = """
                    {
                      "model": "llama3"
@@ -82,7 +83,7 @@ public sealed class OllamaPromptExtractorTests
     public void TryExtract_PromptIsNotString_ReturnsFalse()
     {
         // Arrange
-        var extractor = new OllamaPromptExtractor(_loggerMock.Object);
+        var extractor = new OllamaPromptExtractor(_logger);
         var json = """
                    {
                      "prompt": 12345
@@ -103,7 +104,7 @@ public sealed class OllamaPromptExtractorTests
     public void TryExtract_EmptyOrWhitespacePrompt_ReturnsFalse(string json)
     {
         // Arrange
-        var extractor = new OllamaPromptExtractor(_loggerMock.Object);
+        var extractor = new OllamaPromptExtractor(_logger);
 
         // Act
         bool result = extractor.TryExtract(json, out var prompt);
@@ -117,7 +118,7 @@ public sealed class OllamaPromptExtractorTests
     public void TryExtract_InvalidJson_ReturnsFalse()
     {
         // Arrange
-        var extractor = new OllamaPromptExtractor(_loggerMock.Object);
+        var extractor = new OllamaPromptExtractor(_logger);
         var invalidJson = "{ this is not valid json";
 
         // Act
