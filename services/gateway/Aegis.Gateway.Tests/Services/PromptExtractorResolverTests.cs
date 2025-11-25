@@ -1,5 +1,6 @@
 using Aegis.Gateway.Services;
 using Aegis.Gateway.Services.PromptExtractors;
+using Moq;
 using Yarp.ReverseProxy.Configuration;
 
 namespace Aegis.Gateway.Tests.Services;
@@ -10,34 +11,27 @@ public sealed class PromptExtractorResolverTests
     public void TryExtractPrompt_WhenRouteConfigIsNull_ReturnsFalse_AndPromptIsEmpty()
     {
         // Arrange
-        var body = "test-body";
-        var extractor = new TestExtractor("ollama");
-        var resolver = new PromptExtractorResolver(new[] { extractor });
-
+        var body = "some-body";
+        Mock<IPromptExtractor> extractorMock = CreateExtractorMock("failing-extractor");
+        var resolver = new PromptExtractorResolver(new[] { extractorMock.Object });
+        
         // Act
         bool result = resolver.TryExtractPrompt(routeConfig: null, body, out var prompt);
 
         // Assert
         Assert.False(result);
         Assert.Equal(string.Empty, prompt); 
-        Assert.Empty(extractor.ReceivedBodies);
+        extractorMock.Verify(x => x.TryExtract(It.IsAny<string>(), out It.Ref<string>.IsAny), Times.Never);
     }
 
     [Fact]
     public void TryExtractPrompt_WhenMetadataIsNull_ReturnsFalse_AndPromptIsEmpty()
     {
         // Arrange
-        var body = "test-body";
-        var extractor = new TestExtractor("ollama");
-        var routeConfig = new RouteConfig
-        {
-            RouteId = "test",
-            ClusterId = "cluster-1",
-            Match = new RouteMatch(),
-            Metadata = null // no metadata
-        };
-
-        var resolver = new PromptExtractorResolver(new[] { extractor });
+        var body = "some-body";
+        Mock<IPromptExtractor> extractorMock = CreateExtractorMock("failing-extractor");
+        RouteConfig routeConfig = CreateRouteConfig(promptFormat: null, withMetadata: false);
+        var resolver = new PromptExtractorResolver(new[] { extractorMock.Object });
 
         // Act
         bool result = resolver.TryExtractPrompt(routeConfig, body, out var prompt);
@@ -45,18 +39,17 @@ public sealed class PromptExtractorResolverTests
         // Assert
         Assert.False(result);
         Assert.Equal(string.Empty, prompt);
-        Assert.Empty(extractor.ReceivedBodies);
+        extractorMock.Verify(x => x.TryExtract(It.IsAny<string>(), out It.Ref<string>.IsAny), Times.Never);
     }
 
     [Fact]
     public void TryExtractPrompt_WhenPromptFormatMissing_ReturnsFalse_AndPromptIsEmpty()
     {
         // Arrange
-        var body = "test-body";
-        var extractor = new TestExtractor("ollama");
+        var body = "some-body";
+        Mock<IPromptExtractor> extractorMock = CreateExtractorMock("failing-extractor");
         RouteConfig routeConfig = CreateRouteConfig(promptFormat: null, withMetadata: true);
-
-        var resolver = new PromptExtractorResolver(new[] { extractor });
+        var resolver = new PromptExtractorResolver(new[] { extractorMock.Object });
 
         // Act
         bool result = resolver.TryExtractPrompt(routeConfig, body, out var prompt);
@@ -64,7 +57,7 @@ public sealed class PromptExtractorResolverTests
         // Assert
         Assert.False(result);
         Assert.Equal(string.Empty, prompt);
-        Assert.Empty(extractor.ReceivedBodies);
+        extractorMock.Verify(x => x.TryExtract(It.IsAny<string>(), out It.Ref<string>.IsAny), Times.Never);
     }
 
     [Fact]
@@ -72,34 +65,49 @@ public sealed class PromptExtractorResolverTests
     {
         // Arrange
         var body = "some-body";
-        var knownExtractor = new TestExtractor("ollama");
+        var extractorPromptResult = "something"; 
+        Mock<IPromptExtractor> extractorMock = CreateExtractorMock(
+            name: "failing-extractor",
+            setupTryExtract: true,
+            tryExtractResult: false,
+            outPrompt: extractorPromptResult);
+        
+        var resolver = new PromptExtractorResolver(new[] { extractorMock.Object });
         RouteConfig routeConfig = CreateRouteConfig(promptFormat: "unknown-format");
-
-        var resolver = new PromptExtractorResolver(new[] { knownExtractor });
-
+        
         // Act
         var result = resolver.TryExtractPrompt(routeConfig, body, out var prompt);
 
         // Assert
         Assert.False(result);
         Assert.Equal(string.Empty, prompt);
-        Assert.Empty(knownExtractor.ReceivedBodies);
+        extractorMock.Verify(x => x.TryExtract(It.IsAny<string>(), out It.Ref<string>.IsAny), Times.Never);
     }
 
     [Fact]
     public void TryExtractPrompt_WhenPromptFormatMatches_ReturnsTrue_AndUsesExtractor()
     {
         // Arrange
-        var body = "hello world";
-        var ollamaExtractor = new TestExtractor("ollama");
-        var otherExtractor = new TestExtractor("openai");
+        var body = "some-body";
+        var extractorPromptResult = "something"; 
+        Mock<IPromptExtractor> ollamaExtractorMock = CreateExtractorMock(
+            name: "ollama",
+            setupTryExtract: true,
+            tryExtractResult: true,
+            outPrompt: extractorPromptResult);
+        
+        Mock<IPromptExtractor> otherExtractorMock = CreateExtractorMock(
+            name: "openai",
+            setupTryExtract: true,
+            tryExtractResult: false,
+            outPrompt: extractorPromptResult);
 
         RouteConfig routeConfig = CreateRouteConfig(promptFormat: "ollama");
 
         var resolver = new PromptExtractorResolver(new IPromptExtractor[]
         {
-            ollamaExtractor,
-            otherExtractor
+            ollamaExtractorMock.Object,
+            otherExtractorMock.Object
         });
 
         // Act
@@ -107,27 +115,29 @@ public sealed class PromptExtractorResolverTests
 
         // Assert
         Assert.True(result);
-        Assert.Equal("ollama:hello world", prompt);
-
-        Assert.Single(ollamaExtractor.ReceivedBodies);
-        Assert.Equal(body, ollamaExtractor.ReceivedBodies[0]);
-
-        Assert.Empty(otherExtractor.ReceivedBodies);
+        Assert.Equal(extractorPromptResult, prompt);
+        ollamaExtractorMock.Verify(x => x.TryExtract(It.IsAny<string>(), out It.Ref<string>.IsAny), Times.Once);
+        otherExtractorMock.Verify(x => x.TryExtract(It.IsAny<string>(), out It.Ref<string>.IsAny), Times.Never);
     }
 
     [Fact]
     public void TryExtractPrompt_IsCaseInsensitiveOnPromptFormat()
     {
         // Arrange
-        var body = "prompt";
-        var ollamaExtractor = new TestExtractor("ollama");
+        var body = "something";
+        var extractorPromptResult = "something"; 
+        Mock<IPromptExtractor> ollamaExtractorMock = CreateExtractorMock(
+            name: "ollama",
+            setupTryExtract: true,
+            tryExtractResult: true,
+            outPrompt: extractorPromptResult);
 
         // PromptFormat in UpperCase
         RouteConfig routeConfig = CreateRouteConfig(promptFormat: "OLLAMA");
 
         var resolver = new PromptExtractorResolver(new IPromptExtractor[]
         {
-            ollamaExtractor
+            ollamaExtractorMock.Object
         });
 
         // Act
@@ -135,25 +145,29 @@ public sealed class PromptExtractorResolverTests
 
         // Assert
         Assert.True(result);
-        Assert.Equal("ollama:prompt", prompt);
+        Assert.Equal(extractorPromptResult, prompt);
+        ollamaExtractorMock.Verify(x => x.TryExtract(It.IsAny<string>(), out It.Ref<string>.IsAny), Times.Once);
+    }
 
-        Assert.Single(ollamaExtractor.ReceivedBodies);
-        Assert.Equal(body, ollamaExtractor.ReceivedBodies[0]);
+    private static Mock<IPromptExtractor> CreateExtractorMock(
+        string name,
+        bool setupTryExtract = false,
+        bool tryExtractResult = false,
+        string? outPrompt = null)
+    {
+        var mock = new Mock<IPromptExtractor>();
+        mock.SetupGet(x => x.Name).Returns(name);
+
+        if (setupTryExtract)
+        {
+            var localOut = outPrompt ?? string.Empty;
+            mock.Setup(x => x.TryExtract(It.IsAny<string>(), out localOut))
+                .Returns(tryExtractResult);
+        }
+
+        return mock;
     }
     
-    private sealed class TestExtractor(string name) : IPromptExtractor
-    {
-        public string Name { get; } = name;
-
-        public List<string> ReceivedBodies { get; } = [];
-
-        public string Extract(string body)
-        {
-            ReceivedBodies.Add(body);
-            return $"{Name}:{body}";
-        }
-    }
-
     private static RouteConfig CreateRouteConfig(
         string routeId = "test-route",
         string? promptFormat = null,

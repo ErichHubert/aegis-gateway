@@ -21,7 +21,6 @@ public sealed class PromptExtractorResolver(
         if (!_extractors.TryGetValue(format, out var extractor))
             return false;
 
-        prompt = extractor.Extract(body);
-        return true;
+        return extractor.TryExtract(body, out prompt);
     }
 }
