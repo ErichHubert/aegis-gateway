@@ -1,14 +1,15 @@
-using Aegis.Gateway.Extensions;
+using Aegis.Gateway.DependencyInjection;
+using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
-using Aegis.Gateway.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //load configuration
 builder.Services.Configure<PromptInspectionSettings>(builder.Configuration.GetSection("PromptInspectionService"));
 
-//Add PromptInspectionService
+//Add PromptServices
 builder.Services.AddPromptInspectionService();
+builder.Services.AddPromptExtractionService();
 
 // Add GlobalExceptionHandler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

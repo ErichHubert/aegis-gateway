@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Models;
 using Aegis.Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,14 +12,15 @@ namespace Aegis.Gateway.Middleware;
 public sealed class PromptInspectionStep(
     RequestDelegate next,
     IPromptInspectionClient promptInspectionClient,
+    IPromptExtractorResolver promptExtractorResolver,
     ILogger<PromptInspectionStep> logger)
 {
     public async Task InvokeAsync(HttpContext context)
     {
-        var ct = context.RequestAborted;
+        CancellationToken ct = context.RequestAborted;
 
-        var proxyFeature = context.Features.Get<IReverseProxyFeature>();
-        var routeConfig = proxyFeature?.Route.Config;
+        IReverseProxyFeature? proxyFeature = context.Features.Get<IReverseProxyFeature>();
+        RouteConfig? routeConfig = proxyFeature?.Route.Config;
 
         if (!ShouldInspectRoute(routeConfig))
         {
@@ -29,11 +31,20 @@ public sealed class PromptInspectionStep(
 
         logger.LogInformation("Prompt inspection started for route {RouteId}", routeConfig?.RouteId);
 
-        var body = await ReadRequestBodyAsync(context.Request, ct);
-        var promptText = ExtractPromptFromOllamaRequest(body);
-        var meta = CreateMeta(context, routeConfig);
+        string body = await ReadRequestBodyAsync(context.Request, ct);
+        PromptInspectionMeta meta = CreateMeta(context, routeConfig);
+        
+        if (!promptExtractorResolver.TryExtractPrompt(routeConfig, body, out var promptText))
+        {
+            logger.LogError(
+                "Prompt inspection is enabled for route {RouteId}, but no valid PromptFormat/extractor is configured. Blocking request.",
+                routeConfig?.RouteId);
 
-        var piResponse = await promptInspectionClient.InspectAsync(promptText, meta, ct);
+            await WriteMisconfiguredResponseAsync(context, ct);
+            return;
+        }
+
+        PromptInspectionResponse piResponse = await promptInspectionClient.InspectAsync(promptText, meta, ct);
 
         if (!piResponse.IsAllowed)
         {
@@ -89,34 +100,28 @@ public sealed class PromptInspectionStep(
             }
         };
 
-        context.Response.StatusCode = problem.Status ?? StatusCodes.Status403Forbidden;
+        context.Response.StatusCode = problem.Status.Value;
         context.Response.ContentType = "application/problem+json";
 
         await context.Response.WriteAsJsonAsync(problem, ct);
     }
-
-    private static string ExtractPromptFromOllamaRequest(string json)
+    
+    private async Task WriteMisconfiguredResponseAsync(
+        HttpContext context,
+        CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return json;
-
-        try
+        var problem = new ProblemDetails
         {
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "Prompt inspection misconfigured",
+            Detail = "Prompt inspection is enabled for this route, but the gateway could not extract the prompt.",
+            Type = "https://aegis-gateway/errors/prompt-extraction-failed",
+            Instance = context.Request.Path
+        };
 
-            if (root.TryGetProperty("prompt", out var promptProp) &&
-                promptProp.ValueKind == JsonValueKind.String)
-            {
-                return promptProp.GetString() ?? json;
-            }
+        context.Response.StatusCode = problem.Status.Value;
+        context.Response.ContentType = "application/problem+json";
 
-            return json;
-        }
-        catch
-        {
-            // If anything goes wrong, just return the raw JSON
-            return json;
-        }
+        await context.Response.WriteAsJsonAsync(problem, ct);
     }
 }
