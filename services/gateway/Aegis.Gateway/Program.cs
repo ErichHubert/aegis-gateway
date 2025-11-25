@@ -1,4 +1,4 @@
-using Aegis.Gateway.Extensions;
+using Aegis.Gateway.DependencyInjection;
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
 

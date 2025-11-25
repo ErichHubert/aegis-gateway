@@ -1,7 +1,7 @@
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Microsoft.Extensions.Options;
 
-namespace Aegis.Gateway.Extensions;
+namespace Aegis.Gateway.DependencyInjection;
 
 public static class PromptInspectionServiceExtension
 {
