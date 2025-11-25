@@ -4,5 +4,5 @@ namespace Aegis.Gateway.Services;
 
 public interface IPromptExtractorResolver
 {
-    string ExtractPrompt(RouteConfig? routeConfig, string body);
+    bool TryExtractPrompt(RouteConfig? routeConfig, string body, out string prompt);
 }
