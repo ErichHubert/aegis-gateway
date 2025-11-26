@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -15,10 +15,11 @@ class Settings(BaseSettings):
     # enable_pii_ml: bool = False
     # enable_injection_ml: bool = False
 
-    class Config:
-        env_prefix = "AEGIS_ML_"
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_prefix="AEGIS_ML_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
 
 
 settings = Settings()
