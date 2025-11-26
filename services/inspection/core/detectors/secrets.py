@@ -1,34 +1,37 @@
-from __future__ import annotations
-
 import re
 from typing import List
-from core.models import Finding
-
-# Very simple demo patterns – extend later.
-AWS_KEY_REGEX = re.compile(r"AKIA[0-9A-Z]{16}")
-GENERIC_TOKEN_REGEX = re.compile(r"[A-Za-z0-9_\-]{24,}")
+from core.models import Finding 
 
 
-def find_secrets(text: str) -> List[Finding]:
-    """Search for obvious secrets in the text.
+_SECRET_PATTERNS = [
+    (
+        "secret_aws_access_key", 
+        re.compile(r"AKIA[0-9A-Z]{16}"), 
+        "Possible AWS Access Key detected."
+    ),
+    (
+        "secret_generic_token",
+        re.compile(r"[A-Za-z0-9_\-]{20,}"), 
+        "High-entropy token-like string detected."
+    ),
+]
 
-    Later:
-    - more provider-specific patterns
-    - entropy-based checks
-    """
+
+def detect_secrets(prompt: str) -> List[Finding]:
     findings: List[Finding] = []
 
-    if AWS_KEY_REGEX.search(text):
-        findings.append(Finding(
-            type="secret_aws_access_key",
-            message="Potential AWS access key detected."
-        ))
-
-    # Extremely naive heuristic: long token-like strings
-    if GENERIC_TOKEN_REGEX.search(text):
-        findings.append(Finding(
-            type="secret_generic_token",
-            message="Potential secret-like token detected (length >= 24)."
-        ))
+    for type_id, pattern, message in _SECRET_PATTERNS:
+        for match in pattern.finditer(prompt):
+            start, end = match.span()
+            snippet = prompt[start:end]
+            findings.append(
+                Finding(
+                    type=type_id,
+                    start=start,
+                    end=end,
+                    snippet=snippet,
+                    message=message
+                )
+            )
 
     return findings
