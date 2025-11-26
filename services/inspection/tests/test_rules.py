@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from core.models import PromptInspectionRequest
 from core.rules import analyze_prompt
 

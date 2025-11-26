@@ -7,12 +7,20 @@ from infra.config import settings
 
 app = FastAPI(
     title=settings.app_name,
-    version="0.1.0",
+    description=settings.app_desc,
+    version=settings.app_version,
+    docs_url=settings.docs_url,
+    redoc_url=settings.redoc_url,
+    openapi_url=settings.openapi_url
 )
 
 
-@app.post("/inspect", response_model=PromptInspectionResponse)
+@app.post(
+    "/inspect",
+    response_model=PromptInspectionResponse,
+    summary="Inspect a prompt for security issues",
+    tags=["inspection"],
+)
 async def inspect(req: PromptInspectionRequest) -> PromptInspectionResponse:
-    """Main endpoint: called by the gateway to inspect a prompt."""
-    # analyze_prompt is synchronous but fast enough to call from an async route
+    """Runs all enabled detectors on the given prompt and returns findings."""
     return analyze_prompt(req)
