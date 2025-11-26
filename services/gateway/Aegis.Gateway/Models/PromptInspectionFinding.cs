@@ -15,4 +15,7 @@ public sealed class PromptInspectionFinding
 
     [JsonPropertyName("snippet")]
     public string? Snippet { get; set; }
+    
+    [JsonPropertyName("message")]
+    public string? Message { get; set; }
 }
