@@ -384,3 +384,9 @@ Icon
 ehthumbs.db
 Thumbs.db
 
+#Rider and Python files
+.idea/
+.venv/
+__pycache__/
+*.pyc
+

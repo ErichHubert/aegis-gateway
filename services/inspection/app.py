@@ -1,57 +1,26 @@
+from __future__ import annotations
+
 from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List, Optional
+from core.models import PromptInspectionRequest, PromptInspectionResponse
+from core.rules import analyze_prompt
+from infra.config import settings
 
-app = FastAPI()
-
-# ==== Request / Response Modelle (möglichst nah an deinem .NET-Modell) ====
-
-class PromptInspectionMeta(BaseModel):
-    userId: Optional[str] = None
-    source: Optional[str] = None
-
-
-class PromptInspectionRequest(BaseModel):
-    prompt: str
-    meta: Optional[PromptInspectionMeta] = None
+app = FastAPI(
+    title=settings.app_name,
+    description=settings.app_desc,
+    version=settings.app_version,
+    docs_url=settings.docs_url,
+    redoc_url=settings.redoc_url,
+    openapi_url=settings.openapi_url
+)
 
 
-class Finding(BaseModel):
-    type: str
-    message: str
-
-
-class PromptInspectionResponse(BaseModel):
-    isAllowed: bool  # True | False
-    findings: List[Finding]
-
-
-# ==== Echo-Logik ====
-@app.post("/inspect", response_model=PromptInspectionResponse)
-async def inspect(req: PromptInspectionRequest):
-    """
-    Echo-PromptInsepction-Service:
-    - allows all prompts by default
-    - adds a demo finding if the prompt contains the word "block"
-    """
-
-    findings: List[Finding] = []
-
-    isallowed = True
-    if "block" in req.prompt.lower():
-        isallowed = False
-        findings.append(Finding(
-            type="demo_rule",
-            message="Prompt contains the word 'block', demo decision=block"
-        ))
-
-    # Debug-Finding with Meta-Infos
-    findings.append(Finding(
-        type="echo_meta",
-        message=f"userId={req.meta.userId if req.meta else None}, source={req.meta.source if req.meta else None}"
-    ))
-
-    return PromptInspectionResponse(
-        isAllowed=isallowed,
-        findings=findings
-    )
+@app.post(
+    "/inspect",
+    response_model=PromptInspectionResponse,
+    summary="Inspect a prompt for security issues",
+    tags=["inspection"],
+)
+async def inspect(req: PromptInspectionRequest) -> PromptInspectionResponse:
+    """Runs all enabled detectors on the given prompt and returns findings."""
+    return analyze_prompt(req)
