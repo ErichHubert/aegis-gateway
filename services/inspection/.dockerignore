@@ -2,8 +2,10 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.venv/
-.idea/
-.vscode/
-tests/
 .env
+.vscode/
+.idea/
+.git/
+tests/
+*.log
+.venv/
