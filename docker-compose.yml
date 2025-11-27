@@ -30,7 +30,7 @@ services:
     environment:
       # ASP.NET Core standard env
       - ASPNETCORE_ENVIRONMENT=Development
-      # this MUST match your .NET options binding: PromptInspection:BaseUrl
+      # this MUST match your .NET options binding: PromptInspectionService:BaseAddress
       - PromptInspectionService__BaseAddress=http://inspection:8000
       # if you want YARP to reach Ollama on the host:
       # - Ollama__BaseUrl=http://host.docker.internal:11434
