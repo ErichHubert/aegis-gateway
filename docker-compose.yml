@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  inspection:
+    build:
+      context: ./services/inspection
+      dockerfile: Dockerfile
+    image: aegis-inspection:dev
+    container_name: aegis-inspection
+    # expose FastAPI/uvicorn
+    ports:
+      - "8000:8000"
+    environment:
+      # matches your Settings in infra/config.py (pydantic BaseSettings)
+      - AEGIS_ML_APP_NAME=Aegis ML Inspection Service
+      - AEGIS_ML_LOG_LEVEL=INFO
+    networks:
+      - aegis-net
+
+  gateway:
+    build:
+      context: ./services/gateway
+      dockerfile: Dockerfile
+    image: aegis-gateway:dev
+    container_name: aegis-gateway
+    depends_on:
+      - inspection
+    ports:
+      - "8080:8080"
+    environment:
+      # ASP.NET Core standard env
+      - ASPNETCORE_ENVIRONMENT=Development
+      # this MUST match your .NET options binding: PromptInspection:BaseUrl
+      - PromptInspectionService__BaseAddress=http://inspection:8000
+      # if you want YARP to reach Ollama on the host:
+      # - Ollama__BaseUrl=http://host.docker.internal:11434
+    networks:
+      - aegis-net
+
+networks:
+  aegis-net:
+    driver: bridge
