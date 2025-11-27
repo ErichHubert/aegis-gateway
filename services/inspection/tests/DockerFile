@@ -1,0 +1,29 @@
+# services/inspection/Dockerfile
+
+FROM python:3.13-slim
+
+# Disable .pyc bytecode generation:
+# - Reduces image size and avoids stale cache issues in containers
+# - Recommended for long-running services (FastAPI, workers, etc.)
+# NOTE:
+# - Do NOT disable this in serverless/FaaS environments (e.g. AWS Lambda),
+#   where .pyc files can noticeably improve cold start performance.
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Make Python output unbuffered so logs appear immediately in `docker logs`
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app code
+COPY . .
+
+# Expose port used by uvicorn
+EXPOSE 8000
+
+# Start FastAPI via uvicorn
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
