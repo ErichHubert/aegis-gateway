@@ -1,10 +1,12 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-# Create a non-root user (security best practice)
-RUN addgroup --system app && adduser --system --ingroup app app
+﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble AS base
 # Set working directory for the app
 WORKDIR /app
 # ASP.NET Core default port inside the container
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+
+# Optional hardening: disable diagnostics in production containers
+# (prevents attaching debuggers/profilers inside the container)
+ENV DOTNET_EnableDiagnostics=0
 EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
@@ -25,8 +27,8 @@ RUN dotnet publish "Aegis.Gateway.csproj" \
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-RUN chown -R app:app /app
+# Copy published bits and assign ownership to existing 'app' user in base image
+COPY --chown=app:app --from=publish /app/publish .
 USER app
 
 # ENTRYPOINT for the ASP.NET Core app
