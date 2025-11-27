@@ -12,8 +12,8 @@ public static class PromptInspectionServiceExtension
         {
             PromptInspectionSettings settings = context.GetRequiredService<IOptions<PromptInspectionSettings>>().Value;
     
-            client.BaseAddress = new Uri(settings.BaseUri);
-            client.Timeout = TimeSpan.FromSeconds(5);
+            client.BaseAddress = new Uri(settings.BaseAddress);
+            client.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
         });
 
         return services;
