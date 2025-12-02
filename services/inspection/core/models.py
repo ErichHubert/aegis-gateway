@@ -26,6 +26,7 @@ class Finding(BaseModel):
     end: int = Field(..., description="End index (exclusive) of the finding in the prompt.")
     snippet: str = Field(..., description="Snippet of the prompt where the finding was detected.")
     message: str = Field(..., description="Human-readable explanation of the finding.")
+    severity: str = Field(..., description="Severity level of the finding, e.g. 'low', 'medium', 'high'.")
 
 
 class PromptInspectionResponse(BaseModel):

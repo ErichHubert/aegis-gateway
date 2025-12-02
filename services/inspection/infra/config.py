@@ -10,8 +10,10 @@ SeverityLevel = Literal["low", "medium", "high"]
 
 
 class DetectionSettings(BaseModel):
-    """Settings for detection behavior (e.g. severity per finding type)."""
+    """Settings for detection behavior (e.g. severity per finding type and PII mapping)."""
 
+    # Central mapping: internal finding type -> severity
+    # These keys sollten mit Finding.type übereinstimmen (z.B. "pii_email").
     severity_by_type: Dict[str, SeverityLevel] = Field(
         default_factory=lambda: {
             # secrets
@@ -19,7 +21,7 @@ class DetectionSettings(BaseModel):
             "secret_generic_token": "high",
             "secret_jwt": "high",
             "secret_pem_block": "high",
-            # PII
+            # PII ( internal canonical types)
             "pii_email": "medium",
             "pii_phone": "medium",
             "pii_iban": "high",
@@ -28,6 +30,24 @@ class DetectionSettings(BaseModel):
             "prompt_injection_suspicious": "medium",
         }
     )
+
+    # Default severity used when a finding type is not explicitly listed above
+    pii_default_severity: SeverityLevel = "medium"
+
+    # Map Presidio entity types -> internal canonical types used in severity_by_type
+    # Example: Presidio "EMAIL_ADDRESS" -> internal "pii_email"
+    pii_type_map: Dict[str, str] = Field(
+        default_factory=lambda: {
+            "EMAIL_ADDRESS": "pii_email",
+            "PHONE_NUMBER": "pii_phone",
+            "IBAN_CODE": "pii_iban",
+        }
+    )
+
+    # PII / Presidio related
+    pii_default_lang: str = "en"
+    pii_spacy_model: str = "en_core_web_lg"
+    pii_score_threshold: float = 0.35
 
 
 class PolicySettings(BaseModel):

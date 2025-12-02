@@ -1,48 +1,52 @@
 from __future__ import annotations
 
-import re
 from typing import List
+
 from core.models import Finding
-
-__all__ = ["detect_pii"]
-
-_PII_PATTERN = [
-    (
-        "pii_email",
-        re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"),
-        "Possible email address detected."
-    ),
-    (
-        "pii_phone",
-        re.compile(r"\+?[0-9][0-9\s\-\/]{6,}"),
-        "Possible phone number detected."
-    ),
-    (
-        "pii_iban",
-        re.compile(r"\b[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}\b"),
-        "Possible IBAN detected."
-    ),
-]
+from core.engines.presidio_engine import get_analyzer
+from infra.config import settings
 
 
 def detect_pii(prompt: str) -> List[Finding]:
-    findings: List[Finding] = []
+    """Detect PII using Presidio with a spaCy backend and map severities from config."""
 
     if not prompt:
-        return findings
-    
-    for type_id, pattern, message in _PII_PATTERN:
-        for match in pattern.finditer(prompt):
-            start, end = match.span()
-            snippet = prompt[start:end]
-            findings.append(
-                Finding(
-                    type=type_id,
-                    start=start,
-                    end=end,
-                    snippet=snippet,
-                    message=message
-                )
+        return []
+
+    analyzer = get_analyzer()
+
+    results = analyzer.analyze(
+        text=prompt,
+        language=settings.detection.pii_default_lang,
+    )
+
+    findings: List[Finding] = []
+
+    for r in results:
+        # Presidio entity_type examples: "EMAIL_ADDRESS", "PHONE_NUMBER", "IBAN_CODE"
+        presidio_type = r.entity_type
+
+        # Map Presidio type -> internal canonical type (e.g. "pii_email")
+        internal_type = settings.detection.pii_type_map.get(
+            presidio_type,
+            f"pii_{presidio_type.lower()}",  # sane fallback
+        )
+
+        # Map internal type -> severity ("low" | "medium" | "high")
+        severity = settings.detection.severity_by_type.get(
+            internal_type,
+            settings.detection.pii_default_severity,
+        )
+
+        findings.append(
+            Finding(
+                type=internal_type,
+                start=r.start,
+                end=r.end,
+                snippet=prompt[r.start:r.end],
+                message=f"Detected PII entity '{presidio_type}'.",
+                severity=severity,
             )
+        )
 
     return findings
