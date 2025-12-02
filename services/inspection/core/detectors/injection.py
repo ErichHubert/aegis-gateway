@@ -14,9 +14,7 @@ _INJECTION_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ),
     (
         "prompt_injection_disregard_safety",
-        re.compile(
-            r"(?i)(disregard|ignore) (the )?(safety|security|policy|guidelines?)",
-        ),
+        re.compile(r"(?i)(disregard|ignore) (the )?(safety|security|policy|guidelines?)",),
         "Prompt attempts to bypass safety or security rules.",
     ),
     (
@@ -26,23 +24,17 @@ _INJECTION_PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ),
     (
         "prompt_injection_change_identity",
-        re.compile(
-            r"(?i)(forget that you are|you are not an ai|act as a human)",
-        ),
+        re.compile(r"(?i)(forget that you are|you are not an ai|act as a human)",),
         "Prompt asks the model to change or hide its identity.",
     ),
     (
         "prompt_injection_reveal_system_prompt",
-        re.compile(
-            r"(?i)(show|reveal|print) (your )?(system prompt|hidden instructions?)",
-        ),
+        re.compile(r"(?i)(show|reveal|print) (your )?(system prompt|hidden instructions?)",),
         "Prompt tries to exfiltrate the system prompt or hidden instructions.",
     ),
     (
         "prompt_injection_override_priority",
-        re.compile(
-            r"(?i)(follow my instructions.*even if|obey me instead of|my instructions override)",
-        ),
+        re.compile(r"(?i)(follow my instructions.*even if|obey me instead of|my instructions override)",),
         "Prompt explicitly tries to override higher-priority instructions.",
     ),
 ]
