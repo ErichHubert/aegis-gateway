@@ -25,7 +25,7 @@ public class PromptInspectionHealthCheck(
             var client = httpClientFactory.CreateClient("inspection-health");
             client.BaseAddress = new Uri(_options.BaseAddress);
 
-            using var response = await client.GetAsync("/inspect/health", cancellationToken);
+            using var response = await client.GetAsync("/health/ready", cancellationToken);
 
             if (response.StatusCode == HttpStatusCode.OK)
                 return HealthCheckResult.Healthy("Prompt Inspection service reachable.");
