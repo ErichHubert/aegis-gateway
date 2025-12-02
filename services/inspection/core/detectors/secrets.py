@@ -16,11 +16,24 @@ _SECRET_PATTERNS = [
         re.compile(r"[A-Za-z0-9_\-]{20,}"), 
         "High-entropy token-like string detected."
     ),
+    (
+        "secret_jwt",
+        re.compile(r"eyJ[a-zA-Z0-9_\-]+?\.[a-zA-Z0-9_\-]+?\.[a-zA-Z0-9_\-]+"),
+        "Possible JWT token detected."
+    ),
+    (
+        "secret_pem_block",
+        re.compile(r"-----BEGIN (?:RSA |EC |)PRIVATE KEY-----"),
+        "Possible private key block detected."
+    ),
 ]
 
 
 def detect_secrets(prompt: str) -> List[Finding]:
     findings: List[Finding] = []
+
+    if not prompt:
+        return findings
 
     for type_id, pattern, message in _SECRET_PATTERNS:
         for match in pattern.finditer(prompt):

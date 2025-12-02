@@ -4,6 +4,8 @@ import re
 from typing import List
 from core.models import Finding
 
+__all__ = ["detect_pii"]
+
 _PII_PATTERN = [
     (
         "pii_email",
@@ -15,11 +17,20 @@ _PII_PATTERN = [
         re.compile(r"\+?[0-9][0-9\s\-\/]{6,}"),
         "Possible phone number detected."
     ),
+    (
+        "pii_iban",
+        re.compile(r"\b[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}\b"),
+        "Possible IBAN detected."
+    ),
 ]
 
 
 def detect_pii(prompt: str) -> List[Finding]:
     findings: List[Finding] = []
+
+    if not prompt:
+        return findings
+    
     for type_id, pattern, message in _PII_PATTERN:
         for match in pattern.finditer(prompt):
             start, end = match.span()
