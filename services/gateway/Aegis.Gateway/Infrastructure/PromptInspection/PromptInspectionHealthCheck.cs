@@ -1,0 +1,40 @@
+using System.Net;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
+
+namespace Aegis.Gateway.Infrastructure.PromptInspection;
+
+public class PromptInspectionHealthCheck(
+    IHttpClientFactory httpClientFactory,
+    IOptions<PromptInspectionSettings> options)
+    : IHealthCheck
+{
+    private readonly PromptInspectionSettings _options = options.Value;
+
+    public async Task<HealthCheckResult> CheckHealthAsync(
+        HealthCheckContext context,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_options.BaseAddress))
+        {
+            return HealthCheckResult.Unhealthy("PromptInspectionService BaseAddress is not configured.");
+        }
+
+        try
+        {
+            var client = httpClientFactory.CreateClient("inspection-health");
+            client.BaseAddress = new Uri(_options.BaseAddress);
+
+            using var response = await client.GetAsync("/inspect/health", cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+                return HealthCheckResult.Healthy("Prompt Inspection service reachable.");
+
+            return HealthCheckResult.Unhealthy($"Prompt Inspection service returned {response.StatusCode}.");
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy("Prompt Inspection service unreachable.", ex);
+        }
+    }
+}

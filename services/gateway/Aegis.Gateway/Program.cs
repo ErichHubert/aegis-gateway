@@ -1,6 +1,7 @@
 using Aegis.Gateway.DependencyInjection;
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,5 +26,6 @@ builder.Logging.AddConsole();
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.MapPromptInspectionHealthChecks();
 app.MapReverseProxy(proxyPipeline => proxyPipeline.UseMiddleware<PromptInspectionStep>());
 app.Run();
