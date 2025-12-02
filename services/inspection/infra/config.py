@@ -56,12 +56,12 @@ class Settings(BaseSettings):
     redoc_url: str = "/redoc"
     openapi_url: str = "/openapi.json"
     log_level: str = "INFO"
-    
+
     detection: DetectionSettings = DetectionSettings()
     policy: PolicySettings = PolicySettings()
 
     model_config = SettingsConfigDict(
-        env_prefix="AEGIS_ML_",
+        env_prefix="AEGIS_INSPECTION_",
         env_file=".env",
         env_file_encoding="utf-8",
     )
