@@ -79,9 +79,9 @@ gateway-run:
 gateway-docker-build:
 	docker build -t $(GATEWAY_IMAGE) $(GATEWAY_DIR)
 
-# Hinweis:
-# - erwartet ein Netzwerk 'aegis-net' und einen Container 'aegis-inspection' im gleichen Netz
-#   (oder du passt PromptInspectionService__BaseAddress entsprechend an).
+# Note:
+# - Expects a network named 'aegis-net' and a container 'aegis-inspection' in the same network
+#   (or you adjust PromptInspectionService__BaseAddress accordingly).
 gateway-docker-run:
 	docker run --rm \
 		--name aegis-gateway \
