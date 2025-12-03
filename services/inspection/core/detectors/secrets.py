@@ -45,7 +45,8 @@ def detect_secrets(prompt: str) -> List[Finding]:
                     start=start,
                     end=end,
                     snippet=snippet,
-                    message=message
+                    message=message,
+                    severity="HIGH",
                 )
             )
 
