@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Literal
+from typing import Dict, Literal, List
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -9,11 +9,34 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 SeverityLevel = Literal["low", "medium", "high"]
 
 
+class PiiContextSettings(BaseModel):
+    """Context-word configuration for PII entities.
+
+    Keys are Presidio entity types (e.g. 'EMAIL_ADDRESS', 'IBAN_CODE'),
+    values are lists of context words that boost detection confidence.
+    """
+
+    enabled: bool = True
+
+    # Map Presidio entity type -> list of context words
+    words: Dict[str, List[str]] = Field(
+        default_factory=lambda: {
+            # Built-in Presidio entities
+            "EMAIL_ADDRESS": ["email", "e-mail", "mail", "kontakt"],
+            "PHONE_NUMBER": ["phone", "telefon", "tel", "nummer"],
+            "IBAN_CODE": ["iban", "konto", "account", "bank"],
+            "CREDIT_CARD": ["credit", "karte", "visa", "mastercard"],
+            # Beispiel für spätere Custom-Entities
+            # "EMPLOYEE_ID": ["employee", "mitarbeiter", "personalnummer"],
+        }
+    )
+
+
 class DetectionSettings(BaseModel):
     """Settings for detection behavior (e.g. severity per finding type and PII mapping)."""
 
     # Central mapping: internal finding type -> severity
-    # These keys sollten mit Finding.type übereinstimmen (z.B. "pii_email").
+    # These keys should match Finding.type (e.g. "pii_email").
     severity_by_type: Dict[str, SeverityLevel] = Field(
         default_factory=lambda: {
             # secrets
@@ -21,7 +44,7 @@ class DetectionSettings(BaseModel):
             "secret_generic_token": "high",
             "secret_jwt": "high",
             "secret_pem_block": "high",
-            # PII ( internal canonical types)
+            # PII (internal canonical types)
             "pii_email": "medium",
             "pii_phone": "medium",
             "pii_iban": "high",
@@ -48,6 +71,9 @@ class DetectionSettings(BaseModel):
     pii_default_lang: str = "en"
     pii_spacy_model: str = "en_core_web_lg"
     pii_score_threshold: float = 0.35
+
+    # NEW: context-aware PII tuning
+    pii_context: PiiContextSettings = PiiContextSettings()
 
 
 class PolicySettings(BaseModel):
