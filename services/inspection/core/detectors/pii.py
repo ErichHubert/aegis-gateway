@@ -2,50 +2,52 @@ from __future__ import annotations
 
 from typing import List
 
+from presidio_analyzer import AnalyzerEngine, RecognizerResult
+
 from core.models import Finding
 from core.engines.presidio_engine import get_analyzer
-from infra.config import settings
+from core.config.loader import load_policy_config
+from services.inspection.core.config.models import AegisPolicyConfig, PiiConfig, PiiEntityConfig
 
 
 def detect_pii(prompt: str) -> List[Finding]:
-    """Detect PII using Presidio with a spaCy backend and map severities from config."""
+    """Detect PII using Presidio with a spaCy backend. Severities and enabled entities are driven by the YAML policy via the policy loader."""
 
     if not prompt:
         return []
 
-    analyzer = get_analyzer()
+    analyzer: AnalyzerEngine = get_analyzer()
+    policy: AegisPolicyConfig = load_policy_config()
+    pii_cfg: PiiConfig = policy.detection.pii
 
-    results = analyzer.analyze(
+    results: List[RecognizerResult] = analyzer.analyze(
         text=prompt,
-        language=settings.detection.pii_default_lang,
+        language=pii_cfg.default_lang,
+        score_threshold=pii_cfg.default_score_threshold,
     )
+
+    entities_cfg: dict[str, PiiEntityConfig] = pii_cfg.entities or {}
+    presidio_to_entity_cfg: dict[str, PiiEntityConfig]  = {e.presidio_type: e for e in entities_cfg.values()}
 
     findings: List[Finding] = []
 
     for r in results:
-        # Presidio entity_type examples: "EMAIL_ADDRESS", "PHONE_NUMBER", "IBAN_CODE"
-        presidio_type = r.entity_type
+        cfg: PiiEntityConfig | None = presidio_to_entity_cfg.get(r.entity_type)
+        if cfg is None or not cfg.enabled:
+            continue
 
-        # Map Presidio type -> internal canonical type (e.g. "pii_email")
-        internal_type = settings.detection.pii_type_map.get(
-            presidio_type,
-            f"pii_{presidio_type.lower()}",  # sane fallback
-        )
-
-        # Map internal type -> severity ("low" | "medium" | "high")
-        severity = settings.detection.severity_by_type.get(
-            internal_type,
-            settings.detection.pii_default_severity,
-        )
+        threshold: float = cfg.score_threshold or pii_cfg.default_score_threshold
+        if r.score < threshold:
+            continue
 
         findings.append(
             Finding(
-                type=internal_type,
+                type=cfg.id,
                 start=r.start,
                 end=r.end,
                 snippet=prompt[r.start:r.end],
-                message=f"Detected PII entity '{presidio_type}'.",
-                severity=severity,
+                message=f"Detected PII entity '{r.entity_type}'.",
+                severity=cfg.severity,
             )
         )
 
