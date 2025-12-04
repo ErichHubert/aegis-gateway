@@ -20,45 +20,149 @@ detection:
       enabled: true                   # OPTIONAL, default: true
       severity: high                  # REQUIRED
 
-  pii:
+    pii:
     default_lang: en                    # REQUIRED 
     default_spacy_model: en_core_web_lg # REQUIRED
     default_score_threshold: 0.35       # REQUIRED
 
     entities:
       email:
-        id: pii_email                 # REQUIRED 
-        presidio_type: EMAIL_ADDRESS  # REQUIRED
-        enabled: true                 # OPTIONAL, default: true
-        severity: medium              # REQUIRED
-        score_threshold: 0.3          # OPTIONAL, default: default_score_threshold
-        context_words:                # OPTIONAL
+        id: pii_email                 
+        presidio_type: EMAIL_ADDRESS  
+        enabled: true
+        severity: medium
+        score_threshold: 0.3
+        context_words:
           - email
           - e-mail
           - mail
           - contact
 
       phone:
-        id: pii_phone                 # REQUIRED
-        presidio_type: PHONE_NUMBER   # REQUIRED
-        enabled: true                 # OPTIONAL, default: true
-        severity: medium              # REQUIRED
-        action_override: block        # OPTIONAL, possible values: block, warn, allow
-        score_threshold: 0.3          # OPTIONAL, default: default_score_threshold
-        context_words:                # OPTIONAL
+        id: pii_phone
+        presidio_type: PHONE_NUMBER
+        enabled: true
+        severity: medium
+        score_threshold: 0.3
+        context_words:
           - phone
           - telephone
           - tel
           - number
 
       iban:
-        id: pii_iban                  # REQUIRED
-        presidio_type: IBAN_CODE      # REQUIRED
-        enabled: true                 # OPTIONAL, default: true    
-        severity: high                # REQUIRED
-        score_threshold: 0.3          # OPTIONAL, default: default_score_threshold
-        context_words:                # OPTIONAL
+        id: pii_iban
+        presidio_type: IBAN_CODE
+        enabled: true
+        severity: high
+        score_threshold: 0.3
+        context_words:
           - iban
+          - account
+          - bank
+
+      person:
+        id: pii_person
+        presidio_type: PERSON
+        enabled: true
+        severity: medium
+        score_threshold: 0.35
+        context_words:
+          - name
+          - full name
+          - contact person
+
+      location:
+        id: pii_location
+        presidio_type: LOCATION
+        enabled: true
+        severity: medium
+        score_threshold: 0.35
+        context_words:
+          - address
+          - city
+          - street
+          - place
+
+      organization:
+        id: pii_organization
+        presidio_type: ORGANIZATION
+        enabled: true
+        severity: medium
+        score_threshold: 0.4
+        context_words:
+          - company
+          - employer
+          - organization
+          - client
+
+      ip_address:
+        id: pii_ip_address
+        presidio_type: IP_ADDRESS
+        enabled: true
+        severity: high
+        score_threshold: 0.5
+        context_words:
+          - ip
+          - ip address
+          - host
+          - server
+
+      credit_card:
+        id: pii_credit_card
+        presidio_type: CREDIT_CARD
+        enabled: true
+        severity: high
+        score_threshold: 0.3
+        context_words:
+          - credit card
+          - card number
+          - visa
+          - mastercard
+
+      crypto_wallet:
+        id: pii_crypto_wallet
+        presidio_type: CRYPTO
+        enabled: true         # set to false if too noisy for you
+        severity: high
+        score_threshold: 0.5
+        context_words:
+          - wallet
+          - bitcoin
+          - btc
+          - address
+
+      date_time:
+        id: pii_datetime
+        presidio_type: DATE_TIME
+        enabled: true
+        severity: low
+        score_threshold: 0.5
+        context_words:
+          - date
+          - birthday
+          - dob
+          - appointment
+
+      # Region-specific / optional:
+      us_ssn:
+        id: pii_us_ssn
+        presidio_type: US_SSN
+        enabled: false        # turn on only if relevant
+        severity: high
+        score_threshold: 0.3
+        context_words:
+          - ssn
+          - social security
+
+      us_bank_account:
+        id: pii_us_bank_account
+        presidio_type: US_BANK_NUMBER
+        enabled: false
+        severity: high
+        score_threshold: 0.3
+        context_words:
+          - routing
           - account
           - bank
 
