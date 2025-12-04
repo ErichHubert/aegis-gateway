@@ -30,6 +30,5 @@ class Finding(BaseModel):
 
 
 class PromptInspectionResponse(BaseModel):
-    """Response back to the gateway: allow/deny plus a list of findings."""
-    isAllowed: bool = Field(..., description="True if the request should be allowed.")
+    """Response back to the gateway: list of findings."""
     findings: List[Finding] = Field(default_factory=list)

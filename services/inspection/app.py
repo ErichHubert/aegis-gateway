@@ -4,15 +4,23 @@ from fastapi import FastAPI
 from core.models import PromptInspectionRequest, PromptInspectionResponse
 from core.health import check_liveness, check_readiness
 from core.rules import analyze_prompt
-from infra.config import settings
 
 app = FastAPI(
-    title=settings.app_name,
-    description=settings.app_desc,
-    version=settings.app_version,
-    docs_url=settings.docs_url,
-    redoc_url=settings.redoc_url,
-    openapi_url=settings.openapi_url
+    title="Aegis ML Inspection Service",
+    description="""
+            Aegis ML Inspection Service
+
+            Inspects LLM prompts for:
+            - secrets (API keys, tokens)
+            - PII (emails, phone numbers, etc.)
+            - prompt injection indicators
+
+            Designed to be called from the Aegis Gateway.
+            """,
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 

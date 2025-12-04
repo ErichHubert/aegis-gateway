@@ -3,89 +3,37 @@ from __future__ import annotations
 from typing import List
 
 from core.models import PromptInspectionRequest, PromptInspectionResponse, Finding
-from core.detectors.secrets import detect_secrets
-from core.detectors.pii import detect_pii
-from core.detectors.injection import detect_prompt_injection
-from infra.config import settings  
+from core.detectors.protocols import IDetector
+from core.detectors.pii import PresidioPiiDetector
+from core.detectors.secret  import SecretRegexDetector
+from core.detectors.injection import InjectionPatternDetector
 
-__all__ = ["analyze_prompt"]
-
-# Order for comparing severity levels
-_SEVERITY_ORDER = {
-    "low": 1,
-    "medium": 2,
-    "high": 3,
-}
-
-
-def _get_severity(finding: Finding) -> str:
-    """
-    Resolve severity for a finding type.
-
-    Priority:
-    1. Explicit mapping from settings.detection.severity_by_type
-    2. Fallback by type prefix (secret_ / prompt_injection_ / pii_)
-    3. Default: "low"
-    """
-
-    mapping = settings.detection.severity_by_type
-    if finding.type in mapping:
-        return mapping[finding.type]
-
-    # Fallback by naming convention 
-    if finding.type.startswith("secret_"):
-        return "high"
-    if finding.type.startswith("prompt_injection_"):
-        return "high"
-    if finding.type.startswith("pii_"):
-        return "medium"
-
-    # Unknown everything-else
-    return "low"
-
-
-def _should_block(findings: List[Finding]) -> bool:
-    """
-    Decide whether the prompt should be blocked, based on:
-    - findings severities
-    - configured block threshold in settings.policy.block_severity
-    """
-    if not findings:
-        return False
-
-    block_severity = settings.policy.block_severity  # "low" | "medium" | "high"
-    block_level = _SEVERITY_ORDER[block_severity]
-
-    for f in findings:
-        sev = _get_severity(f)
-        level = _SEVERITY_ORDER.get(sev, 1)
-        if level >= block_level:
-            return True
-
-    return False
+# Static detector pipeline for now.
+# Each detector implements IDetector.detect(prompt: str) -> List[Finding]
+_DETECTORS: tuple[IDetector, ...] = (
+    SecretRegexDetector(),
+    PresidioPiiDetector(),
+    InjectionPatternDetector(),
+)
 
 
 def analyze_prompt(req: PromptInspectionRequest) -> PromptInspectionResponse:
     """
-    Central rule engine.
+    Central rule engine for the inspection service.
 
-    - invokes all detectors
-    - decides if the prompt is allowed (based on severity + policy)
-    - aggregates findings in a response
+    Responsibilities:
+    - fan-out the prompt to all configured detectors
+    - aggregate their findings
     """
     text = req.prompt or ""
     all_findings: List[Finding] = []
 
-    all_findings.extend(detect_secrets(text))
-    all_findings.extend(detect_pii(text))
-    all_findings.extend(detect_prompt_injection(text))
+    for detector in _DETECTORS:
+        # Each detector is responsible for:
+        # - reading its own config (severity, enabled flags, thresholds)
+        # - talking to Presidio / regex / ML, etc.
+        findings = detector.detect(text)
+        if findings:
+            all_findings.extend(findings)
 
-    # Policy:
-    # - severities are resolved per finding
-    # - settings.policy.block_severity decides from which level on we block
-    is_allowed = not _should_block(all_findings)
-
-    return PromptInspectionResponse(
-        isAllowed=is_allowed,
-        findings=all_findings,
-    )
+    return PromptInspectionResponse(findings=all_findings)
