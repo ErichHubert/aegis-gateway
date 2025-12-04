@@ -64,11 +64,5 @@ class DetectionConfig(BaseModel):
     prompt_injection: PromptInjectionConfig
 
 
-class PolicyConfig(BaseModel):
-    block_severity: SeverityLevel
-    warn_severity: SeverityLevel
-
-
-class AegisPolicyConfig(BaseModel):
+class InspectionConfig(BaseModel):
     detection: DetectionConfig
-    policy: PolicyConfig
