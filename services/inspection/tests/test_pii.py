@@ -9,7 +9,6 @@ def _get_finding(findings, type_id: str):
 
 
 def test_iban_is_detected_as_pii_iban():
-    # This is a valid German IBAN (official example from many docs)
     iban = "DE89 3704 0044 0532 0130 00"
     text = f"Please transfer the money to this account: {iban}."
 
@@ -20,14 +19,12 @@ def test_iban_is_detected_as_pii_iban():
     iban_finding = _get_finding(resp.findings, "pii_iban")
     assert iban_finding is not None, "Expected IBAN to be detected as pii_iban"
 
-    # Basic sanity checks on the finding
     assert "DE89" in iban_finding.snippet
     assert iban_finding.start >= 0
     assert iban_finding.end > iban_finding.start
 
 
 def test_iban_finding_has_high_severity_in_config():
-    # Same IBAN as above
     iban = "DE89 3704 0044 0532 0130 00"
     text = f"My IBAN is {iban}"
 
@@ -37,3 +34,5 @@ def test_iban_finding_has_high_severity_in_config():
     iban_finding = _get_finding(resp.findings, "pii_iban")
     assert iban_finding is not None, "Expected IBAN to be detected as pii_iban"
     assert iban_finding.severity == "high"
+    assert iban_finding.confidence is not None
+    assert 0.0 <= iban_finding.confidence <= 1.0

@@ -35,5 +35,5 @@ def test_analyze_prompt_detects_phone_pii():
 def test_analyze_prompt_detects_iban_pii():
     req = PromptInspectionRequest(prompt="My iban is DE89 3704 0044 0532 0130 00")
     res = analyze_prompt(req)
-    phone_findings = [f for f in res.findings if f.type == "pii_iban"]
-    assert len(phone_findings) > 0
+    iban_findings = [f for f in res.findings if f.type == "pii_iban"]
+    assert len(iban_findings) > 0

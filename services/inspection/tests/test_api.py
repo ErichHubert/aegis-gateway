@@ -22,3 +22,5 @@ def test_inspect_endpoint_blocks_prompt():
     assert "secret_aws_access_key" in types
     secret_finding = next(f for f in data["findings"] if f["type"] == "secret_aws_access_key")
     assert secret_finding["severity"] == "high"
+    assert secret_finding["confidence"] is not None
+    assert 0.0 <= secret_finding["confidence"] <= 1.0

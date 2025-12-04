@@ -88,6 +88,7 @@ class PresidioPiiDetector(IDetector):
                     snippet=prompt[result.start:result.end],
                     message=f"Detected PII entity '{result.entity_type}'.",
                     severity=cfg.severity,
+                    confidence=result.score,
                 )
             )
 

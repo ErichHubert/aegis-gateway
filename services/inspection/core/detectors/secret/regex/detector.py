@@ -120,6 +120,7 @@ class SecretRegexDetector(IDetector):
                         snippet=snippet,
                         message=p.message,
                         severity=p.severity,
+                        confidence=1.0,
                     )
                 )
 
