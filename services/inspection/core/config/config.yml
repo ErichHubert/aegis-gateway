@@ -20,7 +20,7 @@ detection:
       enabled: true                   # OPTIONAL, default: true
       severity: high                  # REQUIRED
 
-    pii:
+  pii:
     default_lang: en                    # REQUIRED 
     default_spacy_model: en_core_web_lg # REQUIRED
     default_score_threshold: 0.35       # REQUIRED
@@ -123,7 +123,7 @@ detection:
       crypto_wallet:
         id: pii_crypto_wallet
         presidio_type: CRYPTO
-        enabled: true         # set to false if too noisy for you
+        enabled: true         
         severity: high
         score_threshold: 0.5
         context_words:
@@ -143,12 +143,11 @@ detection:
           - birthday
           - dob
           - appointment
-
-      # Region-specific / optional:
+          
       us_ssn:
         id: pii_us_ssn
         presidio_type: US_SSN
-        enabled: false        # turn on only if relevant
+        enabled: true        
         severity: high
         score_threshold: 0.3
         context_words:
@@ -158,7 +157,7 @@ detection:
       us_bank_account:
         id: pii_us_bank_account
         presidio_type: US_BANK_NUMBER
-        enabled: false
+        enabled: true
         severity: high
         score_threshold: 0.3
         context_words:
