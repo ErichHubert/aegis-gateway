@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from presidio_analyzer import AnalyzerEngine, RecognizerRegistry
+from presidio_analyzer import AnalyzerEngine, EntityRecognizer, PatternRecognizer, RecognizerRegistry
 from presidio_analyzer.nlp_engine import NlpEngineProvider, NlpEngine
 
 from core.config.loader import load_config
@@ -38,10 +38,32 @@ def get_presidio_analyzer() -> AnalyzerEngine:
     registry = RecognizerRegistry()
     registry.load_predefined_recognizers(nlp_engine=nlp_engine)
 
-    analyzer = AnalyzerEngine(
+    for _, entity_cfg in (pii_cfg.entities or {}).items():
+        if not entity_cfg.enabled or not entity_cfg.context_words:
+            continue
+
+        recognizers: list[EntityRecognizer] = registry.get_recognizers(
+            entities = [entity_cfg.presidio_type],
+            language=pii_cfg.default_lang,
+        )
+
+        if recognizers:
+            # enrich existing recognizers
+            for r in recognizers:
+                existing = set(r.context or [])
+                r.context = list(existing | set(entity_cfg.context_words))
+        else:
+            # create a minimal PatternRecognizer that only adds context
+            registry.add_recognizer(
+                PatternRecognizer(
+                    supported_entity=entity_cfg.presidio_type,
+                    supported_language=pii_cfg.default_lang,
+                    context=entity_cfg.context_words,
+                )
+            )
+
+    return AnalyzerEngine(
         nlp_engine=nlp_engine,
         registry=registry,
         supported_languages=[pii_cfg.default_lang],
     )
-
-    return analyzer
