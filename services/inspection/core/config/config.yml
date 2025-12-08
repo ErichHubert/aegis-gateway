@@ -26,7 +26,18 @@ detection:
             id: secret_pem_block  
             display_name: PEM Block 
             enabled: true                    
-            severity: high                  
+            severity: high  
+
+      detect_secrets:
+        enabled: true
+        detectors:
+          AWSKeyDetector:
+            id: secret_aws_access_key
+            display_name: Base64 High Entropy String
+            enabled: true
+            severity: high
+            plugin_name: AWSKeyDetector
+            plugin_type: AWS Access Key       
 
   pii:
     engines:
