@@ -1,159 +1,175 @@
 detection:
   secrets:
-    aws_access_key:
-      id: secret_aws_access_key       # REQUIRED
-      display_name: AWS Access Key    # OPTIONAL
-      enabled: true                   # OPTIONAL, default: true
-      severity: high                  # REQUIRED
-    generic_token:
-      id: secret_generic_token        # REQUIRED
-      display_name: Generic Token     # OPTIONAL
-      enabled: true                   # OPTIONAL, default: true  
-      severity: high                  # REQUIRED
-    jwt:
-      id: secret_jwt
-      display_name: JSON Web Token    # OPTIONAL
-      enabled: true                   # OPTIONAL, default: true
-      severity: high                  # REQUIRED
-    pem_block:
-      id: secret_pem_block            # REQUIRED
-      enabled: true                   # OPTIONAL, default: true
-      severity: high                  # REQUIRED
+    engines:
+      regex:
+        enabled: true                   
+        detectors:
+          aws_access_key:
+            id: secret_aws_access_key
+            display_name: AWS Access Key         
+            enabled: true             
+            severity: high                  
+
+          generic_token:
+            id: secret_generic_token  
+            display_name: Generic Token  
+            enabled: true                         
+            severity: high                  
+
+          jwt:
+            id: secret_jwt
+            display_name: JSON Web Token  
+            enabled: true           
+            severity: high                  
+
+          pem_block:
+            id: secret_pem_block  
+            display_name: PEM Block 
+            enabled: true                    
+            severity: high                  
 
   pii:
-    default_lang: en                    # REQUIRED 
-    default_spacy_model: en_core_web_lg # REQUIRED
-    default_score_threshold: 0.35       # REQUIRED
+    engines:
+      presidio:
+        enabled: true  
 
-    entities:
-      email:
-        id: pii_email                 
-        presidio_type: EMAIL_ADDRESS  
-        enabled: true
-        severity: medium
-        score_threshold: 0.3
-        context_words:
-          - email
-          - e-mail
-          - mail
-          - contact
+        default_lang: en                    
+        default_spacy_model: en_core_web_lg 
+        default_score_threshold: 0.35       
 
-      phone:
-        id: pii_phone
-        presidio_type: PHONE_NUMBER
-        enabled: true
-        severity: medium
-        score_threshold: 0.3
-        context_words:
-          - phone
-          - telephone
-          - tel
-          - number
+        detectors:
+          email:
+            id: pii_email   
+            display_name: Email Address
+            enabled: true              
+            severity: medium
+            presidio_type: EMAIL_ADDRESS  
+            score_threshold: 0.3
+            context_words:
+              - email
+              - e-mail
+              - mail
+              - contact
 
-      iban:
-        id: pii_iban
-        presidio_type: IBAN_CODE
-        enabled: true
-        severity: high
-        score_threshold: 0.3
-        context_words:
-          - iban
-          - account
-          - bank
+          phone:
+            id: pii_phone
+            display_name: Phone Number
+            enabled: true
+            severity: medium
+            presidio_type: PHONE_NUMBER
+            score_threshold: 0.3
+            context_words:
+              - phone
+              - telephone
+              - tel
+              - number
 
-      person:
-        id: pii_person
-        presidio_type: PERSON
-        enabled: true
-        severity: medium
-        score_threshold: 0.35
-        context_words:
-          - name
-          - full name
-          - contact person
+          iban:
+            id: pii_iban
+            display_name: IBAN Code
+            enabled: true
+            severity: high
+            presidio_type: IBAN_CODE
+            score_threshold: 0.3
+            context_words:
+              - iban
+              - account
+              - bank
 
-      location:
-        id: pii_location
-        presidio_type: LOCATION
-        enabled: true
-        severity: medium
-        score_threshold: 0.35
-        context_words:
-          - address
-          - city
-          - street
-          - place
+          person:
+            id: pii_person
+            display_name: Person Name
+            enabled: true
+            severity: medium
+            presidio_type: PERSON
+            score_threshold: 0.35
+            context_words:
+              - name
+              - full name
+              - contact person
 
-      organization:
-        id: pii_organization
-        presidio_type: ORGANIZATION
-        enabled: true
-        severity: medium
-        score_threshold: 0.4
-        context_words:
-          - company
-          - employer
-          - organization
-          - client
+          location:
+            id: pii_location
+            display_name: Location
+            enabled: true
+            severity: medium
+            presidio_type: LOCATION
+            score_threshold: 0.35
+            context_words:
+              - address
+              - city
+              - street
+              - place
 
-      ip_address:
-        id: pii_ip_address
-        presidio_type: IP_ADDRESS
-        enabled: true
-        severity: high
-        score_threshold: 0.5
-        context_words:
-          - ip
-          - ip address
-          - host
-          - server
+          organization:
+            id: pii_organization
+            display_name: Organization
+            enabled: true
+            severity: medium
+            presidio_type: ORGANIZATION
+            score_threshold: 0.4
+            context_words:
+              - company
+              - employer
+              - organization
+              - client
 
-      credit_card:
-        id: pii_credit_card
-        presidio_type: CREDIT_CARD
-        enabled: true
-        severity: high
-        score_threshold: 0.3
-        context_words:
-          - credit card
-          - card number
-          - visa
-          - mastercard
+          ip_address:
+            id: pii_ip_address
+            display_name: IP Address
+            enabled: true
+            severity: high
+            presidio_type: IP_ADDRESS
+            score_threshold: 0.5
+            context_words:
+              - ip
+              - ip address
+              - host
+              - server
 
-      crypto_wallet:
-        id: pii_crypto_wallet
-        presidio_type: CRYPTO
-        enabled: true         
-        severity: high
-        score_threshold: 0.5
-        context_words:
-          - wallet
-          - bitcoin
-          - btc
-          - address
+          credit_card:
+            id: pii_credit_card
+            display_name: Credit Card Number
+            enabled: true
+            severity: high
+            presidio_type: CREDIT_CARD
+            score_threshold: 0.3
+            context_words:
+              - credit card
+              - card number
+              - visa
+              - mastercard
 
-      date_time:
-        id: pii_datetime
-        presidio_type: DATE_TIME
-        enabled: true
-        severity: low
-        score_threshold: 0.5
-        context_words:
-          - date
-          - birthday
-          - dob
-          - appointment
+          date_time:
+            id: pii_datetime
+            display_name: Date and Time
+            enabled: true
+            severity: low
+            presidio_type: DATE_TIME
+            score_threshold: 0.5
+            context_words:
+              - date
+              - birthday
+              - dob
+              - appointment
 
   prompt_injection:
-    generic:
-      id: prompt_injection_generic  # REQUIRED
-      enabled: true                 # OPTIONAL, default: true
-      severity: high                # REQUIRED
-    override:
-      id: prompt_injection_override # REQUIRED
-      enabled: true                 # OPTIONAL, default: true
-      severity: high                # REQUIRED
-    suspicious:
-      id: prompt_injection_suspicious   # REQUIRED
-      enabled: true                     # OPTIONAL, default: true
-      severity: medium                  # REQUIRED
+    engines:
+      pattern:
+        enabled: true
+        detectors:
+          generic:
+            id: prompt_injection_generic  
+            display_name: Generic Prompt Injection
+            enabled: true                
+            severity: high              
+          override:
+            id: prompt_injection_override 
+            display_name: Override Prompt Injection
+            enabled: true                 
+            severity: high               
+          suspicious:
+            id: prompt_injection_suspicious  
+            display_name: Suspicious Prompt Injection
+            enabled: true                     
+            severity: medium                  

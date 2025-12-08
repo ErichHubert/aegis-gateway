@@ -5,16 +5,16 @@ from typing import Dict, List
 from presidio_analyzer import AnalyzerEngine, RecognizerResult
 
 from core.config.loader import load_config
-from core.config.models import InspectionConfig, PiiConfig, PiiEntityConfig
+from core.config.models import InspectionConfig, PiiPresidioDetectorConfig, PiiPresidioEngineConfig
 from core.detectors.pii.presidio.engine import get_presidio_analyzer
 from core.models import Finding
 from core.detectors.protocols import IDetector 
 
 
-_PiiLookup = Dict[str, PiiEntityConfig]
+_PiiLookup = Dict[str, PiiPresidioDetectorConfig]
 
 
-def _build_entity_lookup(entities_cfg: dict[str, PiiEntityConfig]) -> _PiiLookup:
+def _build_entity_lookup(detectors_cfg: dict[str, PiiPresidioDetectorConfig]) -> _PiiLookup:
     """Map Presidio entity types to enabled PII configs for fast lookup.
 
     Keys:   Presidio entity_type (e.g. "EMAIL_ADDRESS")
@@ -22,7 +22,7 @@ def _build_entity_lookup(entities_cfg: dict[str, PiiEntityConfig]) -> _PiiLookup
     """
     return {
         cfg.presidio_type: cfg
-        for cfg in entities_cfg.values()
+        for cfg in detectors_cfg.values()
         if cfg.enabled
     }
 
@@ -43,30 +43,30 @@ class PresidioPiiDetector(IDetector):
     def detect(self, prompt: str) -> List[Finding]:
         """Detect PII using Presidio with a spaCy backend.
 
-        Severities and enabled entities are driven by the YAML policy.
+        Enabled entities, thresholds and severities are driven by the YAML policy.
         """
         if not prompt:
             return []
 
         policy: InspectionConfig = load_config()
-        pii_cfg: PiiConfig = policy.detection.pii
+        presidio_cfg: PiiPresidioEngineConfig = policy.detection.pii.engines.presidio
 
         # Build a mapping from Presidio entity type -> our PiiEntityConfig
-        entity_lookup: _PiiLookup = _build_entity_lookup(pii_cfg.entities or {})
+        entity_lookup: _PiiLookup = _build_entity_lookup(presidio_cfg.detectors or {})
         if not entity_lookup:
-            # No PII entities are enabled → no findings.
+            # No PII entities are enabled -> no findings.
             return []
 
         results: List[RecognizerResult] = self._analyzer.analyze(
             text=prompt,
-            language=pii_cfg.default_lang,
-            score_threshold=pii_cfg.default_score_threshold,
+            language=presidio_cfg.default_lang,
+            score_threshold=presidio_cfg.default_score_threshold,
         )
 
         findings: List[Finding] = []
 
         for result in results:
-            cfg: PiiEntityConfig | None = entity_lookup.get(result.entity_type)
+            cfg: PiiPresidioDetectorConfig | None = entity_lookup.get(result.entity_type)
             if cfg is None:
                 # Presidio entity not enabled in policy
                 continue
@@ -75,7 +75,7 @@ class PresidioPiiDetector(IDetector):
             threshold: float = (
                 cfg.score_threshold
                 if cfg.score_threshold is not None
-                else pii_cfg.default_score_threshold
+                else presidio_cfg.default_score_threshold
             )
             if result.score < threshold:
                 continue

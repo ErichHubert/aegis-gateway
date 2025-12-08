@@ -4,56 +4,79 @@ from typing import Dict, Literal, Optional
 from pydantic import BaseModel, Field
 
 SeverityLevel = Literal["low", "medium", "high"]
-ActionOverride = Literal["block", "warn", "allow"]
+
+
+# ---------- Base Models ----------
+
+class EngineBase(BaseModel):
+    """Base configuration for a detection engine (regex, Presidio, ...)."""
+    enabled: bool = True  # enable/disable entire engine
+
+
+class DetectorBase(BaseModel):
+    """Base configuration for a single detector/rule inside an engine."""
+    id: str                                   # logical id -> Finding.type
+    display_name: Optional[str] = None       # optional human-readable name
+    enabled: bool = True                     # enable/disable this rule
+    severity: SeverityLevel                  # how serious a hit is
 
 
 # ---------- Secrets ----------
 
-class SecretRule(BaseModel):
-    id: str                                   # REQUIRED
-    display_name: Optional[str] = None        # OPTIONAL
-    enabled: bool = True                      # OPTIONAL, default: true
-    severity: SeverityLevel                   # REQUIRED
+class SecretsRegexEngineConfig(EngineBase):
+    """Configuration for the regex-based secrets engine."""
+    detectors: Dict[str, DetectorBase]       # e.g. aws_access_key, generic_token, ...
+
+
+class SecretEnginesConfig(BaseModel):
+    """Container for all secret-detection engines (regex, ml, ...)."""
+    regex: SecretsRegexEngineConfig          # later: ml: SecretsMlEngineConfig, ...
 
 
 class SecretsConfig(BaseModel):
-    aws_access_key: SecretRule
-    generic_token: SecretRule
-    jwt: SecretRule
-    pem_block: SecretRule
+    engines: SecretEnginesConfig
 
 
 # ---------- PII ----------
 
-class PiiEntityConfig(BaseModel):
-    id: str                                   # REQUIRED
-    presidio_type: str                        # REQUIRED
-    enabled: bool = True                      # OPTIONAL, default: true
-    severity: SeverityLevel                   # REQUIRED
-    score_threshold: Optional[float] = None   # OPTIONAL (fallback: default_score_threshold)
+class PiiPresidioDetectorConfig(DetectorBase):
+    """Configuration for a single Presidio-backed PII type."""
+    presidio_type: str                       # e.g. EMAIL_ADDRESS
+    score_threshold: Optional[float] = None  # fallback: engine default_score_threshold
     context_words: list[str] = Field(default_factory=list)
-    action_override: Optional[ActionOverride] = None  # OPTIONAL
+
+
+class PiiPresidioEngineConfig(EngineBase):
+    """Configuration for the Presidio NLP engine used for PII."""
+    default_lang: str                        # e.g. "en"
+    default_spacy_model: str                 # e.g. "en_core_web_lg"
+    default_score_threshold: float           # global default threshold
+    detectors: Dict[str, PiiPresidioDetectorConfig]  # email/phone/iban/...
+
+
+class PiiEnginesConfig(BaseModel):
+    """Container for all PII engines."""
+    presidio: PiiPresidioEngineConfig        # später evtl. andere Engines
 
 
 class PiiConfig(BaseModel):
-    default_lang: str                         # REQUIRED
-    default_spacy_model: str                  # REQUIRED
-    default_score_threshold: float            # REQUIRED
-    entities: Dict[str, PiiEntityConfig]      # email/phone/iban/... as keys
+    engines: PiiEnginesConfig
 
 
 # ---------- Prompt Injection ----------
 
-class PromptInjectionRule(BaseModel):
-    id: str                                   # REQUIRED
-    enabled: bool = True                      # OPTIONAL, default: true
-    severity: SeverityLevel                   # REQUIRED
+class PromptInjectionPatternEngineConfig(EngineBase):
+    """Configuration for the pattern-based prompt-injection engine."""
+    detectors: Dict[str, DetectorBase]       # generic/override/suspicious
+
+
+class PromptInjectionEnginesConfig(BaseModel):
+    """Container for all prompt-injection engines."""
+    pattern: PromptInjectionPatternEngineConfig
 
 
 class PromptInjectionConfig(BaseModel):
-    generic: PromptInjectionRule
-    override: PromptInjectionRule
-    suspicious: PromptInjectionRule
+    engines: PromptInjectionEnginesConfig
 
 
 # ---------- Top-Level Detection & Policy ----------
