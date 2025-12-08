@@ -25,16 +25,29 @@ class DetectorBase(BaseModel):
 
 class SecretsRegexEngineConfig(EngineBase):
     """Configuration for the regex-based secrets engine."""
-    detectors: Dict[str, DetectorBase]       # e.g. aws_access_key, generic_token, ...
+    detectors: Dict[str, DetectorBase]      
+
+
+class SecretDetectSecretEngineConfig(EngineBase):
+    """Configuration for the detect-secrets engine."""
+    detectors: Dict[str, SecretDetectSecretDetectorConfig]
+
+
+class SecretDetectSecretDetectorConfig(DetectorBase):
+    """Configuration for a single detect-secrets plugin."""
+    plugin_name: str                        
+    plugin_type: str                         
 
 
 class SecretEnginesConfig(BaseModel):
     """Container for all secret-detection engines (regex, ml, ...)."""
-    regex: SecretsRegexEngineConfig          # later: ml: SecretsMlEngineConfig, ...
+    regex: SecretsRegexEngineConfig
+    detect_secrets: SecretDetectSecretEngineConfig
 
 
 class SecretsConfig(BaseModel):
     engines: SecretEnginesConfig
+
 
 
 # ---------- PII ----------
@@ -67,7 +80,7 @@ class PiiConfig(BaseModel):
 
 class PromptInjectionPatternEngineConfig(EngineBase):
     """Configuration for the pattern-based prompt-injection engine."""
-    detectors: Dict[str, DetectorBase]       # generic/override/suspicious
+    detectors: Dict[str, DetectorBase]       
 
 
 class PromptInjectionEnginesConfig(BaseModel):
