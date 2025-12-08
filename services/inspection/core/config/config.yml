@@ -33,12 +33,196 @@ detection:
         detectors:
           AWSKeyDetector:
             id: secret_aws_access_key
-            display_name: Base64 High Entropy String
+            display_name: AWS Access Key
             enabled: true
             severity: high
             plugin_name: AWSKeyDetector
-            plugin_type: AWS Access Key       
+            plugin_type: AWS Access Key
 
+          ArtifactoryDetector:
+            id: secret_artifactory_credentials
+            display_name: Artifactory Credentials
+            enabled: true
+            severity: high
+            plugin_name: ArtifactoryDetector
+            plugin_type: Artifactory Credentials   
+
+          AzureStorageKeyDetector:
+            id: secret_azure_storage_account_key
+            display_name: Azure Storage Account Key
+            enabled: true
+            severity: high
+            plugin_name: AzureStorageKeyDetector
+            plugin_type: Azure Storage Account access key 
+
+          BasicAuthDetector:
+            id: secret_basic_auth_credentials
+            display_name: Basic Auth Credentials
+            enabled: true
+            severity: high
+            plugin_name: BasicAuthDetector
+            plugin_type: Basic Auth Credentials
+          
+          CloudantDetector:
+            id: secret_cloudant_credentials
+            display_name: Cloudant Credentials
+            enabled: true
+            severity: high
+            plugin_name: CloudantDetector
+            plugin_type: Cloudant Credentials
+
+          DiscordBotTokenDetector:
+            id: secret_discord_bot_token
+            display_name: Discord Bot Token
+            enabled: true
+            severity: high
+            plugin_name: DiscordBotTokenDetector
+            plugin_type: Discord Bot Token
+
+          GitHubTokenDetector:
+            id: secret_github_token
+            display_name: GitHub Token
+            enabled: true
+            severity: high
+            plugin_name: GitHubTokenDetector
+            plugin_type: GitHub Token
+
+          GitLabTokenDetector:
+            id: secret_gitlab_token
+            display_name: GitLab Token
+            enabled: true
+            severity: high
+            plugin_name: GitLabTokenDetector
+            plugin_type: GitLab Token
+          
+          IbmCloudIamDetector:
+            id: secret_ibm_cloud_iam_key
+            display_name: IBM Cloud IAM Key
+            enabled: true
+            severity: high
+            plugin_name: IbmCloudIamDetector
+            plugin_type: IBM Cloud IAM Key
+
+          IbmCosHmacDetector:
+            id: secret_ibm_cos_hmac_credentials
+            display_name: IBM COS HMAC Credentials
+            enabled: true
+            severity: high
+            plugin_name: IbmCosHmacDetector
+            plugin_type: IBM COS HMAC Credentials
+
+          IPPublicDetector:
+            id: secret_public_ip_address
+            display_name: Public IP Address
+            enabled: true
+            severity: high
+            plugin_name: IPPublicDetector
+            plugin_type: Public IP (ipv4)
+
+          JwtTokenDetector:
+            id: secret_jwt
+            display_name: JSON Web Token
+            enabled: true
+            severity: high
+            plugin_name: JwtTokenDetector
+            plugin_type: JSON Web Token
+          
+          MailchimpDetector:
+            id: secret_mailchimp_access_key
+            display_name: Mailchimp Access Key
+            enabled: true
+            severity: high
+            plugin_name: MailchimpDetector
+            plugin_type: Mailchimp Access Key
+
+          NpmDetector:
+            id: secret_npm_token
+            display_name: NPM Token
+            enabled: true
+            severity: high
+            plugin_name: NpmDetector
+            plugin_type: NPM tokens
+
+          OpenAIDetector:
+            id: secret_openai_token
+            display_name: OpenAI Token
+            enabled: true
+            severity: high
+            plugin_name: OpenAIDetector
+            plugin_type: OpenAI Token
+
+          PrivateKeyDetector:
+            id: secret_private_key
+            display_name: Private Key
+            enabled: true
+            severity: high
+            plugin_name: PrivateKeyDetector
+            plugin_type: Private Key
+
+          PypiTokenDetector:
+            id: secret_pypi_token
+            display_name: PyPI Token
+            enabled: true
+            severity: high
+            plugin_name: PypiTokenDetector
+            plugin_type: PyPI Token
+
+          SendGridDetector:
+            id: secret_sendgrid_api_key
+            display_name: SendGrid API Key
+            enabled: true
+            severity: high
+            plugin_name: SendGridDetector
+            plugin_type: SendGrid API Key
+
+          SlackDetector:
+            id: secret_slack_token
+            display_name: Slack Token
+            enabled: true
+            severity: high
+            plugin_name: SlackDetector
+            plugin_type: Slack Token
+
+          SoftlayerDetector:
+            id: secret_softlayer_credentials
+            display_name: SoftLayer Credentials
+            enabled: true
+            severity: high
+            plugin_name: SoftlayerDetector
+            plugin_type: SoftLayer Credentials
+
+          SquareOAuthDetector:
+            id: secret_square_oauth_secret
+            display_name: Square OAuth Secret
+            enabled: true
+            severity: high
+            plugin_name: SquareOAuthDetector
+            plugin_type: Square OAuth Secret
+
+          StripeDetector:
+            id: secret_stripe_access_key
+            display_name: Stripe Access Key
+            enabled: true
+            severity: high
+            plugin_name: StripeDetector
+            plugin_type: Stripe Access Key
+
+          TelegramBotTokenDetector:
+            id: secret_telegram_bot_token
+            display_name: Telegram Bot Token
+            enabled: true
+            severity: high
+            plugin_name: TelegramBotTokenDetector
+            plugin_type: Telegram Bot Token
+
+          TwilioKeyDetector:
+            id: secret_twilio_api_key
+            display_name: Twilio API Key
+            enabled: true
+            severity: high
+            plugin_name: TwilioKeyDetector
+            plugin_type: Twilio API Key
+            
   pii:
     engines:
       presidio:
