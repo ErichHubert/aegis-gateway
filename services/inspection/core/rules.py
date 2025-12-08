@@ -14,8 +14,8 @@ from core.detectors.injection import InjectionPatternDetector
 _DETECTORS: tuple[IDetector, ...] = (
     DetectSecretsDetector(),
     #SecretRegexDetector(),
-    #PresidioPiiDetector(),
-    #InjectionPatternDetector(),
+    PresidioPiiDetector(),
+    InjectionPatternDetector(),
 )
 
 
