@@ -4,56 +4,65 @@ from typing import Dict, Literal, Optional
 from pydantic import BaseModel, Field
 
 SeverityLevel = Literal["low", "medium", "high"]
-ActionOverride = Literal["block", "warn", "allow"]
+
+
+# ---------- Base Modesl ----------
+
+class EngineBase(BaseModel):
+    enabled: bool = True                     
+
+class DetectorBase(BaseModel):
+    id: str                                   
+    display_name: Optional[str] = None        
+    enabled: bool = True                      
+    severity: SeverityLevel                   
 
 
 # ---------- Secrets ----------
 
-class SecretRule(BaseModel):
-    id: str                                   # REQUIRED
-    display_name: Optional[str] = None        # OPTIONAL
-    enabled: bool = True                      # OPTIONAL, default: true
-    severity: SeverityLevel                   # REQUIRED
+class SecretsRegexEngineConfig(EngineBase):
+    detectors: Dict[str, DetectorBase]
 
+class SecretEnginesConfig(EngineBase):
+    regex: SecretsRegexEngineConfig
 
 class SecretsConfig(BaseModel):
-    aws_access_key: SecretRule
-    generic_token: SecretRule
-    jwt: SecretRule
-    pem_block: SecretRule
+    engines: SecretEnginesConfig
 
 
 # ---------- PII ----------
 
-class PiiEntityConfig(BaseModel):
-    id: str                                   # REQUIRED
-    presidio_type: str                        # REQUIRED
-    enabled: bool = True                      # OPTIONAL, default: true
-    severity: SeverityLevel                   # REQUIRED
-    score_threshold: Optional[float] = None   # OPTIONAL (fallback: default_score_threshold)
+class PiiPresidioDetectorConfig(DetectorBase):
+    presidio_type: str                        
+    score_threshold: Optional[float] = None   
     context_words: list[str] = Field(default_factory=list)
-    action_override: Optional[ActionOverride] = None  # OPTIONAL
+
+
+class PiiPresidioEngineConfig(EngineBase):
+    default_lang: str                               
+    default_spacy_model: str                        
+    default_score_threshold: float                  
+    detectors: Dict[str, PiiPresidioDetectorConfig]    
+
+
+class PiiEnginesConfig(BaseModel):
+    presidio: PiiPresidioEngineConfig
 
 
 class PiiConfig(BaseModel):
-    default_lang: str                         # REQUIRED
-    default_spacy_model: str                  # REQUIRED
-    default_score_threshold: float            # REQUIRED
-    entities: Dict[str, PiiEntityConfig]      # email/phone/iban/... as keys
+    engines: PiiEnginesConfig
 
 
 # ---------- Prompt Injection ----------
 
-class PromptInjectionRule(BaseModel):
-    id: str                                   # REQUIRED
-    enabled: bool = True                      # OPTIONAL, default: true
-    severity: SeverityLevel                   # REQUIRED
+class PromptInjectionPatternEngineConfig(EngineBase):
+    detectors: Dict[str, DetectorBase]
 
+class PromptInjectionEnginesConfig(EngineBase):
+    regex: PromptInjectionPatternEngineConfig
 
 class PromptInjectionConfig(BaseModel):
-    generic: PromptInjectionRule
-    override: PromptInjectionRule
-    suspicious: PromptInjectionRule
+    engines: PromptInjectionEnginesConfig
 
 
 # ---------- Top-Level Detection & Policy ----------
