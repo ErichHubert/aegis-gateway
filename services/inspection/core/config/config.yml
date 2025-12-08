@@ -12,7 +12,7 @@ detection:
 
           generic_token:
             id: secret_generic_token  
-            display_name: AWS Access Key  
+            display_name: Generic Token  
             enabled: true                         
             severity: high                  
 
