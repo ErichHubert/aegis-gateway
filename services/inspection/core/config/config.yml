@@ -140,19 +140,6 @@ detection:
               - visa
               - mastercard
 
-          crypto_wallet:
-            id: pii_crypto_wallet
-            display_name: Cryptocurrency Wallet Address
-            enabled: true       
-            severity: high
-            presidio_type: CRYPTO  
-            score_threshold: 0.5
-            context_words:
-              - wallet
-              - bitcoin
-              - btc
-              - address
-
           date_time:
             id: pii_datetime
             display_name: Date and Time
