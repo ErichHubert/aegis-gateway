@@ -54,7 +54,7 @@ class PresidioPiiDetector(IDetector):
         # Build a mapping from Presidio entity type -> our PiiEntityConfig
         entity_lookup: _PiiLookup = _build_entity_lookup(presidio_cfg.detectors or {})
         if not entity_lookup:
-            # No PII entities are enabled → no findings.
+            # No PII entities are enabled -> no findings.
             return []
 
         results: List[RecognizerResult] = self._analyzer.analyze(

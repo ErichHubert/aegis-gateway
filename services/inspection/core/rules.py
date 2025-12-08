@@ -13,7 +13,7 @@ from core.detectors.injection import InjectionPatternDetector
 _DETECTORS: tuple[IDetector, ...] = (
     SecretRegexDetector(),
     PresidioPiiDetector(),
-    #InjectionPatternDetector(),
+    InjectionPatternDetector(),
 )
 
 
