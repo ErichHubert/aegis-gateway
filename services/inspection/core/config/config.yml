@@ -143,27 +143,6 @@ detection:
           - birthday
           - dob
           - appointment
-          
-      us_ssn:
-        id: pii_us_ssn
-        presidio_type: US_SSN
-        enabled: true        
-        severity: high
-        score_threshold: 0.3
-        context_words:
-          - ssn
-          - social security
-
-      us_bank_account:
-        id: pii_us_bank_account
-        presidio_type: US_BANK_NUMBER
-        enabled: true
-        severity: high
-        score_threshold: 0.3
-        context_words:
-          - routing
-          - account
-          - bank
 
   prompt_injection:
     generic:
