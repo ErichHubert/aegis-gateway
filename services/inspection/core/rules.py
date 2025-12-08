@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
+from core.detectors.secret.detectsecret.detector import DetectSecretsDetector
 from core.models import PromptInspectionRequest, PromptInspectionResponse, Finding
 from core.detectors.protocols import IDetector
 from core.detectors.pii import PresidioPiiDetector
@@ -11,9 +12,10 @@ from core.detectors.injection import InjectionPatternDetector
 # Static detector pipeline for now.
 # Each detector implements IDetector.detect(prompt: str) -> List[Finding]
 _DETECTORS: tuple[IDetector, ...] = (
-    SecretRegexDetector(),
-    PresidioPiiDetector(),
-    InjectionPatternDetector(),
+    DetectSecretsDetector(),
+    #SecretRegexDetector(),
+    #PresidioPiiDetector(),
+    #InjectionPatternDetector(),
 )
 
 
