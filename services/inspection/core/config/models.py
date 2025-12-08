@@ -6,25 +6,32 @@ from pydantic import BaseModel, Field
 SeverityLevel = Literal["low", "medium", "high"]
 
 
-# ---------- Base Modesl ----------
+# ---------- Base Models ----------
 
 class EngineBase(BaseModel):
-    enabled: bool = True                     
+    """Base configuration for a detection engine (regex, Presidio, ...)."""
+    enabled: bool = True  # enable/disable entire engine
+
 
 class DetectorBase(BaseModel):
-    id: str                                   
-    display_name: Optional[str] = None        
-    enabled: bool = True                      
-    severity: SeverityLevel                   
+    """Base configuration for a single detector/rule inside an engine."""
+    id: str                                   # logical id -> Finding.type
+    display_name: Optional[str] = None       # optional human-readable name
+    enabled: bool = True                     # enable/disable this rule
+    severity: SeverityLevel                  # how serious a hit is
 
 
 # ---------- Secrets ----------
 
 class SecretsRegexEngineConfig(EngineBase):
-    detectors: Dict[str, DetectorBase]
+    """Configuration for the regex-based secrets engine."""
+    detectors: Dict[str, DetectorBase]       # e.g. aws_access_key, generic_token, ...
 
-class SecretEnginesConfig(EngineBase):
-    regex: SecretsRegexEngineConfig
+
+class SecretEnginesConfig(BaseModel):
+    """Container for all secret-detection engines (regex, ml, ...)."""
+    regex: SecretsRegexEngineConfig          # later: ml: SecretsMlEngineConfig, ...
+
 
 class SecretsConfig(BaseModel):
     engines: SecretEnginesConfig
@@ -33,20 +40,23 @@ class SecretsConfig(BaseModel):
 # ---------- PII ----------
 
 class PiiPresidioDetectorConfig(DetectorBase):
-    presidio_type: str                        
-    score_threshold: Optional[float] = None   
+    """Configuration for a single Presidio-backed PII type."""
+    presidio_type: str                       # e.g. EMAIL_ADDRESS
+    score_threshold: Optional[float] = None  # fallback: engine default_score_threshold
     context_words: list[str] = Field(default_factory=list)
 
 
 class PiiPresidioEngineConfig(EngineBase):
-    default_lang: str                               
-    default_spacy_model: str                        
-    default_score_threshold: float                  
-    detectors: Dict[str, PiiPresidioDetectorConfig]    
+    """Configuration for the Presidio NLP engine used for PII."""
+    default_lang: str                        # e.g. "en"
+    default_spacy_model: str                 # e.g. "en_core_web_lg"
+    default_score_threshold: float           # global default threshold
+    detectors: Dict[str, PiiPresidioDetectorConfig]  # email/phone/iban/...
 
 
 class PiiEnginesConfig(BaseModel):
-    presidio: PiiPresidioEngineConfig
+    """Container for all PII engines."""
+    presidio: PiiPresidioEngineConfig        # später evtl. andere Engines
 
 
 class PiiConfig(BaseModel):
@@ -56,10 +66,14 @@ class PiiConfig(BaseModel):
 # ---------- Prompt Injection ----------
 
 class PromptInjectionPatternEngineConfig(EngineBase):
-    detectors: Dict[str, DetectorBase]
+    """Configuration for the pattern-based prompt-injection engine."""
+    detectors: Dict[str, DetectorBase]       # generic/override/suspicious
 
-class PromptInjectionEnginesConfig(EngineBase):
-    regex: PromptInjectionPatternEngineConfig
+
+class PromptInjectionEnginesConfig(BaseModel):
+    """Container for all prompt-injection engines."""
+    pattern: PromptInjectionPatternEngineConfig
+
 
 class PromptInjectionConfig(BaseModel):
     engines: PromptInjectionEnginesConfig
