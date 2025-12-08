@@ -7,7 +7,7 @@ from core.detectors.protocols import ISecretDetector
 
 
 class SecretDetectionOrchestrator(ISecretDetector):
-    """High-level PII detector orchestrating multiple lower-level detectors."""
+    """High-level secret detector orchestrating multiple lower-level detectors."""
 
     def __init__(self, detectors: Sequence[ISecretDetector]) -> None:
         if not detectors:

@@ -7,7 +7,7 @@ from core.detectors.protocols import IInjectionDetector
 
 
 class InjectionDetectionOrchestrator(IInjectionDetector):
-    """High-level PII detector orchestrating multiple lower-level detectors."""
+    """High-level prompt injection detector orchestrating multiple lower-level detectors."""
 
     def __init__(self, detectors: Sequence[IInjectionDetector]) -> None:
         if not detectors:
