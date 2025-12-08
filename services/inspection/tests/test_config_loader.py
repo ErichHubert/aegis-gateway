@@ -13,7 +13,7 @@ from core.config.loader import (
 
 def test_load_policy_config_defaults_to_bundled_file():
     cfg = load_config()
-    assert "email" in cfg.detection.pii.entities
+    assert "email" in cfg.detection.pii.engines.presidio.detectors
 
 
 def test_load_policy_config_raises_for_missing_file(tmp_path: pathlib.Path):
