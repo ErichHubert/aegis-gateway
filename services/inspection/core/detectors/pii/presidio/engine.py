@@ -18,15 +18,15 @@ def get_presidio_analyzer() -> AnalyzerEngine:
     - Loads Presidio’s predefined recognizers
     """
     config: InspectionConfig = load_config()
-    pii_cfg = config.detection.pii
+    presidio_engine = config.detection.pii.engines.presidio
 
     # Build NLP engine config for spaCy
     nlp_configuration = {
         "nlp_engine_name": "spacy",
         "models": [
             {
-                "lang_code": pii_cfg.default_lang,  
-                "model_name": pii_cfg.default_spacy_model,   
+                "lang_code": presidio_engine.default_lang,  
+                "model_name": presidio_engine.default_spacy_model,   
             }
         ],
     }
@@ -38,13 +38,13 @@ def get_presidio_analyzer() -> AnalyzerEngine:
     registry = RecognizerRegistry()
     registry.load_predefined_recognizers(nlp_engine=nlp_engine)
 
-    for _, entity_cfg in (pii_cfg.entities or {}).items():
+    for _, entity_cfg in (presidio_engine.detectors or {}).items():
         if not entity_cfg.enabled or not entity_cfg.context_words:
             continue
 
         recognizers: list[EntityRecognizer] = registry.get_recognizers(
             entities = [entity_cfg.presidio_type],
-            language=pii_cfg.default_lang,
+            language=presidio_engine.default_lang,
         )
 
         if recognizers:
@@ -57,7 +57,7 @@ def get_presidio_analyzer() -> AnalyzerEngine:
             registry.add_recognizer(
                 PatternRecognizer(
                     supported_entity=entity_cfg.presidio_type,
-                    supported_language=pii_cfg.default_lang,
+                    supported_language=presidio_engine.default_lang,
                     context=entity_cfg.context_words,
                 )
             )
@@ -65,5 +65,5 @@ def get_presidio_analyzer() -> AnalyzerEngine:
     return AnalyzerEngine(
         nlp_engine=nlp_engine,
         registry=registry,
-        supported_languages=[pii_cfg.default_lang],
+        supported_languages=[presidio_engine.default_lang],
     )
