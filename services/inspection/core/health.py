@@ -1,6 +1,3 @@
-from infra.config import settings
-
-
 def check_liveness() -> dict:
     return {"status": "ok"}
 

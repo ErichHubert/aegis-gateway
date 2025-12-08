@@ -26,9 +26,15 @@ class Finding(BaseModel):
     end: int = Field(..., description="End index (exclusive) of the finding in the prompt.")
     snippet: str = Field(..., description="Snippet of the prompt where the finding was detected.")
     message: str = Field(..., description="Human-readable explanation of the finding.")
+    severity: str = Field(..., description="Severity level of the finding, e.g. 'low', 'medium', 'high'.")
+    confidence: Optional[float] = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Detector confidence from 0.0–1.0 (if available).",
+    )
 
 
 class PromptInspectionResponse(BaseModel):
-    """Response back to the gateway: allow/deny plus a list of findings."""
-    isAllowed: bool = Field(..., description="True if the request should be allowed.")
+    """Response back to the gateway: list of findings."""
     findings: List[Finding] = Field(default_factory=list)

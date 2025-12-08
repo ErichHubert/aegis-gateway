@@ -1,0 +1,159 @@
+detection:
+  secrets:
+    aws_access_key:
+      id: secret_aws_access_key       # REQUIRED
+      display_name: AWS Access Key    # OPTIONAL
+      enabled: true                   # OPTIONAL, default: true
+      severity: high                  # REQUIRED
+    generic_token:
+      id: secret_generic_token        # REQUIRED
+      display_name: Generic Token     # OPTIONAL
+      enabled: true                   # OPTIONAL, default: true  
+      severity: high                  # REQUIRED
+    jwt:
+      id: secret_jwt
+      display_name: JSON Web Token    # OPTIONAL
+      enabled: true                   # OPTIONAL, default: true
+      severity: high                  # REQUIRED
+    pem_block:
+      id: secret_pem_block            # REQUIRED
+      enabled: true                   # OPTIONAL, default: true
+      severity: high                  # REQUIRED
+
+  pii:
+    default_lang: en                    # REQUIRED 
+    default_spacy_model: en_core_web_lg # REQUIRED
+    default_score_threshold: 0.35       # REQUIRED
+
+    entities:
+      email:
+        id: pii_email                 
+        presidio_type: EMAIL_ADDRESS  
+        enabled: true
+        severity: medium
+        score_threshold: 0.3
+        context_words:
+          - email
+          - e-mail
+          - mail
+          - contact
+
+      phone:
+        id: pii_phone
+        presidio_type: PHONE_NUMBER
+        enabled: true
+        severity: medium
+        score_threshold: 0.3
+        context_words:
+          - phone
+          - telephone
+          - tel
+          - number
+
+      iban:
+        id: pii_iban
+        presidio_type: IBAN_CODE
+        enabled: true
+        severity: high
+        score_threshold: 0.3
+        context_words:
+          - iban
+          - account
+          - bank
+
+      person:
+        id: pii_person
+        presidio_type: PERSON
+        enabled: true
+        severity: medium
+        score_threshold: 0.35
+        context_words:
+          - name
+          - full name
+          - contact person
+
+      location:
+        id: pii_location
+        presidio_type: LOCATION
+        enabled: true
+        severity: medium
+        score_threshold: 0.35
+        context_words:
+          - address
+          - city
+          - street
+          - place
+
+      organization:
+        id: pii_organization
+        presidio_type: ORGANIZATION
+        enabled: true
+        severity: medium
+        score_threshold: 0.4
+        context_words:
+          - company
+          - employer
+          - organization
+          - client
+
+      ip_address:
+        id: pii_ip_address
+        presidio_type: IP_ADDRESS
+        enabled: true
+        severity: high
+        score_threshold: 0.5
+        context_words:
+          - ip
+          - ip address
+          - host
+          - server
+
+      credit_card:
+        id: pii_credit_card
+        presidio_type: CREDIT_CARD
+        enabled: true
+        severity: high
+        score_threshold: 0.3
+        context_words:
+          - credit card
+          - card number
+          - visa
+          - mastercard
+
+      crypto_wallet:
+        id: pii_crypto_wallet
+        presidio_type: CRYPTO
+        enabled: true         
+        severity: high
+        score_threshold: 0.5
+        context_words:
+          - wallet
+          - bitcoin
+          - btc
+          - address
+
+      date_time:
+        id: pii_datetime
+        presidio_type: DATE_TIME
+        enabled: true
+        severity: low
+        score_threshold: 0.5
+        context_words:
+          - date
+          - birthday
+          - dob
+          - appointment
+
+  prompt_injection:
+    generic:
+      id: prompt_injection_generic  # REQUIRED
+      enabled: true                 # OPTIONAL, default: true
+      severity: high                # REQUIRED
+    override:
+      id: prompt_injection_override # REQUIRED
+      enabled: true                 # OPTIONAL, default: true
+      severity: high                # REQUIRED
+    suspicious:
+      id: prompt_injection_suspicious   # REQUIRED
+      enabled: true                     # OPTIONAL, default: true
+      severity: medium                  # REQUIRED
