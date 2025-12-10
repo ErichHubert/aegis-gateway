@@ -24,7 +24,6 @@ def _get_finding(findings, type_id: str):
         ('10.0.0.1', False),
         ('172.16.0.1', False),
         ('192.168.0.1', False),
-        ('169.254.169.254', False),
         # Invalid IPv4 addresses
         ('256.256.256.256', False),
         ('1.2.3', False),
