@@ -10,9 +10,6 @@ def _get_finding(findings, type_id: str):
     """Return first finding with matching type_id or None."""
     return next((f for f in findings if f.type == type_id), None)
 
-SL_USERNAME = 'test@testy.test'
-SL_TOKEN = 'abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234'
-
 @pytest.mark.parametrize(
     'secret, should_flag',
     [
