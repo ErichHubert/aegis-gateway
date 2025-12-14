@@ -2,21 +2,16 @@ from __future__ import annotations
 
 from typing import List
 
-from core.detectors.secret.detectsecret.detector import DetectSecretsDetector
 from core.models import PromptInspectionRequest, PromptInspectionResponse, Finding
 from core.detectors.protocols import IDetector
-from core.detectors.pii import PresidioPiiDetector
-from core.detectors.secret  import SecretRegexDetector
-from core.detectors.injection import InjectionPatternDetector
 
-# Static detector pipeline for now.
-# Each detector implements IDetector.detect(prompt: str) -> List[Finding]
-_DETECTORS: tuple[IDetector, ...] = (
-    DetectSecretsDetector(),
-    #SecretRegexDetector(),
-    PresidioPiiDetector(),
-    InjectionPatternDetector(),
-)
+_DETECTORS: tuple[IDetector, ...] | None = None
+
+
+def set_detectors(detectors: tuple[IDetector, ...]) -> None:
+    """Configure the detector pipeline; called during warmup."""
+    global _DETECTORS
+    _DETECTORS = detectors
 
 
 def analyze_prompt(req: PromptInspectionRequest) -> PromptInspectionResponse:
@@ -27,6 +22,9 @@ def analyze_prompt(req: PromptInspectionRequest) -> PromptInspectionResponse:
     - fan-out the prompt to all configured detectors
     - aggregate their findings
     """
+    if _DETECTORS is None:
+        raise RuntimeError("Detector pipeline is not configured. Ensure warmup ran before handling requests.")
+
     text = req.prompt or ""
     all_findings: List[Finding] = []
 

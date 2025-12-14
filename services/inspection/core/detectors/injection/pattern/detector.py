@@ -8,7 +8,6 @@ from typing import List
 from infra.warmable import Warmable
 from core.models import Finding
 from core.detectors.protocols import IDetector
-from core.config.loader import load_config
 from core.config.models import InspectionConfig
 
 logger = logging.getLogger(__name__)
@@ -80,9 +79,8 @@ class InjectionPatternDetector(IDetector, Warmable):
           confidence-> 1.0 (static rules)
     """
 
-    def __init__(self) -> None:
-        policy: InspectionConfig = load_config()
-
+    def __init__(self, config: InspectionConfig) -> None:
+        policy: InspectionConfig = config
         # Engine: detection.prompt_injection.engines.pattern
         pi_cfg = policy.detection.prompt_injection
         pattern_engine = pi_cfg.engines.pattern

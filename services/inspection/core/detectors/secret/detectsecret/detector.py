@@ -11,8 +11,7 @@ from detect_secrets.settings import transient_settings
 from infra.warmable import Warmable
 from core.detectors.protocols import ISecretDetector
 from core.models import Finding
-from core.config.models import SecretDetectSecretEngineConfig  
-from core.config.loader import load_config
+from core.config.models import InspectionConfig, SecretDetectSecretEngineConfig  
 
 
 @dataclass(frozen=True)
@@ -61,10 +60,8 @@ class DetectSecretsDetector(ISecretDetector, Warmable):
     - Maps detect-secrets plugin outputs to internal Finding objects
     """
 
-    def __init__(self, engine_cfg: SecretDetectSecretEngineConfig | None = None) -> None:
-        if engine_cfg is None:
-            cfg = load_config()
-            engine_cfg = cfg.detection.secrets.engines.detect_secrets
+    def __init__(self, config: InspectionConfig) -> None:
+        engine_cfg = config.detection.secrets.engines.detect_secrets
 
         self._rules_by_plugin, self._settings = _build_runtime_rules(engine_cfg)
         self._lock = Lock()
