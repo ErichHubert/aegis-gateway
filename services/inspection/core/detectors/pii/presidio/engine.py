@@ -58,7 +58,7 @@ def get_presidio_analyzer() -> AnalyzerEngine:
                 PatternRecognizer(
                     supported_entity=entity_cfg.presidio_type,
                     supported_language=presidio_engine.default_lang,
-                    context=entity_cfg.context_words,
+                    context=list(entity_cfg.context_words),
                 )
             )
 
@@ -67,3 +67,8 @@ def get_presidio_analyzer() -> AnalyzerEngine:
         registry=registry,
         supported_languages=[presidio_engine.default_lang],
     )
+
+
+def warmup_analyzer() -> None:
+    """Helper to explicitly build the cached analyzer during warmup."""
+    get_presidio_analyzer()

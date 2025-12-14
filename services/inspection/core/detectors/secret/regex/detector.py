@@ -5,6 +5,7 @@ import re
 from dataclasses import dataclass
 from typing import List, Dict, Tuple
 
+from infra.warmable import Warmable
 from core.models import Finding
 from core.detectors.protocols import IDetector
 from core.config.loader import load_config
@@ -21,7 +22,7 @@ class _SecretPattern:
     severity: str
 
 
-class SecretRegexDetector(IDetector):
+class SecretRegexDetector(IDetector, Warmable):
     """
     Regex-based secret detector.
 
@@ -108,6 +109,10 @@ class SecretRegexDetector(IDetector):
             )
 
         self._patterns = tuple(patterns)
+
+    def warmup(self) -> None:
+        """No-op warmup hook; initialization already loads patterns."""
+        _ = self._patterns
 
     def detect(self, prompt: str) -> List[Finding]:
         """

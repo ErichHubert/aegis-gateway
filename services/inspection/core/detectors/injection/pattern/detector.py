@@ -5,6 +5,7 @@ import re
 from dataclasses import dataclass
 from typing import List
 
+from infra.warmable import Warmable
 from core.models import Finding
 from core.detectors.protocols import IDetector
 from core.config.loader import load_config
@@ -65,7 +66,7 @@ _PATTERN_DEFS: list[_PatternDefinition] = [
 ]
 
 
-class InjectionPatternDetector(IDetector):
+class InjectionPatternDetector(IDetector, Warmable):
     """
     Regex-based prompt injection detector.
 
@@ -134,6 +135,10 @@ class InjectionPatternDetector(IDetector):
             )
 
         self._patterns = tuple(resolved)
+
+    def warmup(self) -> None:
+        """Warmup hook to ensure patterns are bound."""
+        _ = self._patterns
 
     def detect(self, prompt: str) -> List[Finding]:
         findings: List[Finding] = []

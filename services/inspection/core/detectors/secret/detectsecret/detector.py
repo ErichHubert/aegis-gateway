@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Iterable, List
 from dataclasses import dataclass
+from threading import Lock
 
 from detect_secrets.core.secrets_collection import SecretsCollection
 from detect_secrets.core.scan import scan_line
 from detect_secrets.settings import transient_settings
 
+from infra.warmable import Warmable
 from core.detectors.protocols import ISecretDetector
 from core.models import Finding
 from core.config.models import SecretDetectSecretEngineConfig  
@@ -51,7 +53,7 @@ def _build_runtime_rules(engine_cfg: SecretDetectSecretEngineConfig) -> tuple[di
     return rules_by_plugin, settings
 
 
-class DetectSecretsDetector(ISecretDetector):
+class DetectSecretsDetector(ISecretDetector, Warmable):
     """
     Adapter around `detect-secrets` to scan a single prompt string.
 
@@ -65,6 +67,11 @@ class DetectSecretsDetector(ISecretDetector):
             engine_cfg = cfg.detection.secrets.engines.detect_secrets
 
         self._rules_by_plugin, self._settings = _build_runtime_rules(engine_cfg)
+        self._lock = Lock()
+
+    def warmup(self) -> None:
+        """Warmup hook to ensure rules are built."""
+        _ = self._rules_by_plugin
 
     def detect(self, prompt: str) -> List[Finding]:
         """Run detect-secrets on the given prompt and return mapped findings."""
@@ -73,39 +80,41 @@ class DetectSecretsDetector(ISecretDetector):
 
         findings: List[Finding] = []
 
-        # Apply detect-secrets settings only for this call
-        with transient_settings(self._settings):
-            secrets_iter = scan_line(line=prompt)
+        # Apply detect-secrets settings only for this call; guard with a lock
+        # because detect-secrets mutates global settings.
+        with self._lock:
+            with transient_settings(self._settings):
+                secrets_iter = scan_line(line=prompt)
 
-            for secret in secrets_iter:
-                plugin_type = secret.type  # e.g. "AWSKeyDetector"
+                for secret in secrets_iter:
+                    plugin_type = secret.type  # e.g. "AWSKeyDetector"
 
-                rule = self._rules_by_plugin.get(plugin_type)
-                if rule is None:
-                    continue
+                    rule = self._rules_by_plugin.get(plugin_type)
+                    if rule is None:
+                        continue
 
-                # Best effort: try to get the actual secret string
-                secret_value = getattr(secret, "secret_value", None)
+                    # Best effort: try to get the actual secret string
+                    secret_value = getattr(secret, "secret_value", None)
 
-                start = 0
-                end = len(prompt)
+                    start = 0
+                    end = len(prompt)
 
-                if secret_value:
-                    idx = prompt.find(secret_value)
-                    if idx != -1:
-                        start = idx
-                        end = idx + len(secret_value)
+                    if secret_value:
+                        idx = prompt.find(secret_value)
+                        if idx != -1:
+                            start = idx
+                            end = idx + len(secret_value)
 
-                findings.append(
-                    Finding(
-                        type=rule.id,
-                        start=start,
-                        end=end,
-                        snippet="***""",
-                        message=f"Secret detected by {plugin_type}",
-                        severity=rule.severity,
-                        confidence=1.0, 
+                    findings.append(
+                        Finding(
+                            type=rule.id,
+                            start=start,
+                            end=end,
+                            snippet="***""",
+                            message=f"Secret detected by {plugin_type}",
+                            severity=rule.severity,
+                            confidence=1.0, 
+                        )
                     )
-                )
 
         return findings
