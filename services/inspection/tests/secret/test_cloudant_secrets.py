@@ -3,8 +3,10 @@
 
 import pytest
 
-from core.models import PromptInspectionRequest
-from core.rules import analyze_prompt
+from core.config.loader import load_config
+from core.config.models import InspectionConfig
+from core.detectors.secret.detectsecret.detector import DetectSecretsDetector
+from core.models import Finding, PromptInspectionRequest, PromptInspectionResponse
 
 CL_ACCOUNT = 'testy_-test'  # also called user
 # only detecting 64 hex CL generated password
@@ -13,7 +15,8 @@ CL_PW = 'abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234'
 # detecting 24 alpha for CL generated API KEYS
 CL_API_KEY = 'abcdefghijabcdefghijabcd'
 
-def _get_finding(findings, type_id: str):
+
+def _get_finding(findings, type_id: str) -> Finding | None:
     """Return first finding with matching type_id or None."""
     return next((f for f in findings if f.type == type_id), None)
 
@@ -60,18 +63,23 @@ def _get_finding(findings, type_id: str):
         ('cl_api_key = "a-fake-api-key"', False),
     ],
 )
-def test_cloudant_detector_detects_expected_secrets(secret: str, should_flag: bool):
+def test_cloudant_detector_detects_expected_secrets(run_with_detector, secret: str, should_flag: bool):
     """
     Integration-style test against the CloudantDetector.
 
     Uses the same payload set as detect-secrets itself to ensure we
     correctly wire the CloudantDetector via our inspection pipeline.
     """
+    # Arrange
+    cfg: InspectionConfig = load_config()
+    detector = DetectSecretsDetector(cfg)
     req = PromptInspectionRequest(prompt=f"This is my secret: {secret}", meta=None)
-    resp = analyze_prompt(req)
 
-    finding = _get_finding(resp.findings, "secret_cloudant_credentials")
+    # Act
+    resp: PromptInspectionResponse = run_with_detector(detector, req)
+    finding: Finding | None = _get_finding(resp.findings, "secret_cloudant_credentials")
 
+    # Assert
     if should_flag:
         assert finding is not None, f"Expected finding for payload: {secret!r}"
         # Ensure severity mapping from config is applied
