@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Dict, List
 
 from presidio_analyzer import AnalyzerEngine, RecognizerResult
@@ -14,7 +15,7 @@ from core.detectors.protocols import IDetector
 _PiiLookup = Dict[str, PiiPresidioDetectorConfig]
 
 
-def _build_entity_lookup(detectors_cfg: dict[str, PiiPresidioDetectorConfig]) -> _PiiLookup:
+def _build_entity_lookup(detectors_cfg: Mapping[str, PiiPresidioDetectorConfig]) -> _PiiLookup:
     """Map Presidio entity types to enabled PII configs for fast lookup.
 
     Keys:   Presidio entity_type (e.g. "EMAIL_ADDRESS")

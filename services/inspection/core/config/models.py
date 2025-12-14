@@ -1,19 +1,58 @@
 from __future__ import annotations
 
-from typing import Dict, Literal, Optional
-from pydantic import BaseModel, Field
+from typing import Any, Literal, Optional
+from collections.abc import Mapping
+from types import MappingProxyType
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 SeverityLevel = Literal["low", "medium", "high"]
 
 
+def _deep_freeze(value: Any) -> Any:
+    """Recursively freeze nested dict/list structures.
+
+    - dict-like objects become MappingProxyType (read-only mapping)
+    - lists/tuples become tuples
+
+    This gives us practical deep immutability for config objects.
+    """
+    if isinstance(value, Mapping):
+        return MappingProxyType({k: _deep_freeze(v) for k, v in value.items()})
+
+    if isinstance(value, (list, tuple)):
+        return tuple(_deep_freeze(v) for v in value)
+
+    return value
+
+
+class FrozenModel(BaseModel):
+    """Base class for immutable config models.
+
+    Notes:
+    - `frozen=True` prevents attribute reassignment.
+    - `_deep_freeze` also makes nested mappings/sequences read-only.
+    - `extra="forbid"` prevents typos in YAML/JSON from being silently accepted.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _freeze_nested(cls, data: Any) -> Any:
+        if data is None:
+            return data
+        return _deep_freeze(data)
+
+
 # ---------- Base Models ----------
 
-class EngineBase(BaseModel):
+class EngineBase(FrozenModel):
     """Base configuration for a detection engine (regex, Presidio, ...)."""
     enabled: bool = True  # enable/disable entire engine
 
 
-class DetectorBase(BaseModel):
+class DetectorBase(FrozenModel):
     """Base configuration for a single detector/rule inside an engine."""
     id: str                                   # logical id -> Finding.type
     display_name: Optional[str] = None       # optional human-readable name
@@ -25,27 +64,27 @@ class DetectorBase(BaseModel):
 
 class SecretsRegexEngineConfig(EngineBase):
     """Configuration for the regex-based secrets engine."""
-    detectors: Dict[str, DetectorBase]      
-
-
-class SecretDetectSecretEngineConfig(EngineBase):
-    """Configuration for the detect-secrets engine."""
-    detectors: Dict[str, SecretDetectSecretDetectorConfig]
+    detectors: Mapping[str, DetectorBase]
 
 
 class SecretDetectSecretDetectorConfig(DetectorBase):
     """Configuration for a single detect-secrets plugin."""
-    plugin_name: str                        
-    plugin_type: str                         
+    plugin_name: str
+    plugin_type: str
 
 
-class SecretEnginesConfig(BaseModel):
+class SecretDetectSecretEngineConfig(EngineBase):
+    """Configuration for the detect-secrets engine."""
+    detectors: Mapping[str, SecretDetectSecretDetectorConfig]
+
+
+class SecretEnginesConfig(FrozenModel):
     """Container for all secret-detection engines (regex, ml, ...)."""
     regex: SecretsRegexEngineConfig
     detect_secrets: SecretDetectSecretEngineConfig
 
 
-class SecretsConfig(BaseModel):
+class SecretsConfig(FrozenModel):
     engines: SecretEnginesConfig
 
 
@@ -56,7 +95,7 @@ class PiiPresidioDetectorConfig(DetectorBase):
     """Configuration for a single Presidio-backed PII type."""
     presidio_type: str                       # e.g. EMAIL_ADDRESS
     score_threshold: Optional[float] = None  # fallback: engine default_score_threshold
-    context_words: list[str] = Field(default_factory=list)
+    context_words: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class PiiPresidioEngineConfig(EngineBase):
@@ -64,15 +103,15 @@ class PiiPresidioEngineConfig(EngineBase):
     default_lang: str                        # e.g. "en"
     default_spacy_model: str                 # e.g. "en_core_web_lg"
     default_score_threshold: float           # global default threshold
-    detectors: Dict[str, PiiPresidioDetectorConfig]  # email/phone/iban/...
+    detectors: Mapping[str, PiiPresidioDetectorConfig]  # email/phone/iban/...
 
 
-class PiiEnginesConfig(BaseModel):
+class PiiEnginesConfig(FrozenModel):
     """Container for all PII engines."""
     presidio: PiiPresidioEngineConfig        # später evtl. andere Engines
 
 
-class PiiConfig(BaseModel):
+class PiiConfig(FrozenModel):
     engines: PiiEnginesConfig
 
 
@@ -80,25 +119,25 @@ class PiiConfig(BaseModel):
 
 class PromptInjectionPatternEngineConfig(EngineBase):
     """Configuration for the pattern-based prompt-injection engine."""
-    detectors: Dict[str, DetectorBase]       
+    detectors: Mapping[str, DetectorBase]       
 
 
-class PromptInjectionEnginesConfig(BaseModel):
+class PromptInjectionEnginesConfig(FrozenModel):
     """Container for all prompt-injection engines."""
     pattern: PromptInjectionPatternEngineConfig
 
 
-class PromptInjectionConfig(BaseModel):
+class PromptInjectionConfig(FrozenModel):
     engines: PromptInjectionEnginesConfig
 
 
 # ---------- Top-Level Detection & Policy ----------
 
-class DetectionConfig(BaseModel):
+class DetectionConfig(FrozenModel):
     secrets: SecretsConfig
     pii: PiiConfig
     prompt_injection: PromptInjectionConfig
 
 
-class InspectionConfig(BaseModel):
+class InspectionConfig(FrozenModel):
     detection: DetectionConfig
