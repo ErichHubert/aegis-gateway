@@ -8,7 +8,6 @@ from detect_secrets.core.secrets_collection import SecretsCollection
 from detect_secrets.core.scan import scan_line
 from detect_secrets.settings import transient_settings
 
-from infra.warmable import Warmable
 from core.detectors.protocols import ISecretDetector
 from core.models import Finding
 from core.config.models import InspectionConfig, SecretDetectSecretEngineConfig  
@@ -52,7 +51,7 @@ def _build_runtime_rules(engine_cfg: SecretDetectSecretEngineConfig) -> tuple[di
     return rules_by_plugin, settings
 
 
-class DetectSecretsDetector(ISecretDetector, Warmable):
+class DetectSecretsDetector(ISecretDetector):
     """
     Adapter around `detect-secrets` to scan a single prompt string.
 

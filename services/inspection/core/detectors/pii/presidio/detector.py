@@ -8,7 +8,7 @@ from presidio_analyzer import AnalyzerEngine, RecognizerResult
 from core.config.models import InspectionConfig, PiiPresidioDetectorConfig, PiiPresidioEngineConfig
 from core.detectors.pii.presidio.engine import get_presidio_analyzer
 from core.models import Finding
-from core.detectors.protocols import IDetector 
+from core.detectors.protocols import IDetector
 
 
 _PiiLookup = Dict[str, PiiPresidioDetectorConfig]
@@ -96,3 +96,7 @@ class PresidioPiiDetector(IDetector):
             )
 
         return findings
+
+    def warmup(self) -> None:
+        pass
+

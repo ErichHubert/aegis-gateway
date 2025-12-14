@@ -5,7 +5,6 @@ import re
 from dataclasses import dataclass
 from typing import List
 
-from infra.warmable import Warmable
 from core.models import Finding
 from core.detectors.protocols import IDetector
 from core.config.models import InspectionConfig
@@ -65,7 +64,7 @@ _PATTERN_DEFS: list[_PatternDefinition] = [
 ]
 
 
-class InjectionPatternDetector(IDetector, Warmable):
+class InjectionPatternDetector(IDetector):
     """
     Regex-based prompt injection detector.
 

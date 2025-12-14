@@ -4,10 +4,12 @@ import logging
 import os
 from core.config.loader import load_config
 from core.detectors.injection.pattern.detector import InjectionPatternDetector
+from core.detectors.pii.presidio.detector import PresidioPiiDetector
 from core.detectors.pii.presidio.engine import warmup_analyzer
+from core.detectors.protocols import IDetector
 from core.detectors.secret.detectsecret.detector import DetectSecretsDetector
 from core.detectors.secret.regex.detector import SecretRegexDetector
-from infra.warmable import Warmable
+from core.rules import set_detectors
 
 logger = logging.getLogger(__name__)
 
@@ -31,19 +33,22 @@ def run_warmup() -> None:
 
     try:
         logger.info("Warmup: loading inspection config (path=%s)", cfg_path or "default bundled config")
-        load_config(cfg_path)
+        config = load_config(cfg_path)
 
         logger.info("Warmup: initializing Presidio analyzer")
-        warmup_analyzer()
+        warmup_analyzer(config)
 
-        warmables: list[Warmable] = [
-            SecretRegexDetector(),
-            DetectSecretsDetector(),
-            InjectionPatternDetector(),
-        ]
+        detector_pipeline = (
+            DetectSecretsDetector(config),
+            SecretRegexDetector(config),
+            PresidioPiiDetector(config),
+            InjectionPatternDetector(config),
+        )
 
-        for component in warmables:
+        for component in detector_pipeline:
             component.warmup()
+
+        set_detectors(detector_pipeline)
 
         WARMUP_OK = True
         logger.info("Warmup: completed successfully")
