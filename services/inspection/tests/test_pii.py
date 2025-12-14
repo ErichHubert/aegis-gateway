@@ -1,7 +1,14 @@
 import pytest
 
+from bootstrap import initialize_pipeline
 from core.models import PromptInspectionRequest
 from core.rules import analyze_prompt
+
+
+@pytest.fixture(scope="session")
+def detectors():
+    # set INSPECTION_CONFIG_PATH here if you want a custom config for tests
+    return initialize_pipeline()
 
 
 def _get_finding(findings, type_id: str):
@@ -12,12 +19,12 @@ def _get_finding(findings, type_id: str):
 # IBAN tests (existing)
 # -------------------
 
-def test_iban_has_high_severity_and_confidence():
+def test_iban_has_high_severity_and_confidence(detectors):
     iban = "DE89 3704 0044 0532 0130 00"
     text = f"My IBAN is {iban}"
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     iban_finding = _get_finding(resp.findings, "pii_iban")
     assert iban_finding is not None, "Expected IBAN to be detected as pii_iban"
@@ -30,11 +37,11 @@ def test_iban_has_high_severity_and_confidence():
 # Email
 # -------------------
 
-def test_email_is_detected_as_pii_email():
+def test_email_is_detected_as_pii_email(detectors):
     text = "Please contact john.doe@example.com for further information."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     email_finding = _get_finding(resp.findings, "pii_email")
     assert email_finding is not None, "Expected email to be detected as pii_email"
@@ -47,11 +54,11 @@ def test_email_is_detected_as_pii_email():
 # Phone
 # -------------------
 
-def test_phone_is_detected_as_pii_phone():
+def test_phone_is_detected_as_pii_phone(detectors):
     text = "You can reach me at +1 212-555-0199 tomorrow."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     phone_finding = _get_finding(resp.findings, "pii_phone")
     assert phone_finding is not None, "Expected phone to be detected as pii_phone"
@@ -64,11 +71,11 @@ def test_phone_is_detected_as_pii_phone():
 # Person
 # -------------------
 
-def test_person_is_detected_as_pii_person():
+def test_person_is_detected_as_pii_person(detectors):
     text = "Our customer John Doe has opened a new support ticket."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     person_finding = _get_finding(resp.findings, "pii_person")
     assert person_finding is not None, "Expected name to be detected as pii_person"
@@ -81,11 +88,11 @@ def test_person_is_detected_as_pii_person():
 # Location
 # -------------------
 
-def test_location_is_detected_as_pii_location():
+def test_location_is_detected_as_pii_location(detectors):
     text = "The office is located at 123 Main Street, Springfield."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     location_finding = _get_finding(resp.findings, "pii_location")
     assert location_finding is not None, "Expected address to be detected as pii_location"
@@ -98,11 +105,11 @@ def test_location_is_detected_as_pii_location():
 # Organization
 # -------------------
 
-def test_organization_is_detected_as_pii_organization():
+def test_organization_is_detected_as_pii_organization(detectors):
     text = "He works at Acme Corporation in the finance department."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     org_finding = _get_finding(resp.findings, "pii_organization")
     assert org_finding is not None, "Expected company to be detected as pii_organization"
@@ -115,11 +122,11 @@ def test_organization_is_detected_as_pii_organization():
 # IP Address
 # -------------------
 
-def test_ip_is_detected_as_pii_ip_address():
+def test_ip_is_detected_as_pii_ip_address(detectors):
     text = "The request originated from IP address 192.168.10.42 yesterday."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     ip_finding = _get_finding(resp.findings, "pii_ip_address")
     assert ip_finding is not None, "Expected IP to be detected as pii_ip_address"
@@ -132,11 +139,11 @@ def test_ip_is_detected_as_pii_ip_address():
 # Credit Card
 # -------------------
 
-def test_credit_card_is_detected_as_pii_credit_card():
+def test_credit_card_is_detected_as_pii_credit_card(detectors):
     text = "The credit card number 4111 1111 1111 1111 was used for the payment."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     cc_finding = _get_finding(resp.findings, "pii_credit_card")
     assert cc_finding is not None, "Expected card number to be detected as pii_credit_card"
@@ -149,11 +156,11 @@ def test_credit_card_is_detected_as_pii_credit_card():
 # Date / Time
 # -------------------
 
-def test_datetime_is_detected_as_pii_datetime():
+def test_datetime_is_detected_as_pii_datetime(detectors):
     text = "The follow-up meeting is scheduled on March 15, 2025 at 14:30."
 
     req = PromptInspectionRequest(prompt=text, meta=None)
-    resp = analyze_prompt(req)
+    resp = analyze_prompt(req, detectors)
 
     dt_finding = _get_finding(resp.findings, "pii_datetime")
     assert dt_finding is not None, "Expected date/time to be detected as pii_datetime"

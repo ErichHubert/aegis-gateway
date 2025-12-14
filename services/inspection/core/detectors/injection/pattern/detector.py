@@ -7,7 +7,6 @@ from typing import List
 
 from core.models import Finding
 from core.detectors.protocols import IDetector
-from core.config.loader import load_config
 from core.config.models import InspectionConfig
 
 logger = logging.getLogger(__name__)
@@ -79,9 +78,8 @@ class InjectionPatternDetector(IDetector):
           confidence-> 1.0 (static rules)
     """
 
-    def __init__(self) -> None:
-        policy: InspectionConfig = load_config()
-
+    def __init__(self, config: InspectionConfig) -> None:
+        policy: InspectionConfig = config
         # Engine: detection.prompt_injection.engines.pattern
         pi_cfg = policy.detection.prompt_injection
         pattern_engine = pi_cfg.engines.pattern
@@ -134,6 +132,10 @@ class InjectionPatternDetector(IDetector):
             )
 
         self._patterns = tuple(resolved)
+
+    def warmup(self) -> None:
+        """Warmup hook to ensure patterns are bound."""
+        _ = self._patterns
 
     def detect(self, prompt: str) -> List[Finding]:
         findings: List[Finding] = []

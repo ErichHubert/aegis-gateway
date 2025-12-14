@@ -1,25 +1,15 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Sequence
 
-from core.detectors.secret.detectsecret.detector import DetectSecretsDetector
 from core.models import PromptInspectionRequest, PromptInspectionResponse, Finding
 from core.detectors.protocols import IDetector
-from core.detectors.pii import PresidioPiiDetector
-from core.detectors.secret  import SecretRegexDetector
-from core.detectors.injection import InjectionPatternDetector
-
-# Static detector pipeline for now.
-# Each detector implements IDetector.detect(prompt: str) -> List[Finding]
-_DETECTORS: tuple[IDetector, ...] = (
-    DetectSecretsDetector(),
-    #SecretRegexDetector(),
-    PresidioPiiDetector(),
-    InjectionPatternDetector(),
-)
 
 
-def analyze_prompt(req: PromptInspectionRequest) -> PromptInspectionResponse:
+def analyze_prompt(
+    req: PromptInspectionRequest,
+    detectors: Sequence[IDetector] | None,
+) -> PromptInspectionResponse:
     """
     Central rule engine for the inspection service.
 
@@ -27,10 +17,13 @@ def analyze_prompt(req: PromptInspectionRequest) -> PromptInspectionResponse:
     - fan-out the prompt to all configured detectors
     - aggregate their findings
     """
+    if detectors is None:
+        raise RuntimeError("Detector pipeline is not configured. Ensure warmup ran before handling requests.")
+
     text = req.prompt or ""
     all_findings: List[Finding] = []
 
-    for detector in _DETECTORS:
+    for detector in detectors:
         # Each detector is responsible for:
         # - reading its own config (severity, enabled flags, thresholds)
         # - talking to Presidio / regex / ML, etc.

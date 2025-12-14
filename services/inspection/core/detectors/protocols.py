@@ -24,6 +24,15 @@ class IDetector(Protocol):
         """
         ...
 
+    def warmup(self) -> None:
+        """Optional warmup hook to prepare any heavy resources.
+
+        This is called once during service startup to allow the detector
+        to initialize any heavy dependencies (ML models, Presidio engine,
+        regex compilations, etc.) before handling requests.
+        """
+        ...
+
 
 class IPiiDetector(IDetector, Protocol):
     """Marker protocol for detectors that focus on PII findings.

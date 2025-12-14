@@ -7,8 +7,7 @@ from typing import List, Dict, Tuple
 
 from core.models import Finding
 from core.detectors.protocols import IDetector
-from core.config.loader import load_config
-from core.config.models import InspectionConfig  # matches policy/config.yml
+from core.config.models import InspectionConfig  
 
 logger = logging.getLogger(__name__)
 
@@ -57,8 +56,7 @@ class SecretRegexDetector(IDetector):
         ),
     }
 
-    def __init__(self) -> None:
-        config: InspectionConfig = load_config()
+    def __init__(self, config: InspectionConfig) -> None:
         secrets_cfg = config.detection.secrets
         regex_cfg = secrets_cfg.engines.regex
 
@@ -108,6 +106,10 @@ class SecretRegexDetector(IDetector):
             )
 
         self._patterns = tuple(patterns)
+
+    def warmup(self) -> None:
+        """No-op warmup hook; initialization already loads patterns."""
+        _ = self._patterns
 
     def detect(self, prompt: str) -> List[Finding]:
         """

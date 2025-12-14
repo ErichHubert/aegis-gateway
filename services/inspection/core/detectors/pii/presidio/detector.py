@@ -1,20 +1,20 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Dict, List
 
 from presidio_analyzer import AnalyzerEngine, RecognizerResult
 
-from core.config.loader import load_config
 from core.config.models import InspectionConfig, PiiPresidioDetectorConfig, PiiPresidioEngineConfig
 from core.detectors.pii.presidio.engine import get_presidio_analyzer
 from core.models import Finding
-from core.detectors.protocols import IDetector 
+from core.detectors.protocols import IDetector
 
 
 _PiiLookup = Dict[str, PiiPresidioDetectorConfig]
 
 
-def _build_entity_lookup(detectors_cfg: dict[str, PiiPresidioDetectorConfig]) -> _PiiLookup:
+def _build_entity_lookup(detectors_cfg: Mapping[str, PiiPresidioDetectorConfig]) -> _PiiLookup:
     """Map Presidio entity types to enabled PII configs for fast lookup.
 
     Keys:   Presidio entity_type (e.g. "EMAIL_ADDRESS")
@@ -35,10 +35,14 @@ class PresidioPiiDetector(IDetector):
     - Only entities enabled in the policy are considered.
     """
 
-    def __init__(self, analyzer: AnalyzerEngine | None = None) -> None:
-        # get_analyzer() should be lru_cached, so this is cheap and
-        # the underlying spaCy/Presidio objects are reused across requests.
-        self._analyzer: AnalyzerEngine = analyzer or get_presidio_analyzer()
+    def __init__(
+        self,
+        config: InspectionConfig,
+        analyzer: AnalyzerEngine | None = None,
+    ) -> None:
+        # get_analyzer() caches, so this is cheap; reuse underlying spaCy/Presidio objects.
+        self._config = config
+        self._analyzer: AnalyzerEngine = analyzer or get_presidio_analyzer(config)
 
     def detect(self, prompt: str) -> List[Finding]:
         """Detect PII using Presidio with a spaCy backend.
@@ -48,8 +52,7 @@ class PresidioPiiDetector(IDetector):
         if not prompt:
             return []
 
-        policy: InspectionConfig = load_config()
-        presidio_cfg: PiiPresidioEngineConfig = policy.detection.pii.engines.presidio
+        presidio_cfg: PiiPresidioEngineConfig = self._config.detection.pii.engines.presidio
 
         # Build a mapping from Presidio entity type -> our PiiEntityConfig
         entity_lookup: _PiiLookup = _build_entity_lookup(presidio_cfg.detectors or {})
@@ -93,3 +96,7 @@ class PresidioPiiDetector(IDetector):
             )
 
         return findings
+
+    def warmup(self) -> None:
+        pass
+

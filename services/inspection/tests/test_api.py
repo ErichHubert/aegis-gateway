@@ -1,19 +1,26 @@
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
+
 from app import app
 
-client = TestClient(app)
+
+@pytest.fixture
+def client():
+    # Use context manager so FastAPI lifespan (initialization) runs.
+    with TestClient(app) as c:
+        yield c
 
 
-def test_inspect_endpoint_without_findings_in_prompt():
+def test_inspect_endpoint_without_findings_in_prompt(client: TestClient):
     response = client.post("/inspect", json={"prompt": "Hello world"})
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data["findings"], list)
     assert data["findings"] == []
 
-def test_inspect_endpoint_with_findings_in_prompt():
+def test_inspect_endpoint_with_findings_in_prompt(client: TestClient):
     resp = client.post("/inspect", json={"prompt": "Here is my key: AKIA1234567890ABCDEF", "meta": None})
     assert resp.status_code == 200
     data = resp.json()

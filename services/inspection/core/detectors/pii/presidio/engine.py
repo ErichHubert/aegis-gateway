@@ -1,23 +1,26 @@
 from __future__ import annotations
 
-from functools import lru_cache
-
 from presidio_analyzer import AnalyzerEngine, EntityRecognizer, PatternRecognizer, RecognizerRegistry
 from presidio_analyzer.nlp_engine import NlpEngineProvider, NlpEngine
 
-from core.config.loader import load_config
 from core.config.models import InspectionConfig
 
 
-@lru_cache(maxsize=1)
-def get_presidio_analyzer() -> AnalyzerEngine:
-    """Create and cache a singleton Presidio AnalyzerEngine.
+_ANALYZER: AnalyzerEngine | None = None
+
+
+def get_presidio_analyzer(config: InspectionConfig) -> AnalyzerEngine:
+    """Create and cache a singleton Presidio AnalyzerEngine using the given config.
 
     - Reads language + model from policy config
     - Uses spaCy as NLP backend
     - Loads Presidio’s predefined recognizers
     """
-    config: InspectionConfig = load_config()
+    global _ANALYZER
+
+    if _ANALYZER is not None:
+        return _ANALYZER
+
     presidio_engine = config.detection.pii.engines.presidio
 
     # Build NLP engine config for spaCy
@@ -58,7 +61,7 @@ def get_presidio_analyzer() -> AnalyzerEngine:
                 PatternRecognizer(
                     supported_entity=entity_cfg.presidio_type,
                     supported_language=presidio_engine.default_lang,
-                    context=entity_cfg.context_words,
+                    context=list(entity_cfg.context_words),
                 )
             )
 
@@ -67,3 +70,8 @@ def get_presidio_analyzer() -> AnalyzerEngine:
         registry=registry,
         supported_languages=[presidio_engine.default_lang],
     )
+
+
+def warmup_analyzer(config: InspectionConfig) -> None:
+    """Helper to explicitly build the cached analyzer during warmup."""
+    get_presidio_analyzer(config)

@@ -9,7 +9,9 @@ def check_readiness() -> dict:
     - models initialized
     - external dependencies reachable (if any)
     """
-    # Example skeleton:
-    # if not models_loaded:
-    #     return {"status": "degraded", "details": "Models not loaded"}
+    from bootstrap import WARMUP_ERRORS, WARMUP_OK
+
+    if not WARMUP_OK:
+        return {"status": "degraded", "details": WARMUP_ERRORS}
+
     return {"status": "ready"}
