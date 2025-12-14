@@ -5,10 +5,9 @@ import re
 from dataclasses import dataclass
 from typing import List, Dict, Tuple
 
-from infra.warmable import Warmable
 from core.models import Finding
 from core.detectors.protocols import IDetector
-from core.config.models import InspectionConfig  # matches policy/config.yml
+from core.config.models import InspectionConfig  
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ class _SecretPattern:
     severity: str
 
 
-class SecretRegexDetector(IDetector, Warmable):
+class SecretRegexDetector(IDetector):
     """
     Regex-based secret detector.
 

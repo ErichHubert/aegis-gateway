@@ -9,7 +9,7 @@ def check_readiness() -> dict:
     - models initialized
     - external dependencies reachable (if any)
     """
-    from infra.warmup import WARMUP_ERRORS, WARMUP_OK
+    from bootstrap import WARMUP_ERRORS, WARMUP_OK
 
     if not WARMUP_OK:
         return {"status": "degraded", "details": WARMUP_ERRORS}
