@@ -115,7 +115,7 @@ class DetectSecretsDetector(ISecretDetector):
                 offset = 0
                 for raw_line in prompt.splitlines(keepends=True):
                     # Preserve offsets including newline characters
-                    line_for_scan = raw_line.rstrip("\n")
+                    line_for_scan = raw_line.rstrip("\r\n")
 
                     secrets_iter = scan_line(line=line_for_scan)
                     for secret in secrets_iter:
