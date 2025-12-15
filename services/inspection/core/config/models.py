@@ -63,16 +63,12 @@ class DetectorBase(FrozenModel):
 # ---------- Secrets ----------
 FilterMode = Literal["blacklist", "whitelist"]
 
-class SecretsRegexEngineConfig(EngineBase):
-    """Configuration for the regex-based secrets engine."""
-    detectors: Mapping[str, DetectorBase]
-
 
 class SecretDetectSecretDetectorConfig(DetectorBase):
     """Configuration for a single detect-secrets plugin."""
     plugin_name: str
     plugin_type: str
-    
+
 
 class DetectSecretsFiltersConfig(FrozenModel):
     disable: tuple[str, ...] = Field(default_factory=tuple)
@@ -86,7 +82,6 @@ class SecretDetectSecretEngineConfig(EngineBase):
 
 class SecretEnginesConfig(FrozenModel):
     """Container for all secret-detection engines (regex, ml, ...)."""
-    regex: SecretsRegexEngineConfig
     detect_secrets: SecretDetectSecretEngineConfig
 
 

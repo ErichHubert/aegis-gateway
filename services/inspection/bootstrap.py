@@ -9,7 +9,6 @@ from core.detectors.pii.presidio.detector import PresidioPiiDetector
 from core.detectors.pii.presidio.engine import warmup_analyzer
 from core.detectors.protocols import IDetector
 from core.detectors.secret.detectsecret.detector import DetectSecretsDetector
-from core.detectors.secret.regex.detector import SecretRegexDetector
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +39,6 @@ def initialize_pipeline() -> tuple[IDetector, ...]:
 
         detector_pipeline: tuple[IDetector, ...] = (
             DetectSecretsDetector(config),
-            SecretRegexDetector(config),
             PresidioPiiDetector(config),
             InjectionPatternDetector(config),
         )
