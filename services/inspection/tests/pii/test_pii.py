@@ -167,3 +167,20 @@ def test_datetime_is_detected_as_pii_datetime(detectors):
     assert dt_finding.severity == "low"
     assert dt_finding.confidence is not None
     assert 0.0 <= dt_finding.confidence <= 1.0
+
+
+# -------------------
+# Custom pattern
+# -------------------
+
+def test_custompattern_is_detected_as_pii_mytoken(detectors):
+    text = "this is my custom token: MYTOKEN-0123456789ABCDEF"
+
+    req = PromptInspectionRequest(prompt=text, meta=None)
+    resp = analyze_prompt(req, detectors)
+
+    dt_finding = _get_finding(resp.findings, "pii_my_token")
+    assert dt_finding is not None, "Expected custom token to be detected as pii_my_token"
+    assert dt_finding.severity == "high"
+    assert dt_finding.confidence is not None
+    assert 0.0 <= dt_finding.confidence <= 1.0
