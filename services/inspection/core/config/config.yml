@@ -111,13 +111,13 @@ detection:
             plugin_name: IbmCosHmacDetector
             plugin_type: IBM COS HMAC Credentials
 
-          #IPPublicDetector:
-          #  id: secret_public_ip_address
-          #  display_name: Public IP Address
-          #  enabled: false
-          #  severity: high
-          #  plugin_name: IPPublicDetector
-          #  plugin_type: Public IP (ipv4)
+          IPPublicDetector:
+            id: secret_public_ip_address
+            display_name: Public IP Address
+            enabled: false
+            severity: high
+            plugin_name: IPPublicDetector
+            plugin_type: Public IP (ipv4)
 
           JwtTokenDetector:
             id: secret_jwt
@@ -222,6 +222,10 @@ detection:
             severity: high
             plugin_name: TwilioKeyDetector
             plugin_type: Twilio API Key
+
+        filters:
+          disable:
+            - detect_secrets.filters.heuristic.is_potential_uuid
             
   pii:
     engines:
