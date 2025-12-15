@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import List, Tuple, Dict, Any
 from dataclasses import dataclass
 from threading import Lock
@@ -10,6 +11,8 @@ from detect_secrets.settings import transient_settings
 from core.detectors.protocols import ISecretDetector
 from core.models import Finding
 from core.config.models import InspectionConfig, SecretDetectSecretEngineConfig  
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -89,6 +92,10 @@ class DetectSecretsDetector(ISecretDetector):
         engine_cfg = config.detection.secrets.engines.detect_secrets
 
         self._rules_by_plugin, self._settings, self._disabled_filters = _build_runtime_rules(engine_cfg)
+        logger.info(
+            "DetectSecretsDetector initialized with %d enabled rule(s)",
+            len(self._rules_by_plugin),
+        )
 
     def warmup(self) -> None:
         """Warmup hook to ensure rules are built."""
@@ -97,6 +104,7 @@ class DetectSecretsDetector(ISecretDetector):
     def detect(self, prompt: str) -> List[Finding]:
         """Run detect-secrets on the given prompt and return mapped findings."""
         if not prompt:
+            logger.debug("DetectSecretsDetector skipping empty prompt")
             return []
 
         findings: List[Finding] = []
@@ -155,5 +163,17 @@ class DetectSecretsDetector(ISecretDetector):
                         )
 
                     offset += len(raw_line)
+
+        if findings:
+            counts: Dict[str, int] = {}
+            for f in findings:
+                counts[f.type] = counts.get(f.type, 0) + 1
+            logger.info(
+                "DetectSecretsDetector found %d potential secret(s) across %d rule type(s)",
+                len(findings),
+                len(counts),
+            )
+        else:
+            logger.debug("DetectSecretsDetector found no secrets")
 
         return findings

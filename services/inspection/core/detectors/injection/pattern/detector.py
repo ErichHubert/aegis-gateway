@@ -160,4 +160,16 @@ class InjectionPatternDetector(IDetector):
                     )
                 )
 
+        if findings:
+            counts: dict[str, int] = {}
+            for finding in findings:
+                counts[finding.type] = counts.get(finding.type, 0) + 1
+            logger.info(
+                "InjectionPatternDetector flagged %d finding(s) across %d pattern type(s)",
+                len(findings),
+                len(counts),
+            )
+        else:
+            logger.debug("InjectionPatternDetector found no prompt injection patterns")
+
         return findings
