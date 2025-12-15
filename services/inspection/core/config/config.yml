@@ -317,6 +317,21 @@ detection:
               - dob
               - appointment
 
+          my_token:
+            id: pii_my_token
+            display_name: My Token
+            enabled: true
+            severity: high
+            presidio_type: CUSTOM          
+            score_threshold: 0.5             # optional; falls back to engine default
+            context_words:
+              - token
+              - mytoken
+            patterns:
+              - name: mytoken-pattern-1
+                regex: "(?i)MYTOKEN-[0-9A-F]{16}"
+                score: 0.6 
+
   prompt_injection:
     engines:
       pattern:
