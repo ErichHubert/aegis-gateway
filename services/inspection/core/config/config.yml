@@ -1,33 +1,6 @@
 detection:
   secrets:
     engines:
-      regex:
-        enabled: true                   
-        detectors:
-          aws_access_key:
-            id: secret_aws_access_key
-            display_name: AWS Access Key         
-            enabled: true             
-            severity: high                  
-
-          generic_token:
-            id: secret_generic_token  
-            display_name: Generic Token  
-            enabled: true                         
-            severity: high                  
-
-          jwt:
-            id: secret_jwt
-            display_name: JSON Web Token  
-            enabled: true           
-            severity: high                  
-
-          pem_block:
-            id: secret_pem_block  
-            display_name: PEM Block 
-            enabled: true                    
-            severity: high  
-
       detect_secrets:
         enabled: true
         detectors:
