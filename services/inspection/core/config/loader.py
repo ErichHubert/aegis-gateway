@@ -51,7 +51,7 @@ def _resolve_config_path(path: str | pathlib.Path | None) -> pathlib.Path:
     raise FileNotFoundError(f"Config file not found. Looked for: {tried}")
 
 
-@lru_cache(maxsize=32)
+@lru_cache(maxsize=1)
 def _load_cached_config(resolved_path: str) -> "InspectionConfig":
     from core.config.models import InspectionConfig
 
