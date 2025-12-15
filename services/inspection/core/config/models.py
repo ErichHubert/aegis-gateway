@@ -97,6 +97,14 @@ class PiiPresidioDetectorConfig(DetectorBase):
     presidio_type: str                       # e.g. EMAIL_ADDRESS
     score_threshold: Optional[float] = None  # fallback: engine default_score_threshold
     context_words: tuple[str, ...] = Field(default_factory=tuple)
+    patterns: tuple["PiiPresidioPatternConfig", ...] = Field(default_factory=tuple)
+
+
+class PiiPresidioPatternConfig(FrozenModel):
+    """Pattern definition for custom regex-based Presidio recognizers."""
+    name: str
+    regex: str
+    score: float
 
 
 class PiiPresidioEngineConfig(EngineBase):

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from presidio_analyzer import AnalyzerEngine, EntityRecognizer, PatternRecognizer, RecognizerRegistry
+from presidio_analyzer import AnalyzerEngine, EntityRecognizer, Pattern, PatternRecognizer, RecognizerRegistry
 from presidio_analyzer.nlp_engine import NlpEngineProvider, NlpEngine
 
-from core.config.models import InspectionConfig
+from core.config.models import InspectionConfig, PiiPresidioPatternConfig
 
 
 _ANALYZER: AnalyzerEngine | None = None
@@ -50,20 +50,39 @@ def get_presidio_analyzer(config: InspectionConfig) -> AnalyzerEngine:
             language=presidio_engine.default_lang,
         )
 
+        patterns: list[Pattern] = [
+            Pattern(name=p.name, regex=p.regex, score=p.score)
+            for p in (entity_cfg.patterns or ())
+        ]
+
+        context_words = list(entity_cfg.context_words)
+
         if recognizers:
             # enrich existing recognizers
             for r in recognizers:
                 existing = set(r.context or [])
-                r.context = list(existing | set(entity_cfg.context_words))
+                r.context = list(existing | set(context_words))
+            # add dedicated pattern recognizer if custom patterns are present
+            if patterns:
+                registry.add_recognizer(
+                    PatternRecognizer(
+                        supported_entity=entity_cfg.presidio_type,
+                        supported_language=presidio_engine.default_lang,
+                        patterns=patterns,
+                        context=context_words,
+                    )
+                )
         else:
             # create a minimal PatternRecognizer that only adds context
-            registry.add_recognizer(
-                PatternRecognizer(
-                    supported_entity=entity_cfg.presidio_type,
-                    supported_language=presidio_engine.default_lang,
-                    context=list(entity_cfg.context_words),
+            if patterns or context_words:
+                registry.add_recognizer(
+                    PatternRecognizer(
+                        supported_entity=entity_cfg.presidio_type,
+                        supported_language=presidio_engine.default_lang,
+                        patterns=patterns,
+                        context=context_words,
+                    )
                 )
-            )
 
     return AnalyzerEngine(
         nlp_engine=nlp_engine,
