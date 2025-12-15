@@ -148,7 +148,7 @@ class DetectSecretsDetector(ISecretDetector):
                                 start=start,
                                 end=end,
                                 snippet="***",
-                                message=f"Secret detected by {plugin_type}",
+                                message=f"Secret detected: {plugin_type}",
                                 severity=rule.severity,
                                 confidence=1.0,
                             )
