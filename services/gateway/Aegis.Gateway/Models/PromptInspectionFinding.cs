@@ -18,4 +18,10 @@ public sealed class PromptInspectionFinding
     
     [JsonPropertyName("message")]
     public string? Message { get; set; }
+    
+    [JsonPropertyName("severity")]
+    public string Severity { get; set; } = string.Empty;
+    
+    [JsonPropertyName("confidence")]
+    public float Confidence { get; set; }
 }
