@@ -12,6 +12,9 @@ builder.Services.Configure<PromptInspectionSettings>(builder.Configuration.GetSe
 builder.Services.AddPromptInspectionService();
 builder.Services.AddPromptExtractionService();
 
+//Add PolicyService
+builder.Services.AddPolicyService(builder.Configuration);
+
 // Add GlobalExceptionHandler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
