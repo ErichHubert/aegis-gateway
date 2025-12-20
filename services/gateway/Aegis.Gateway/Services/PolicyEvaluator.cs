@@ -1,4 +1,5 @@
 using Aegis.Gateway.Models;
+using Aegis.Gateway.Services.Interfaces;
 
 namespace Aegis.Gateway.Services;
 

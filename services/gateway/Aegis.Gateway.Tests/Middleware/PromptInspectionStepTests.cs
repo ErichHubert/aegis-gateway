@@ -4,6 +4,7 @@ using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
 using Aegis.Gateway.Models;
 using Aegis.Gateway.Services;
+using Aegis.Gateway.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
