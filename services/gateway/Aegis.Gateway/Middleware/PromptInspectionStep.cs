@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json;
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Models;
 using Aegis.Gateway.Services;
@@ -13,6 +12,8 @@ public sealed class PromptInspectionStep(
     RequestDelegate next,
     IPromptInspectionClient promptInspectionClient,
     IPromptExtractorResolver promptExtractorResolver,
+    IPolicyProvider policyProvider,
+    IPolicyEvaluator policyEvaluator,
     ILogger<PromptInspectionStep> logger)
 {
     public async Task InvokeAsync(HttpContext context)
@@ -29,15 +30,20 @@ public sealed class PromptInspectionStep(
             return;
         }
 
-        logger.LogInformation("Prompt inspection started for route {RouteId}", routeConfig?.RouteId);
+        PromptPolicy policy = policyProvider.GetPolicyForRoute(routeConfig);
+
+        logger.LogInformation(
+            "Prompt inspection started for route {RouteId} using policy {PolicyId}",
+            routeConfig?.RouteId,
+            policy.Id);
 
         string body = await ReadRequestBodyAsync(context.Request, ct);
         PromptInspectionMeta meta = CreateMeta(context, routeConfig);
-        
+
         if (!promptExtractorResolver.TryExtractPrompt(routeConfig, body, out var promptText))
         {
             logger.LogError(
-                "Prompt inspection is enabled for route {RouteId}, but no valid PromptFormat/extractor is configured. Blocking request.",
+                "Prompt inspection enabled for route {RouteId}, but no valid PromptFormat/extractor configured. Blocking request.",
                 routeConfig?.RouteId);
 
             await WriteMisconfiguredResponseAsync(context, ct);
@@ -46,13 +52,44 @@ public sealed class PromptInspectionStep(
 
         PromptInspectionResponse piResponse = await promptInspectionClient.InspectAsync(promptText, meta, ct);
 
-        if (!piResponse.IsAllowed)
-        {
-            await WriteBlockedResponseAsync(context, piResponse, ct);
-            return;
-        }
+        // Always log findings (avoid logging snippets/secrets)
+        LogFindings(routeConfig, policy, piResponse.Findings);
 
-        await next(context);
+        PolicyAction decision = policyEvaluator.Evaluate(policy, piResponse.Findings);
+
+        switch (decision)
+        {
+            case PolicyAction.Block:
+                await WriteDecisionResponseAsync(
+                    context,
+                    statusCode: StatusCodes.Status403Forbidden,
+                    title: "Request blocked by policy",
+                    type: "https://aegis-gateway/errors/policy-blocked",
+                    detail: $"Blocked by policy '{policy.Id}'.",
+                    policy,
+                    decision,
+                    piResponse,
+                    ct);
+                return;
+
+            case PolicyAction.Confirm:
+                await WriteDecisionResponseAsync(
+                    context,
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Confirmation required",
+                    type: "https://aegis-gateway/errors/policy-confirm",
+                    detail: $"Policy '{policy.Id}' requires confirmation before forwarding.",
+                    policy,
+                    decision,
+                    piResponse,
+                    ct);
+                return;
+
+            case PolicyAction.Allow:
+            default:
+                await next(context);
+                return;
+        }
     }
 
     private static bool ShouldInspectRoute(RouteConfig? routeConfig)
@@ -82,31 +119,74 @@ public sealed class PromptInspectionStep(
             Source = routeConfig?.RouteId
         };
 
-    private async Task WriteBlockedResponseAsync(
+    private void LogFindings(RouteConfig? routeConfig, PromptPolicy policy, IReadOnlyList<PromptInspectionFinding> findings)
+    {
+        if (findings.Count == 0)
+        {
+            logger.LogDebug("Prompt inspection found no issues. Route={RouteId} Policy={PolicyId}",
+                routeConfig?.RouteId, policy.Id);
+            return;
+        }
+
+        logger.LogInformation("Prompt inspection findings. Route={RouteId} Policy={PolicyId} Count={Count}",
+            routeConfig?.RouteId, policy.Id, findings.Count);
+
+        foreach (var f in findings)
+        {
+            // Avoid snippet logging (can leak secrets/PII)
+            logger.LogDebug("Finding: Type={Type} Severity={Severity} Range=[{Start},{End}] Message={Message}",
+                f.Type, f.Severity, f.Start, f.End, f.Message);
+        }
+    }
+
+    private static async Task WriteDecisionResponseAsync(
         HttpContext context,
+        int statusCode,
+        string title,
+        string type,
+        string detail,
+        PromptPolicy policy,
+        PolicyAction decision,
         PromptInspectionResponse piResponse,
         CancellationToken ct)
     {
         var problem = new ProblemDetails
         {
-            Status = StatusCodes.Status403Forbidden,
-            Title = "Request blocked by policy",
-            Type = "https://aegis-gateway/errors/prompt-blocked",
-            Detail = "The request was blocked based on LLM safety and data loss prevention rules.",
-            Instance = context.Request.Path,
-            Extensions =
-            {
-                ["findings"] = piResponse.Findings
-            }
+            Status = statusCode,
+            Title = title,
+            Type = type,
+            Detail = detail,
+            Instance = context.Request.Path
         };
+
+        problem.Extensions["policyId"] = policy.Id;
+        problem.Extensions["decision"] = decision.ToString().ToLowerInvariant();
+        problem.Extensions["findingCount"] = piResponse.Findings.Count;
+
+        if (decision == PolicyAction.Confirm)
+            problem.Extensions["confirmTtlSeconds"] = policy.Confirm.TtlSeconds;
+
+        // Return redacted findings (no snippet), but keep positions for UI highlighting
+        problem.Extensions["findings"] = RedactFindings(piResponse.Findings);
 
         context.Response.StatusCode = problem.Status.Value;
         context.Response.ContentType = "application/problem+json";
-
         await context.Response.WriteAsJsonAsync(problem, ct);
     }
-    
-    private async Task WriteMisconfiguredResponseAsync(
+
+    private static object[] RedactFindings(IReadOnlyList<PromptInspectionFinding> findings)
+        => findings.Select(f => new
+        {
+            type = f.Type,
+            severity = f.Severity,
+            start = f.Start,
+            end = f.End,
+            // Do NOT return snippet by default
+            // snippet = (string?)null,
+            message = f.Message
+        }).ToArray<object>();
+
+    private static async Task WriteMisconfiguredResponseAsync(
         HttpContext context,
         CancellationToken ct)
     {
@@ -121,7 +201,6 @@ public sealed class PromptInspectionStep(
 
         context.Response.StatusCode = problem.Status.Value;
         context.Response.ContentType = "application/problem+json";
-
         await context.Response.WriteAsJsonAsync(problem, ct);
     }
 }
