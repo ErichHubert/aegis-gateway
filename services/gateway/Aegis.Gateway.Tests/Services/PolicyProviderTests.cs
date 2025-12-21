@@ -1,6 +1,5 @@
-using Aegis.Gateway.Models;
-using Aegis.Gateway.Models.Policy;
-using Aegis.Gateway.Services;
+using Aegis.Gateway.Features.Policy;
+using Aegis.Gateway.Features.Policy.Models;
 using Microsoft.Extensions.Options;
 using Moq;
 using Yarp.ReverseProxy.Configuration;

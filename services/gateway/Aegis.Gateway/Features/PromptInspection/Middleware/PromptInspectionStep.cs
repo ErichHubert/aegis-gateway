@@ -1,10 +1,9 @@
 using System.Text;
+using Aegis.Gateway.Features.Policy;
+using Aegis.Gateway.Features.Policy.Models;
 using Aegis.Gateway.Features.PromptExtraction;
 using Aegis.Gateway.Features.PromptInspection.Contracts;
 using Aegis.Gateway.Features.PromptInspection.Infrastructure;
-using Aegis.Gateway.Models.Policy;
-using Aegis.Gateway.Services;
-using Aegis.Gateway.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;

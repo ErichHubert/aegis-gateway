@@ -1,6 +1,6 @@
+using Aegis.Gateway.Features.Policy;
+using Aegis.Gateway.Features.Policy.Models;
 using Aegis.Gateway.Features.PromptInspection.Contracts;
-using Aegis.Gateway.Models.Policy;
-using Aegis.Gateway.Services;
 
 namespace Aegis.Gateway.Tests.Services;
 

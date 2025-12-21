@@ -1,9 +1,8 @@
-using Aegis.Gateway.Models;
-using Aegis.Gateway.Models.Policy;
+using Aegis.Gateway.Features.Policy.Models;
 using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Aegis.Gateway.Services;
+namespace Aegis.Gateway.Features.Policy;
 
 public sealed class PolicyProvider(IOptionsMonitor<PolicyOptions> options) : IPolicyProvider
 {
@@ -23,9 +22,4 @@ public sealed class PolicyProvider(IOptionsMonitor<PolicyOptions> options) : IPo
         // Fallback: return a default policy
         return new PromptPolicy { Id = policyId };
     }
-}
-
-public sealed class PolicyOptions
-{
-    public Dictionary<string, PromptPolicy> Policies { get; init; } = new(StringComparer.OrdinalIgnoreCase);
 }

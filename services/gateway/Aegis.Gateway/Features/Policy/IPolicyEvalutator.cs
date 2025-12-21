@@ -1,8 +1,7 @@
+using Aegis.Gateway.Features.Policy.Models;
 using Aegis.Gateway.Features.PromptInspection.Contracts;
-using Aegis.Gateway.Models;
-using Aegis.Gateway.Models.Policy;
 
-namespace Aegis.Gateway.Services.Interfaces;
+namespace Aegis.Gateway.Features.Policy;
 
 public interface IPolicyEvaluator
 {

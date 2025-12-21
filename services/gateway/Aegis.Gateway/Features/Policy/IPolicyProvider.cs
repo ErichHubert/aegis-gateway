@@ -1,8 +1,6 @@
-using Aegis.Gateway.Models.Policy;
+using Aegis.Gateway.Features.Policy.Models;
 
-namespace Aegis.Gateway.Services;
-
-using Aegis.Gateway.Models;
+namespace Aegis.Gateway.Features.Policy;
 
 public interface IPolicyProvider
 {

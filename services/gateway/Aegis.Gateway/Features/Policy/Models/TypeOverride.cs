@@ -1,4 +1,4 @@
-namespace Aegis.Gateway.Models.Policy;
+namespace Aegis.Gateway.Features.Policy.Models;
 
 public sealed record TypeOverride
 {

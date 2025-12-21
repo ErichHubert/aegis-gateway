@@ -1,6 +1,5 @@
 using Aegis.Gateway.Features.PromptExtraction;
 using Aegis.Gateway.Features.PromptExtraction.Extractors;
-using Aegis.Gateway.Services;
 
 namespace Aegis.Gateway.DependencyInjection;
 

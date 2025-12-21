@@ -1,6 +1,5 @@
-using Aegis.Gateway.Models;
-using Aegis.Gateway.Services;
-using Aegis.Gateway.Services.Interfaces;
+using Aegis.Gateway.Features.Policy;
+using Aegis.Gateway.Features.Policy.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
