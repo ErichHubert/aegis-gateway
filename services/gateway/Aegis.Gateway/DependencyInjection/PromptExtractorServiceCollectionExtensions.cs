@@ -3,7 +3,7 @@ using Aegis.Gateway.Services.PromptExtractors;
 
 namespace Aegis.Gateway.DependencyInjection;
 
-public static class PromptExtractionServiceExtension
+public static class PromptExtractionServiceCollectionExtension
 {
     public static IServiceCollection AddPromptExtractionService(this IServiceCollection services)
     {

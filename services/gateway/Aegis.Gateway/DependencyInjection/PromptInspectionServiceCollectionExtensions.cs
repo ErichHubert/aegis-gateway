@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace Aegis.Gateway.DependencyInjection;
 
-public static class PromptInspectionServiceExtension
+public static class PromptInspectionServiceCollectionExtensions
 {
     public static IServiceCollection AddPromptInspectionService(this IServiceCollection services)
     {

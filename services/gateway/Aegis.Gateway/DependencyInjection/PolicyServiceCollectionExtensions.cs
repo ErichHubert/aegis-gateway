@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Aegis.Gateway.DependencyInjection;
 
-public static class PolicyServiceExtensions
+public static class PolicyServiceCollectionExtensions
 {
     public static IServiceCollection AddPolicyService(
         this IServiceCollection services,
