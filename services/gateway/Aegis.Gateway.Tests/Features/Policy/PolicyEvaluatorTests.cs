@@ -2,7 +2,7 @@ using Aegis.Gateway.Features.Policy;
 using Aegis.Gateway.Features.Policy.Models;
 using Aegis.Gateway.Features.PromptInspection.Contracts;
 
-namespace Aegis.Gateway.Tests.Services;
+namespace Aegis.Gateway.Tests.Features.Policy;
 
 public sealed class PolicyEvaluatorTests
 {

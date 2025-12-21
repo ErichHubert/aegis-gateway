@@ -6,7 +6,7 @@ using Aegis.Gateway.Tests.Util;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Aegis.Gateway.Tests.Services;
+namespace Aegis.Gateway.Tests.Features.PromptInspection.Infrastructure;
 
 public class PromptInspectionClientTests(FakeHttpClientFixture fixture) 
     : IClassFixture<FakeHttpClientFixture>

@@ -2,7 +2,7 @@ using Aegis.Gateway.Features.PromptExtraction;
 using Moq;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Aegis.Gateway.Tests.Services;
+namespace Aegis.Gateway.Tests.Features.PromptExtraction;
 
 public sealed class PromptExtractorResolverTests
 {

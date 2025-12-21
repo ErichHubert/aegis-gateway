@@ -6,7 +6,6 @@ using Aegis.Gateway.Features.PromptExtraction;
 using Aegis.Gateway.Features.PromptInspection.Contracts;
 using Aegis.Gateway.Features.PromptInspection.Infrastructure;
 using Aegis.Gateway.Features.PromptInspection.Middleware;
-using Aegis.Gateway.Middleware;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,7 +15,7 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
 
-namespace Aegis.Gateway.Tests.Middleware;
+namespace Aegis.Gateway.Tests.Features.PromptInspection.Middleware;
 
 public sealed class PromptInspectionStepTests
 {

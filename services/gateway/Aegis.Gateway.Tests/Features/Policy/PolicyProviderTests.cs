@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Aegis.Gateway.Tests.Services;
+namespace Aegis.Gateway.Tests.Features.Policy;
 
 public sealed class PolicyProviderTests
 {

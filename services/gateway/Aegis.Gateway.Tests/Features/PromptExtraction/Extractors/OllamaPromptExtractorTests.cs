@@ -1,10 +1,8 @@
-using System.Text.Json;
 using Aegis.Gateway.Features.PromptExtraction.Extractors;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
 
-namespace Aegis.Gateway.Tests.Services.PromptExtractorTests;
+namespace Aegis.Gateway.Tests.Features.PromptExtraction.Extractors;
 
 public sealed class OllamaPromptExtractorTests
 {
