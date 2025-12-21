@@ -1,4 +1,4 @@
-namespace Aegis.Gateway.Infrastructure.PromptInspection;
+namespace Aegis.Gateway.Features.PromptInspection.Infrastructure;
 
 public sealed record PromptInspectionOptions
 {

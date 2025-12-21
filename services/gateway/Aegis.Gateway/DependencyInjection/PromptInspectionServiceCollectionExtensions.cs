@@ -1,4 +1,4 @@
-using Aegis.Gateway.Infrastructure.PromptInspection;
+using Aegis.Gateway.Features.PromptInspection.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;

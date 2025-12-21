@@ -1,7 +1,6 @@
 using Aegis.Gateway.Features.PromptInspection.Contracts;
-using Aegis.Gateway.Models;
 
-namespace Aegis.Gateway.Infrastructure.PromptInspection;
+namespace Aegis.Gateway.Features.PromptInspection.Infrastructure;
 
 public interface IPromptInspectionClient
 {

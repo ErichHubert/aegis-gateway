@@ -2,7 +2,7 @@ using System.Net;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace Aegis.Gateway.Infrastructure.PromptInspection;
+namespace Aegis.Gateway.Features.PromptInspection.Infrastructure;
 
 public class PromptInspectionHealthCheck(
     IHttpClientFactory httpClientFactory,
