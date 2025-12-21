@@ -58,11 +58,11 @@ public sealed class PromptInspectionStep(
         // Always log findings (avoid logging snippets/secrets)
         LogFindings(routeConfig, policy, piResponse.Findings);
 
-        PolicyAction decision = policyEvaluator.Evaluate(policy, piResponse.Findings);
+        PolicyActionEnum decision = policyEvaluator.Evaluate(policy, piResponse.Findings);
 
         switch (decision)
         {
-            case PolicyAction.Block:
+            case PolicyActionEnum.Block:
                 await WriteDecisionResponseAsync(
                     context,
                     statusCode: StatusCodes.Status403Forbidden,
@@ -75,7 +75,7 @@ public sealed class PromptInspectionStep(
                     ct);
                 return;
 
-            case PolicyAction.Confirm:
+            case PolicyActionEnum.Confirm:
                 await WriteDecisionResponseAsync(
                     context,
                     statusCode: StatusCodes.Status409Conflict,
@@ -88,7 +88,7 @@ public sealed class PromptInspectionStep(
                     ct);
                 return;
 
-            case PolicyAction.Allow:
+            case PolicyActionEnum.Allow:
             default:
                 await next(context);
                 return;
@@ -149,7 +149,7 @@ public sealed class PromptInspectionStep(
         string type,
         string detail,
         PromptPolicy policy,
-        PolicyAction decision,
+        PolicyActionEnum decision,
         PromptInspectionResponse piResponse,
         CancellationToken ct)
     {
@@ -166,7 +166,7 @@ public sealed class PromptInspectionStep(
         problem.Extensions["decision"] = decision.ToString().ToLowerInvariant();
         problem.Extensions["findingCount"] = piResponse.Findings.Count;
 
-        if (decision == PolicyAction.Confirm)
+        if (decision == PolicyActionEnum.Confirm)
             problem.Extensions["confirmTtlSeconds"] = policy.Confirm.TtlSeconds;
 
         // Return redacted findings (no snippet), but keep positions for UI highlighting

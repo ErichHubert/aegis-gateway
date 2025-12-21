@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 var builder = WebApplication.CreateBuilder(args);
 
 //load configuration
-builder.Services.Configure<PromptInspectionSettings>(builder.Configuration.GetSection("PromptInspectionService"));
+builder.Services.Configure<PromptInspectionOptions>(builder.Configuration.GetSection("PromptInspectionService"));
 
 //Add PromptServices
 builder.Services.AddPromptInspectionService();

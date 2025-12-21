@@ -6,5 +6,5 @@ namespace Aegis.Gateway.Services.Interfaces;
 
 public interface IPolicyEvaluator
 {
-    PolicyAction Evaluate(PromptPolicy policy, IReadOnlyList<PromptInspectionFinding> findings);
+    PolicyActionEnum Evaluate(PromptPolicy policy, IReadOnlyList<PromptInspectionFinding> findings);
 }

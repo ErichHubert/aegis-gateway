@@ -7,28 +7,28 @@ namespace Aegis.Gateway.Services;
 
 public sealed class PolicyEvaluator : IPolicyEvaluator
 {
-    public PolicyAction Evaluate(PromptPolicy policy, IReadOnlyList<PromptInspectionFinding> findings)
+    public PolicyActionEnum Evaluate(PromptPolicy policy, IReadOnlyList<PromptInspectionFinding> findings)
     {
-        var worst = PolicyAction.Allow;
+        var worst = PolicyActionEnum.Allow;
 
         foreach (var f in findings)
         {
-            var severity = TryParseSeverity(f.Severity, out var s) ? s : (Severity?)null;
+            var severity = TryParseSeverity(f.Severity, out var s) ? s : (SeverityEnum?)null;
 
             var action = policy.ResolveAction(severity, f.Type);
             worst = Max(worst, action);
 
-            if (worst == PolicyAction.Block)
+            if (worst == PolicyActionEnum.Block)
                 break;
         }
 
         return worst;
     }
 
-    private static bool TryParseSeverity(string? severity, out Severity parsed)
+    private static bool TryParseSeverity(string? severity, out SeverityEnum parsed)
     {
         if (!string.IsNullOrWhiteSpace(severity) &&
-            Enum.TryParse(severity, ignoreCase: true, out Severity sev))
+            Enum.TryParse(severity, ignoreCase: true, out SeverityEnum sev))
         {
             parsed = sev;
             return true;
@@ -38,6 +38,6 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
         return false;
     }
 
-    private static PolicyAction Max(PolicyAction a, PolicyAction b)
-        => (PolicyAction)Math.Max((int)a, (int)b);
+    private static PolicyActionEnum Max(PolicyActionEnum a, PolicyActionEnum b)
+        => (PolicyActionEnum)Math.Max((int)a, (int)b);
 }

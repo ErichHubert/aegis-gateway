@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json;
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
-using Aegis.Gateway.Models;
 using Aegis.Gateway.Models.Inspection;
 using Aegis.Gateway.Models.Policy;
 using Aegis.Gateway.Services;
@@ -203,7 +202,7 @@ public sealed class PromptInspectionStepTests
 
         policyEvaluatorMock
             .Setup(x => x.Evaluate(It.IsAny<PromptPolicy>(), It.IsAny<IReadOnlyList<PromptInspectionFinding>>()))
-            .Returns(PolicyAction.Block);
+            .Returns(PolicyActionEnum.Block);
 
         // Act
         await middleware.InvokeAsync(context);

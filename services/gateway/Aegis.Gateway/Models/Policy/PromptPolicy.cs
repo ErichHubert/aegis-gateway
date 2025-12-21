@@ -1,32 +1,19 @@
 namespace Aegis.Gateway.Models.Policy;
 
-public enum Severity { Low, Medium, High }
-public enum PolicyAction { Allow, Confirm, Block }
-
-public sealed record ConfirmOptions
-{
-    public int TtlSeconds { get; init; } = 120;
-}
-
-public sealed record TypeOverride
-{
-    public PolicyAction Action { get; init; }
-}
-
 public sealed record PromptPolicy
 {
     public static readonly string DefaultId = "Default";
 
     public string Id { get; init; } = DefaultId;
 
-    public PolicyAction DefaultAction { get; init; } = PolicyAction.Confirm;
+    public PolicyActionEnum DefaultAction { get; init; } = PolicyActionEnum.Confirm;
 
-    public IReadOnlyDictionary<Severity, PolicyAction> SeverityToAction { get; init; }
-        = new Dictionary<Severity, PolicyAction>
+    public IReadOnlyDictionary<SeverityEnum, PolicyActionEnum> SeverityToAction { get; init; }
+        = new Dictionary<SeverityEnum, PolicyActionEnum>
         {
-            [Severity.Low] = PolicyAction.Allow,
-            [Severity.Medium] = PolicyAction.Confirm,
-            [Severity.High] = PolicyAction.Block,
+            [SeverityEnum.Low] = PolicyActionEnum.Allow,
+            [SeverityEnum.Medium] = PolicyActionEnum.Confirm,
+            [SeverityEnum.High] = PolicyActionEnum.Block,
         };
 
     public IReadOnlyDictionary<string, TypeOverride> TypeOverrides { get; init; }
@@ -34,7 +21,7 @@ public sealed record PromptPolicy
 
     public ConfirmOptions Confirm { get; init; } = new();
 
-    public PolicyAction ResolveAction(Severity? severity, string? findingType)
+    public PolicyActionEnum ResolveAction(SeverityEnum? severity, string? findingType)
     {
         if (!string.IsNullOrWhiteSpace(findingType) && TryGetOverrideAction(findingType, out var a))
             return a;
@@ -45,7 +32,7 @@ public sealed record PromptPolicy
         return DefaultAction;
     }
 
-    private bool TryGetOverrideAction(string findingType, out PolicyAction action)
+    private bool TryGetOverrideAction(string findingType, out PolicyActionEnum action)
     {
         if (TypeOverrides.TryGetValue(findingType, out var o))
         {
