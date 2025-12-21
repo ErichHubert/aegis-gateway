@@ -1,4 +1,5 @@
 using Aegis.Gateway.Features.Policy;
+using Aegis.Gateway.Features.Policy.Services;
 
 namespace Aegis.Gateway.DependencyInjection;
 
@@ -13,9 +14,11 @@ public static class PolicyServiceCollectionExtensions
             {
                 cfg.GetSection("Policies").Bind(opt.Policies);
             });
-
+        
+        services.AddMemoryCache(o => o.SizeLimit = 10_000);
         services.AddSingleton<IPolicyProvider, PolicyProvider>();
         services.AddSingleton<IPolicyEvaluator, PolicyEvaluator>();
+        services.AddSingleton<IConfirmTokenService, ConfirmTokenService>();
 
         return services;
     }

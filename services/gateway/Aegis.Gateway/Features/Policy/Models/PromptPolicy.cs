@@ -23,24 +23,17 @@ public sealed record PromptPolicy
 
     public PolicyActionEnum ResolveAction(SeverityEnum? severity, string? findingType)
     {
-        if (!string.IsNullOrWhiteSpace(findingType) && TryGetOverrideAction(findingType, out var a))
-            return a;
-
-        if (severity is { } s && SeverityToAction.TryGetValue(s, out var mapped))
-            return mapped;
-
-        return DefaultAction;
-    }
-
-    private bool TryGetOverrideAction(string findingType, out PolicyActionEnum action)
-    {
-        if (TypeOverrides.TryGetValue(findingType, out var o))
+        if (!string.IsNullOrWhiteSpace(findingType) &&
+            TypeOverrides.TryGetValue(findingType, out var overridePolicy))
         {
-            action = o.Action;
-            return true;
+            return overridePolicy.Action;
         }
 
-        action = default;
-        return false;
+        if (severity.HasValue && SeverityToAction.TryGetValue(severity.Value, out var mappedAction))
+        {
+            return mappedAction;
+        }
+
+        return DefaultAction;
     }
 }

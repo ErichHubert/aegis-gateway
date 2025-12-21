@@ -2,11 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace Aegis.Gateway.Features.PromptInspection.Contracts;
 
-public sealed class PromptInspectionRequest
+public sealed record PromptInspectionRequest
 {
     [JsonPropertyName("prompt")]        
-    public string Prompt { get; set; } = string.Empty;
+    public string Prompt { get; init; } = string.Empty;
 
     [JsonPropertyName("meta")]
-    public PromptInspectionMeta? Meta { get; set; } = new();
+    public PromptInspectionMeta? Meta { get; init; } = new();
 }
