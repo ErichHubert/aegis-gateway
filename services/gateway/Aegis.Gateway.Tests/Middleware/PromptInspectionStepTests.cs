@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Aegis.Gateway.Features.PromptInspection.Middleware;
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
 using Aegis.Gateway.Models.Inspection;

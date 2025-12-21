@@ -1,6 +1,5 @@
 using System.Text;
 using Aegis.Gateway.Infrastructure.PromptInspection;
-using Aegis.Gateway.Models;
 using Aegis.Gateway.Models.Inspection;
 using Aegis.Gateway.Models.Policy;
 using Aegis.Gateway.Services;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 
-namespace Aegis.Gateway.Middleware;
+namespace Aegis.Gateway.Features.PromptInspection.Middleware;
 
 public sealed class PromptInspectionStep(
     RequestDelegate next,

@@ -1,4 +1,5 @@
 using Aegis.Gateway.DependencyInjection;
+using Aegis.Gateway.Features.PromptInspection.Middleware;
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
