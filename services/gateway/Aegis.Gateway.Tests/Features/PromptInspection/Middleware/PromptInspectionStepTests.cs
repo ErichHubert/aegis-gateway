@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Aegis.Gateway.Features.Policy;
 using Aegis.Gateway.Features.Policy.Models;
+using Aegis.Gateway.Features.Policy.Services;
 using Aegis.Gateway.Features.PromptExtraction;
 using Aegis.Gateway.Features.PromptInspection.Contracts;
 using Aegis.Gateway.Features.PromptInspection.Infrastructure;
@@ -29,6 +30,7 @@ public sealed class PromptInspectionStepTests
         var extractorResolverMock = new Mock<IPromptExtractorResolver>(MockBehavior.Strict);
         var policyProviderMock = new Mock<IPolicyProvider>(MockBehavior.Strict);
         var policyEvaluatorMock = new Mock<IPolicyEvaluator>(MockBehavior.Strict);
+        var confirmTokenServiceMock = new Mock<IConfirmTokenService>(MockBehavior.Strict);
 
         var spy = new NextSpy();
         RequestDelegate next = spy.Invoke;
@@ -39,6 +41,7 @@ public sealed class PromptInspectionStepTests
             extractorResolverMock.Object,
             policyProviderMock.Object,
             policyEvaluatorMock.Object,
+            confirmTokenServiceMock.Object,
             _logger);
 
         DefaultHttpContext context = CreateHttpContext(body: """{"prompt":"hello"}""");
@@ -67,6 +70,8 @@ public sealed class PromptInspectionStepTests
 
         policyProviderMock.Verify(x => x.GetPolicyForRoute(It.IsAny<RouteConfig?>()), Times.Never);
         policyEvaluatorMock.Verify(x => x.Evaluate(It.IsAny<PromptPolicy>(), It.IsAny<IReadOnlyList<PromptInspectionFinding>>()), Times.Never);
+
+        confirmTokenServiceMock.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -77,6 +82,7 @@ public sealed class PromptInspectionStepTests
         var extractorResolverMock = new Mock<IPromptExtractorResolver>();
         var policyProviderMock = new Mock<IPolicyProvider>(MockBehavior.Strict);
         var policyEvaluatorMock = new Mock<IPolicyEvaluator>(MockBehavior.Strict);
+        var confirmTokenServiceMock = new Mock<IConfirmTokenService>(MockBehavior.Strict);
 
         var body = """{"prompt":"hello"}""";
         var dummyPrompt = string.Empty;
@@ -96,6 +102,7 @@ public sealed class PromptInspectionStepTests
             extractorResolverMock.Object,
             policyProviderMock.Object,
             policyEvaluatorMock.Object,
+            confirmTokenServiceMock.Object,
             _logger);
 
         DefaultHttpContext context = CreateHttpContext(body);
@@ -103,7 +110,7 @@ public sealed class PromptInspectionStepTests
         RouteConfig routeConfig = CreateRouteConfig(inspectPrompt: true, promptFormat: "ollama");
         AttachReverseProxyFeature(context, routeConfig);
 
-        // IMPORTANT: middleware now loads policy BEFORE extraction -> set up strict mock
+        // IMPORTANT: middleware loads policy BEFORE extraction -> set up strict mock
         policyProviderMock
             .Setup(x => x.GetPolicyForRoute(It.Is<RouteConfig?>(rc => rc == routeConfig)))
             .Returns(new PromptPolicy());
@@ -135,6 +142,8 @@ public sealed class PromptInspectionStepTests
 
         // No evaluation when extractor fails
         policyEvaluatorMock.Verify(x => x.Evaluate(It.IsAny<PromptPolicy>(), It.IsAny<IReadOnlyList<PromptInspectionFinding>>()), Times.Never);
+
+        confirmTokenServiceMock.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -145,6 +154,7 @@ public sealed class PromptInspectionStepTests
         var extractorResolverMock = new Mock<IPromptExtractorResolver>();
         var policyProviderMock = new Mock<IPolicyProvider>(MockBehavior.Strict);
         var policyEvaluatorMock = new Mock<IPolicyEvaluator>(MockBehavior.Strict);
+        var confirmTokenServiceMock = new Mock<IConfirmTokenService>(MockBehavior.Strict);
 
         var body = """{"prompt":"this should be blocked"}""";
         var extractedPrompt = "this should be blocked";
@@ -163,7 +173,6 @@ public sealed class PromptInspectionStepTests
                 Severity = "high",
                 Start = 5,
                 End = 12,
-                // Snippet might exist in your model, but middleware redacts it anyway
                 Snippet = "REDACTME",
                 Message = "Token-like string detected"
             }
@@ -187,6 +196,7 @@ public sealed class PromptInspectionStepTests
             extractorResolverMock.Object,
             policyProviderMock.Object,
             policyEvaluatorMock.Object,
+            confirmTokenServiceMock.Object,
             _logger);
 
         DefaultHttpContext context = CreateHttpContext(body);
@@ -219,9 +229,11 @@ public sealed class PromptInspectionStepTests
         Assert.NotNull(extFindings);
 
         policyEvaluatorMock.Verify(x => x.Evaluate(
-            It.IsAny<PromptPolicy>(),
-            It.Is<IReadOnlyList<PromptInspectionFinding>>(l => l.Count == 1)),
+                It.IsAny<PromptPolicy>(),
+                It.Is<IReadOnlyList<PromptInspectionFinding>>(l => l.Count == 1)),
             Times.Once);
+
+        confirmTokenServiceMock.VerifyNoOtherCalls();
     }
 
     // ---------- Helpers ----------
