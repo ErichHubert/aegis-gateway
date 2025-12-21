@@ -1,4 +1,4 @@
-namespace Aegis.Gateway.Models;
+namespace Aegis.Gateway.Models.Policy;
 
 public enum Severity { Low, Medium, High }
 public enum PolicyAction { Allow, Confirm, Block }

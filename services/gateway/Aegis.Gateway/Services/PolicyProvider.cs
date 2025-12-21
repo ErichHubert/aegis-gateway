@@ -1,4 +1,5 @@
 using Aegis.Gateway.Models;
+using Aegis.Gateway.Models.Policy;
 using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Configuration;
 

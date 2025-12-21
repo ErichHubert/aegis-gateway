@@ -3,6 +3,8 @@ using System.Text.Json;
 using Aegis.Gateway.Infrastructure.PromptInspection;
 using Aegis.Gateway.Middleware;
 using Aegis.Gateway.Models;
+using Aegis.Gateway.Models.Inspection;
+using Aegis.Gateway.Models.Policy;
 using Aegis.Gateway.Services;
 using Aegis.Gateway.Services.Interfaces;
 using Microsoft.AspNetCore.Http;

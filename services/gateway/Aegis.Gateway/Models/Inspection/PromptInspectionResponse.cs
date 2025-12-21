@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Aegis.Gateway.Models;
+namespace Aegis.Gateway.Models.Inspection;
 
 public sealed class PromptInspectionResponse
 {

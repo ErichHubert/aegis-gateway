@@ -13,8 +13,10 @@ public static class PolicyServiceExtensions
         IConfiguration configuration)
     {
         services.AddOptions<PolicyOptions>()
-            .Bind(configuration.GetSection("Policies"))
-            .ValidateDataAnnotations();
+            .Configure<IConfiguration>((opt, cfg) =>
+            {
+                cfg.GetSection("Policies").Bind(opt.Policies);
+            });
 
         services.AddSingleton<IPolicyProvider, PolicyProvider>();
         services.AddSingleton<IPolicyEvaluator, PolicyEvaluator>();
