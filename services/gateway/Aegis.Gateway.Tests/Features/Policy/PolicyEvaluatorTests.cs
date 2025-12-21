@@ -13,10 +13,10 @@ public sealed class PolicyEvaluatorTests
     {
         //Arrange
         var policy = new PromptPolicy();
-        var findings = Array.Empty<PromptInspectionFinding>();
+        PromptInspectionFinding[] findings = Array.Empty<PromptInspectionFinding>();
 
         //Act
-        var action = _sut.Evaluate(policy, findings);
+        PolicyActionEnum action = _sut.Evaluate(policy, findings);
 
         //Assert
         Assert.Equal(PolicyActionEnum.Allow, action);
@@ -33,7 +33,7 @@ public sealed class PolicyEvaluatorTests
         };
 
         //Act
-        var action = _sut.Evaluate(policy, findings);
+        PolicyActionEnum action = _sut.Evaluate(policy, findings);
 
         //Assert
         Assert.Equal(PolicyActionEnum.Block, action);
@@ -50,7 +50,7 @@ public sealed class PolicyEvaluatorTests
         };
 
         //Act
-        var action = _sut.Evaluate(policy, findings);
+        PolicyActionEnum action = _sut.Evaluate(policy, findings);
 
         //Assert
         Assert.Equal(PolicyActionEnum.Confirm, action);
@@ -68,7 +68,7 @@ public sealed class PolicyEvaluatorTests
         };
 
         //Act
-        var action = _sut.Evaluate(policy, findings);
+        PolicyActionEnum action = _sut.Evaluate(policy, findings);
 
         //Assert
         // With the default policy config, fallback is Confirm.
@@ -94,7 +94,7 @@ public sealed class PolicyEvaluatorTests
         };
 
         //Act
-        var action = _sut.Evaluate(policy, findings);
+        PolicyActionEnum action = _sut.Evaluate(policy, findings);
 
         //Assert
         Assert.Equal(PolicyActionEnum.Block, action);
@@ -113,7 +113,7 @@ public sealed class PolicyEvaluatorTests
         };
 
         //Act
-        var action = _sut.Evaluate(policy, findings);
+        PolicyActionEnum action = _sut.Evaluate(policy, findings);
 
         //Assert
         Assert.Equal(PolicyActionEnum.Block, action);
@@ -130,7 +130,7 @@ public sealed class PolicyEvaluatorTests
         };
 
         //Act
-        var action = _sut.Evaluate(policy, findings);
+        PolicyActionEnum action = _sut.Evaluate(policy, findings);
 
         //Assert
         Assert.Equal(PolicyActionEnum.Block, action);

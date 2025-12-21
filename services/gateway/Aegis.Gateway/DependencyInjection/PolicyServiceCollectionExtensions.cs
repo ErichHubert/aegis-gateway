@@ -1,7 +1,4 @@
 using Aegis.Gateway.Features.Policy;
-using Aegis.Gateway.Features.Policy.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Aegis.Gateway.DependencyInjection;
 

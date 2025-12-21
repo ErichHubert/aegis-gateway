@@ -15,7 +15,7 @@ public sealed class PromptInspectionClient(
         CancellationToken ct = default
         )
     {
-        var payload = new PromptInspectionRequest() {Prompt = prompt, Meta = meta };
+        var payload = new PromptInspectionRequest { Prompt = prompt, Meta = meta };
 
         using var content = new StringContent(
             JsonSerializer.Serialize(payload, JsonSerializerOptions.Web),
@@ -23,10 +23,10 @@ public sealed class PromptInspectionClient(
             "application/json");
         
         logger.LogInformation("Sending inspection request to Prompt Inspection Service");
-        using var response = await httpClient.PostAsync("/inspect", content, ct);
+        using HttpResponseMessage response = await httpClient.PostAsync("/inspect", content, ct);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<PromptInspectionResponse>(ct);
+        PromptInspectionResponse? result = await response.Content.ReadFromJsonAsync<PromptInspectionResponse>(ct);
 
         if (result is null)
             throw new InvalidOperationException("Prompt Inspection Service returned null");
