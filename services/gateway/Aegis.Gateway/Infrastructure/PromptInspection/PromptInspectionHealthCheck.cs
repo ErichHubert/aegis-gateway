@@ -6,10 +6,10 @@ namespace Aegis.Gateway.Infrastructure.PromptInspection;
 
 public class PromptInspectionHealthCheck(
     IHttpClientFactory httpClientFactory,
-    IOptions<PromptInspectionSettings> options)
+    IOptions<PromptInspectionOptions> options)
     : IHealthCheck
 {
-    private readonly PromptInspectionSettings _options = options.Value;
+    private readonly PromptInspectionOptions _options = options.Value;
 
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,

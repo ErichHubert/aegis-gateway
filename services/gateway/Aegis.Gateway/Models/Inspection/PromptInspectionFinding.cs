@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Aegis.Gateway.Models;
+namespace Aegis.Gateway.Models.Inspection;
 
 public sealed class PromptInspectionFinding
 {
@@ -18,4 +18,10 @@ public sealed class PromptInspectionFinding
     
     [JsonPropertyName("message")]
     public string? Message { get; set; }
+    
+    [JsonPropertyName("severity")]
+    public string Severity { get; set; } = string.Empty;
+    
+    [JsonPropertyName("confidence")]
+    public float Confidence { get; set; }
 }

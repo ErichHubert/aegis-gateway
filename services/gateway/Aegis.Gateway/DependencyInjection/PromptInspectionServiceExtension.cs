@@ -12,10 +12,10 @@ public static class PromptInspectionServiceExtension
         services.AddScoped<IPromptInspectionClient, PromptInspectionClient>();
         services.AddHttpClient<IPromptInspectionClient, PromptInspectionClient>((context, client) =>
         {
-            PromptInspectionSettings settings = context.GetRequiredService<IOptions<PromptInspectionSettings>>().Value;
+            PromptInspectionOptions options = context.GetRequiredService<IOptions<PromptInspectionOptions>>().Value;
     
-            client.BaseAddress = new Uri(settings.BaseAddress);
-            client.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
+            client.BaseAddress = new Uri(options.BaseAddress);
+            client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
         });
         
         services

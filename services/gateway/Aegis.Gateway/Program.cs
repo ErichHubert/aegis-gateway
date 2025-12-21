@@ -6,11 +6,14 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 var builder = WebApplication.CreateBuilder(args);
 
 //load configuration
-builder.Services.Configure<PromptInspectionSettings>(builder.Configuration.GetSection("PromptInspectionService"));
+builder.Services.Configure<PromptInspectionOptions>(builder.Configuration.GetSection("PromptInspectionService"));
 
 //Add PromptServices
 builder.Services.AddPromptInspectionService();
 builder.Services.AddPromptExtractionService();
+
+//Add PolicyService
+builder.Services.AddPolicyService(builder.Configuration);
 
 // Add GlobalExceptionHandler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
