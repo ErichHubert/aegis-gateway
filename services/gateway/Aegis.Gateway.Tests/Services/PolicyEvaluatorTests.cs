@@ -1,4 +1,4 @@
-using Aegis.Gateway.Models.Inspection;
+using Aegis.Gateway.Features.PromptInspection.Contracts;
 using Aegis.Gateway.Models.Policy;
 using Aegis.Gateway.Services;
 

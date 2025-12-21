@@ -1,5 +1,5 @@
+using Aegis.Gateway.Features.PromptInspection.Contracts;
 using Aegis.Gateway.Models;
-using Aegis.Gateway.Models.Inspection;
 
 namespace Aegis.Gateway.Infrastructure.PromptInspection;
 

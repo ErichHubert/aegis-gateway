@@ -1,6 +1,6 @@
 using System.Text;
+using Aegis.Gateway.Features.PromptInspection.Contracts;
 using Aegis.Gateway.Infrastructure.PromptInspection;
-using Aegis.Gateway.Models.Inspection;
 using Aegis.Gateway.Models.Policy;
 using Aegis.Gateway.Services;
 using Aegis.Gateway.Services.Interfaces;
