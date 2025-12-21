@@ -9,11 +9,11 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
     {
         var worst = PolicyActionEnum.Allow;
 
-        foreach (var f in findings)
+        foreach (PromptInspectionFinding f in findings)
         {
-            var severity = TryParseSeverity(f.Severity, out var s) ? s : (SeverityEnum?)null;
+            SeverityEnum? severity = TryParseSeverity(f.Severity, out var s) ? s : null;
 
-            var action = policy.ResolveAction(severity, f.Type);
+            PolicyActionEnum action = policy.ResolveAction(severity, f.Type);
             worst = Max(worst, action);
 
             if (worst == PolicyActionEnum.Block)

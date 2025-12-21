@@ -8,7 +8,7 @@ public sealed class PolicyProvider(IOptionsMonitor<PolicyOptions> options) : IPo
 {
     public PromptPolicy GetPolicyForRoute(RouteConfig? route)
     {
-        var policyId = route?.Metadata?.GetValueOrDefault("PolicyId")?.Trim();
+        string? policyId = route?.Metadata?.GetValueOrDefault("PolicyId")?.Trim();
 
         if (string.IsNullOrWhiteSpace(policyId))
             policyId = PromptPolicy.DefaultId;

@@ -13,14 +13,14 @@ public class GlobalExceptionHandler(
         Exception exception,
         CancellationToken cancellationToken)
     {
-        var traceId = httpContext.TraceIdentifier;
+        string traceId = httpContext.TraceIdentifier;
 
         logger.LogError(
             exception,
             "An unhandled exception occurred while processing the request. TraceId: {TraceId}",
             traceId);
 
-        var statusCode = StatusCodes.Status500InternalServerError;
+        int statusCode = StatusCodes.Status500InternalServerError;
         var problem = new ProblemDetails
         {
             Status = statusCode,
