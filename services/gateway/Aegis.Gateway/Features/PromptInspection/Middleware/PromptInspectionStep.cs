@@ -1,4 +1,5 @@
 using System.Text;
+using Aegis.Gateway.Features.PromptExtraction;
 using Aegis.Gateway.Features.PromptInspection.Contracts;
 using Aegis.Gateway.Features.PromptInspection.Infrastructure;
 using Aegis.Gateway.Models.Policy;

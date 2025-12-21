@@ -1,4 +1,4 @@
-namespace Aegis.Gateway.Services.PromptExtractors;
+namespace Aegis.Gateway.Features.PromptExtraction;
 
 public interface IPromptExtractor
 {

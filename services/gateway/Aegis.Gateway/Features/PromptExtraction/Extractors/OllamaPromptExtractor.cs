@@ -1,6 +1,6 @@
-namespace Aegis.Gateway.Services.PromptExtractors;
-
 using System.Text.Json;
+
+namespace Aegis.Gateway.Features.PromptExtraction.Extractors;
 
 public sealed class OllamaPromptExtractor(
     ILogger<OllamaPromptExtractor> logger

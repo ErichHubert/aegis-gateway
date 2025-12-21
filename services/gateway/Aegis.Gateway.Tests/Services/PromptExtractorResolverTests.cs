@@ -1,5 +1,5 @@
+using Aegis.Gateway.Features.PromptExtraction;
 using Aegis.Gateway.Services;
-using Aegis.Gateway.Services.PromptExtractors;
 using Moq;
 using Yarp.ReverseProxy.Configuration;
 

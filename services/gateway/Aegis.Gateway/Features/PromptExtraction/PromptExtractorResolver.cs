@@ -1,7 +1,6 @@
-using Aegis.Gateway.Services.PromptExtractors;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Aegis.Gateway.Services;
+namespace Aegis.Gateway.Features.PromptExtraction;
 
 public sealed class PromptExtractorResolver(
     IEnumerable<IPromptExtractor> extractors
