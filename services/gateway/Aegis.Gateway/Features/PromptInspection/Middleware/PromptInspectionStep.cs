@@ -137,20 +137,6 @@ public sealed class PromptInspectionStep(
             Source = routeConfig?.RouteId
         };
 
-    private static IReadOnlyList<PromptInspectionFinding> SanitizeFindings(IEnumerable<PromptInspectionFinding> findings)
-    {
-        // Secrets: keep start/end, but DO NOT echo snippet back.
-        // (You can still highlight by range in the client if it has the prompt text.)
-        return findings.Select(f =>
-        {
-            if (f.Type.StartsWith("secret_", StringComparison.OrdinalIgnoreCase))
-            {
-                return f with { Snippet = string.Empty };
-            }
-            return f;
-        }).ToList();
-    }
-
     private static async Task WriteBlockedResponseAsync(
         HttpContext context,
         PromptInspectionResponse piResponse,
@@ -168,7 +154,7 @@ public sealed class PromptInspectionStep(
 
         problem.Extensions["policyId"] = policy.Id;
         problem.Extensions["decision"] = "block";
-        problem.Extensions["findings"] = SanitizeFindings(piResponse.Findings);
+        problem.Extensions["findings"] = piResponse.Findings;
 
         context.Response.Headers["Cache-Control"] = "no-store";
         context.Response.Headers[DecisionHeader] = "block";
@@ -197,7 +183,7 @@ public sealed class PromptInspectionStep(
         problem.Extensions["policyId"] = policy.Id;
         problem.Extensions["decision"] = "confirm";
         problem.Extensions["confirmTtlSeconds"] = (int)ttl.TotalSeconds;
-        problem.Extensions["findings"] = SanitizeFindings(piResponse.Findings);
+        problem.Extensions["findings"] = piResponse.Findings;
 
         // Return token in header (and optionally also in body)
         context.Response.Headers[ConfirmHeader] = token;
