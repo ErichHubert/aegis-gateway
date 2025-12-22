@@ -1,25 +1,4 @@
 services:
-  inspection:
-    build:
-      context: ./services/inspection
-      dockerfile: Dockerfile
-    image: aegis-inspection:dev
-    container_name: aegis-inspection
-    # expose FastAPI/uvicorn
-    ports:
-      - "8000:8000"
-    environment:
-      - AEGIS_ML_APP_NAME=Aegis ML Inspection Service
-      - AEGIS_ML_LOG_LEVEL=INFO
-      - UVICORN_WORKERS=1
-      - aegis-net
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health/ready"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-
   gateway:
     build:
       context: ./services/gateway
@@ -27,19 +6,89 @@ services:
     image: aegis-gateway:dev
     container_name: aegis-gateway
     depends_on:
-      - inspection
+      inspection:
+        condition: service_healthy
+      echo:
+        condition: service_started
+      ollama:
+        condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8080:8080" # only public entrypoint
     environment:
-      # ASP.NET Core standard env
       - ASPNETCORE_ENVIRONMENT=Development
-      # this MUST match your .NET options binding: PromptInspectionService:BaseAddress
       - PromptInspectionService__BaseAddress=http://inspection:8000
-      # if you want YARP to reach Ollama on the host:
-      # - Ollama__BaseUrl=http://host.docker.internal:11434
+      # Example: route config (YARP) should point to http://echo:8080 and http://ollama:11434
     networks:
       - aegis-net
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  inspection:
+    build:
+      context: ./services/inspection
+      dockerfile: Dockerfile
+    image: aegis-inspection:dev
+    container_name: aegis-inspection
+    environment:
+      - INSPECTION_CONFIG_PATH=/app/core/config/config.yml
+    networks:
+      - aegis-net
+    # IMPORTANT: no ports => not reachable from host, only from other containers
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready').read()"]
+      interval: 120s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  echo:
+    image: ealen/echo-server:latest
+    container_name: aegis-echo
+    environment:
+      - PORT=8080
+    networks:
+      - aegis-net
+    # no ports => internal only
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aegis-ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - aegis-net
+    # no ports => internal only (gateway calls http://ollama:11434)
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 120s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
 
 networks:
   aegis-net:
     driver: bridge
+
+volumes:
+  ollama-data:
