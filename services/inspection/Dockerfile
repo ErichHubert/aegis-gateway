@@ -10,8 +10,7 @@ FROM python:3.13.1-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONFAULTHANDLER=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Do NOT run as root inside the container
 # - Create a dedicated user/group with no shell and no password
@@ -40,5 +39,4 @@ EXPOSE 8000
 
 # Start FastAPI via uvicorn
 # NOTE: Keep single-worker for now. 
-ENV UVICORN_WORKERS=1
-CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS}"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
