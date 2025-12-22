@@ -1,44 +1,44 @@
 # services/inspection/Dockerfile
 
 # Use a specific, slim Python base image (avoid 'latest' for reproducibility)
-FROM python:3.13.1-slim AS base
+FROM python:3.13.1-slim
 
-# Disable .pyc generation:
-#    - Reduces image size
-#    - Avoids stale bytecode issues in containerized deployments
-#    - Slightly slower cold starts, but irrelevant for long-running services
-#    NOTE: In serverless/FaaS environments you might want to ENABLE .pyc.
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# nbuffered logs so they appear immediately in 'docker logs' / logging backends
-ENV PYTHONUNBUFFERED=1
+# Runtime-focused defaults:
+# - no .pyc files in long-running containers (smaller image, fewer stale-cache surprises)
+# - unbuffered stdout/stderr so logs show up immediately
+# - disable pip version checks/noise and disable pip cache
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONFAULTHANDLER=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
 
 # Do NOT run as root inside the container
-#    - Create a dedicated user/group with no shell and no password
+# - Create a dedicated user/group with no shell and no password
 RUN addgroup --system app && adduser --system --ingroup app app
 
-# Set working directory and ensure ownership
+# Set working directory
 WORKDIR /app
-RUN chown -R app:app /app
 
-# Install Python dependencies in a single layer.
-# We COPY only requirements first to leverage Docker layer caching.
-COPY requirements.txt .
+# Copy only dependency manifest first (better layer caching)
+COPY requirements.txt ./
 
-# Optional: set a more strict pip default (no cache, no pip version noise, etc.)
-ENV PIP_NO_CACHE_DIR=1
+# Install Python dependencies
+# NOTE: If you later want maximum supply-chain hardening, generate a pinned
+# requirements.txt (pip-compile) and consider `--require-hashes`.
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copy the application code
+# Use --chown to avoid an extra chown layer and ensure the non-root user can read files.
+COPY --chown=app:app . .
 
-# Fix ownership for the copied files, so non-root user can read them
-RUN chown -R app:app /app
-
-# Switch to the non-root user for runtime
+# Drop privileges
 USER app
+
+# Expose port used by uvicorn
 EXPOSE 8000
 
-# NOTE:
-# - For production you might later wrap uvicorn with gunicorn (uvicorn worker)
-
+# Start FastAPI via uvicorn
+# NOTE: Keep single-worker for now. For CPU-heavy workloads, prefer scaling
+# at the process/container level rather than adding many workers blindly.
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
