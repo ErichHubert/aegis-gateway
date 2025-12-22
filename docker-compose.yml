@@ -8,10 +8,6 @@ services:
     depends_on:
       inspection:
         condition: service_healthy
-      echo:
-        condition: service_started
-      ollama:
-        condition: service_healthy
     ports:
       - "8080:8080" # only public entrypoint
     environment:
@@ -56,6 +52,7 @@ services:
   echo:
     image: ealen/echo-server:latest
     container_name: aegis-echo
+    profiles: ["echo"]
     environment:
       - PORT=8080
     networks:
@@ -70,13 +67,14 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: aegis-ollama
+    profiles: ["ollama"]
     environment:
       - OLLAMA_HOST=0.0.0.0:11434
     volumes:
       - ollama-data:/root/.ollama
     networks:
       - aegis-net
-    # no ports => internal only (gateway calls http://ollama:11434)
+    # no ports => internal only (only started with profile "ollama"; gateway calls http://ollama:11434)
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 120s

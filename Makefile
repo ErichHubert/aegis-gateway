@@ -1,6 +1,12 @@
 # Top-level Makefile for Aegis Gateway + Inspection Service
 
+
 PYTHON ?= python3
+COMPOSE ?= docker compose
+COMPOSE_FILE ?= docker-compose.yml
+# Profiles used in this repo's compose file. Needed so `down` knows about profile services.
+COMPOSE_PROFILES ?= echo ollama
+COMPOSE_PROFILE_FLAGS := $(foreach p,$(COMPOSE_PROFILES),--profile $(p))
 
 INSPECTION_DIR := services/inspection
 INSPECTION_VENV := $(INSPECTION_DIR)/.venv
@@ -14,7 +20,7 @@ GATEWAY_IMAGE := aegis-gateway:dev
 .PHONY: help \
         inspection-venv inspection-deps inspection-test inspection-run inspection-docker-build inspection-docker-run \
         gateway-restore gateway-build gateway-test gateway-run gateway-docker-build gateway-docker-run \
-        compose-up compose-down
+        compose-up compose-up-ollama compose-up-echo compose-down compose-ps
 
 help:
 	@echo "Available targets:"
@@ -34,6 +40,9 @@ help:
 	@echo ""
 	@echo "  compose-up               docker compose up --build"
 	@echo "  compose-down             docker compose down -v"
+	@echo "  compose-up-ollama        docker compose up (profile: ollama)"
+	@echo "  compose-up-echo          docker compose up (profile: echo)"
+	@echo "  compose-ps               docker compose ps"
 
 ############################
 # Inspection Service Targets
@@ -96,7 +105,22 @@ gateway-docker-run:
 #####################
 
 compose-up:
-	docker compose up --build
+	$(COMPOSE) -f $(COMPOSE_FILE) up --build
+
+# Requires your docker-compose.yml to use profiles, e.g.:
+#   ollama:
+#     profiles: ["ollama"]
+#   echo:
+#     profiles: ["echo"]
+# Everything without a profile (gateway, inspection, etc.) will start in both modes.
+compose-up-ollama:
+	$(COMPOSE) -f $(COMPOSE_FILE) --profile ollama up --build
+
+compose-up-echo:
+	$(COMPOSE) -f $(COMPOSE_FILE) --profile echo up --build
+
+compose-ps:
+	$(COMPOSE) -f $(COMPOSE_FILE) ps
 
 compose-down:
-	docker compose down -v
+	$(COMPOSE) -f $(COMPOSE_FILE) $(COMPOSE_PROFILE_FLAGS) down -v --remove-orphans
