@@ -39,6 +39,6 @@ USER app
 EXPOSE 8000
 
 # Start FastAPI via uvicorn
-# NOTE: Keep single-worker for now. For CPU-heavy workloads, prefer scaling
-# at the process/container level rather than adding many workers blindly.
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# NOTE: Keep single-worker for now. 
+ENV UVICORN_WORKERS=1
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS}"]
