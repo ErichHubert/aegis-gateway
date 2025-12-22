@@ -11,7 +11,7 @@ services:
     environment:
       - AEGIS_ML_APP_NAME=Aegis ML Inspection Service
       - AEGIS_ML_LOG_LEVEL=INFO
-    networks:
+      - UVICORN_WORKERS=1
       - aegis-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/ready"]
