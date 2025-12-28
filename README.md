@@ -33,7 +33,7 @@ Target Service
   └─ Ollama / LLM (optional)
 ```
 
-Alternative view (for diagrams / docs that support Mermaid):
+Alternative view:
 
 ```mermaid
 flowchart LR
