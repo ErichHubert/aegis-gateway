@@ -37,8 +37,8 @@ Alternative view (for diagrams / docs that support Mermaid):
 
 ```mermaid
 flowchart LR
-  C[Client] --> G[Aegis Gateway\n(ASP.NET + YARP)]
-  G --> I[Inspection Service\n(FastAPI)]
+  C[Client] --> G[Aegis Gateway]
+  G --> I[Inspection Service]
   G --> T1[Echo Service]
   G --> T2[LLM / Ollama]
 ```
