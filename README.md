@@ -11,21 +11,9 @@ It is a **reference implementation for LLM / API egress hardening**, with a stro
 
 ---
 
-## Problem & Motivation
+## Architecture
 
-Modern applications increasingly call external LLMs or other 3rd-party APIs.  
-Typical risks:
-
-- Users (or upstream systems) send **sensitive data** (PII, secrets, tokens)
-- **Prompt injection** attempts try to bypass internal guardrails
-- There is no **central place** to enforce inspection / policies
-- Logs accidentally store **sensitive payloads**
-
-**Aegis Gateway** addresses this by adding a **security inspection layer in front of your target**, without forcing you to re-architect your application.
-
----
-
-## High-Level Architecture
+At a high level, Aegis Gateway sits between external clients and internal target services. The gateway is the only internet-facing component and terminates HTTP, evaluates policies, and orchestrates calls to the inspection service. The inspection service runs PII and secret detection plus heuristic checks and returns a structured report — it never talks directly to external clients. Target services (Echo, LLM, or any HTTP API) remain unaware of the inspection and behave like normal upstreams. Multiple routes can share a single gateway instance, each with its own policy configuration and target cluster. The inspection service is stateless and can be scaled horizontally behind the gateway.
 
 ```text
 Client
@@ -45,12 +33,36 @@ Target Service
   └─ Ollama / LLM (optional)
 ```
 
+Alternative view (for diagrams / docs that support Mermaid):
+
+```mermaid
+flowchart LR
+  C[Client] --> G[Aegis Gateway\n(ASP.NET + YARP)]
+  G --> I[Inspection Service\n(FastAPI)]
+  G --> T1[Echo Service]
+  G --> T2[LLM / Ollama]
+```
+
 Key properties:
 
 - **Only the gateway** is publicly reachable
 - **Inspection Service** is internal, stateless and configuration-driven
 - **Policies live in the gateway** (not in the inspector) for clear separation of concerns
 - Supports **multiple routes and targets** behind a single gateway
+
+---
+
+## Problem & Motivation
+
+Modern applications increasingly call external LLMs or other 3rd-party APIs.  
+Typical risks:
+
+- Users (or upstream systems) send **sensitive data** (PII, secrets, tokens)
+- **Prompt injection** attempts try to bypass internal guardrails
+- There is no **central place** to enforce inspection / policies
+- Logs accidentally store **sensitive payloads**
+
+**Aegis Gateway** addresses this by adding a **security inspection layer in front of your target**, without forcing you to re-architect your application.
 
 ---
 
@@ -197,6 +209,22 @@ Depending on the configured policy, you should receive:
 
 Exact behavior is defined in the gateway’s policy configuration.
 
+### Demo Modes
+
+Aegis Gateway ships with two demo modes out of the box:
+
+1. **Echo mode (lightweight, no LLM required)**
+   - Command: `make compose-up-echo`
+   - Starts the gateway, inspection service, and a simple echo target.
+   - Best for quickly validating routing, inspection, and policies without any model downloads.
+
+2. **Ollama / LLM mode (heavier, realistic LLM setup)**
+   - First pull a local model: `make ollama-pull` (downloads a small model via Ollama).
+   - Then start the stack: `make compose-up-ollama`.
+   - The gateway routes traffic to Ollama running inside the compose network, so you can test real LLM prompts under inspection.
+
+Both modes expose only the gateway to the host. The inspection service, echo service, and Ollama are reachable only from inside the Docker network.
+
 ---
 
 ## Configuration Overview
@@ -266,6 +294,31 @@ secrets:
     - aws_keys
     - generic_api_keys
 ```
+
+---
+
+## Threat Model (What this protects against / what it does not)
+
+This project focuses on **outbound HTTP/LLM request inspection**. It is not a full WAF or DLP product, but it covers a useful subset of risks.
+
+### Helps protect against (within limits)
+
+- **Accidental PII leaks** in prompts or payloads (e.g. emails, IBANs, IDs), depending on your Presidio configuration.
+- **Accidental secret exposure**, such as API keys, tokens, or high-entropy strings that match the configured detectors.
+- **Obvious prompt injection patterns**, when you configure heuristic checks for "ignore previous instructions", attempts to exfiltrate system prompts, or similar patterns.
+- **Missing central egress control** by forcing certain targets (e.g. LLMs) through a single gateway + inspection path.
+- **Uncontrolled logging of sensitive payloads**, by making logging behavior explicit and configurable at the gateway.
+
+### Does *not* protect against
+
+- A **compromised client** or upstream system that intentionally sends already-approved malicious or sensitive data.
+- **Model-level issues** at the LLM provider (e.g. retention/training on your data, internal compromise, or misuse of responses).
+- **Side-channel attacks** (timing, traffic analysis, or lower-level network exploits).
+- **All forms of prompt injection** — heuristics can be bypassed by sophisticated attackers or novel techniques.
+- Misconfiguration of your deployment (e.g. disabling inspection on a route, setting thresholds too lenient, or skipping authentication entirely).
+- Threats unrelated to HTTP egress, such as local malware on developer machines or supply-chain attacks in your dependencies.
+
+You should treat Aegis Gateway as a **layer** in a defense-in-depth strategy, alongside authentication/authorization, network segmentation, service mesh/mTLS, and organizational controls.
 
 ---
 
