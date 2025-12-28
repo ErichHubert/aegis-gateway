@@ -2,11 +2,12 @@ version: 2
 updates:
   # .NET / NuGet (Gateway + Tests)
   - package-ecosystem: "nuget"
-    directory: "/services/gateway/Aegis.Gateway"                
+    directory: "/services/gateway/Aegis.Gateway"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "06:00"
+      timezone: "Europe/Berlin"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -19,17 +20,19 @@ updates:
         update-types:
           - "minor"
           - "patch"
-      ignore:
+    ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types:
+          - "version-update:semver-major"
 
   # Python / pip (Inspection Service)
   - package-ecosystem: "pip"
-    directory: "/services/inspection"   
+    directory: "/services/inspection"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "06:15"
+      timezone: "Europe/Berlin"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
@@ -42,16 +45,20 @@ updates:
         update-types:
           - "minor"
           - "patch"
-      ignore:
+    ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types:
+          - "version-update:semver-major"
 
+  # GitHub Actions (CI)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
       day: "monday"
       time: "06:30"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "ci"
