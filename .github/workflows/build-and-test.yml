@@ -47,13 +47,13 @@ jobs:
             services/gateway/**/packages.lock.json
 
       - name: Restore
-        run: dotnet restore ./Aegis.Gateway.sln
+        run: dotnet restore ./services/gateway/Aegis.Gateway.sln
 
       - name: Build (Release)
-        run: dotnet build ./Aegis.Gateway.sln --configuration Release --no-restore
+        run: dotnet build ./services/gateway/Aegis.Gateway.sln --configuration Release --no-restore
 
       - name: Test (Release)
-        run: dotnet test ./Aegis.Gateway.sln --configuration Release --no-build --verbosity normal
+        run: dotnet test ./services/gateway/Aegis.Gateway.sln --configuration Release --no-build --verbosity normal
 
   python-inspection:
     name: Inspection Service — Test
