@@ -1,4 +1,4 @@
-# 🛡️ Aegis Gateway
+# Aegis Gateway
 
 **Aegis Gateway** is a security-focused reverse proxy that inspects, evaluates, and controls LLM (or generic HTTP/API) requests *before* they reach a target system.
 
@@ -11,7 +11,7 @@ It is a **reference implementation for LLM / API egress hardening**, with a stro
 
 ---
 
-## 🔍 Problem & Motivation
+## Problem & Motivation
 
 Modern applications increasingly call external LLMs or other 3rd-party APIs.  
 Typical risks:
@@ -25,7 +25,7 @@ Typical risks:
 
 ---
 
-## 🏗️ High-Level Architecture
+## High-Level Architecture
 
 ```text
 Client
@@ -54,7 +54,7 @@ Key properties:
 
 ---
 
-## ✨ Core Features
+## Core Features
 
 - **Reverse Proxy Gateway (ASP.NET + YARP)**
   - Route-based configuration for:
@@ -84,7 +84,7 @@ Key properties:
 
 ---
 
-## 🚦 Request Lifecycle
+## Request Lifecycle
 
 1. **Client** sends a request to the gateway (e.g. `/llm/chat`).
 2. **Gateway**:
@@ -103,7 +103,7 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 
 ---
 
-## 🧱 Components
+## Components
 
 ### 1. Gateway (ASP.NET + YARP)
 
@@ -145,7 +145,7 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -199,7 +199,7 @@ Exact behavior is defined in the gateway’s policy configuration.
 
 ---
 
-## ⚙️ Configuration Overview
+## Configuration Overview
 
 ### Gateway Configuration (Routes & Policies)
 
@@ -269,7 +269,7 @@ secrets:
 
 ---
 
-## 🔒 Security Considerations
+## Security Considerations
 
 Aegis Gateway intentionally includes several hardening measures:
 
@@ -287,7 +287,7 @@ See [`SECURITY.md`](./SECURITY.md) for:
 
 ---
 
-## 🚫 Non-Goals & Deliberate Limitations
+## Deliberate Limitations
 
 To keep the project focused and understandable:
 
@@ -300,7 +300,7 @@ To keep the project focused and understandable:
 
 ---
 
-## 🧪 Testing
+## Testing
 
 The repo contains tests for:
 
@@ -325,7 +325,7 @@ Unit and integration tests avoid:
 
 ---
 
-## 🛠️ Development Workflow
+## Development Workflow
 
 Recommended local workflow:
 
@@ -338,7 +338,7 @@ Recommended local workflow:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome — especially around:
 
@@ -356,7 +356,7 @@ before opening issues or pull requests.
 
 ---
 
-## 📜 License
+## License
 
 Aegis Gateway is licensed under the **Apache License, Version 2.0**.
 
