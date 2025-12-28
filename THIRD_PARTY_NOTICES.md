@@ -13,7 +13,6 @@ Where possible, license files are included in the distributed packages or linked
 **Aegis Gateway** consists of:
 - A **.NET / YARP** reverse proxy gateway (Gateway Service)
 - A **Python / FastAPI** inspection service (Inspection Service)
-- Optional local demo infrastructure via Docker Compose (e.g., echo service / Ollama)
 
 ---
 
@@ -27,19 +26,19 @@ Where possible, license files are included in the distributed packages or linked
 
 ### Python Inspection Service
 - **FastAPI** — web framework
-  - License: MIT (verify in upstream)
+  - License: MIT License  
 - **Uvicorn** — ASGI server
-  - License: BSD/MIT-style (verify in upstream)
+  - License: BSD-3-Clause License  
 - **Pydantic / pydantic-settings** — configuration and validation
-  - License: MIT (verify in upstream)
+  - License: MIT License  
 - **Microsoft Presidio Analyzer** — PII detection framework
-  - License: MIT (verify in upstream)
+  - License: MIT License  
 - **spaCy** — NLP engine used by Presidio (via spaCy NLP engine integration)
-  - License: MIT (verify in upstream)
+  - License: MIT License  
 - **spaCy model `en_core_web_lg`** — language model used for English NLP
-  - License: provided by the model authors (verify in upstream release metadata)
+  - License: MIT License  
 - **detect-secrets** — secret detection library
-  - License: Apache-2.0 (verify in upstream)
+  - License: Apache License 2.0  
 
 > Note: The inspection service also depends on additional transitive Python packages (e.g., Starlette, AnyIO, etc.).
 > Those packages are installed via `requirements.txt` and carry their own license terms.
@@ -50,7 +49,7 @@ Where possible, license files are included in the distributed packages or linked
 
 This repository’s Dockerfiles use official images, including (but not limited to):
 - `mcr.microsoft.com/dotnet/aspnet` / `mcr.microsoft.com/dotnet/sdk`
-- `python:<version>-slim`
+- `python:3.13.1-slim`
 
 These images contain additional components and license terms provided by their respective publishers.
 
