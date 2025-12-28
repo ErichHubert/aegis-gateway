@@ -39,9 +39,9 @@ In scope:
 - Security-relevant misconfigurations shipped as defaults in this repo
 
 Out of scope (typically):
-- Issues in third-party dependencies (report upstream as well)
-- Denial-of-service via untrusted infrastructure or intentionally massive inputs (unless there’s an obvious fix)
-- “Missing best practices” without a concrete security impact
+- Vulnerabilities that exist purely in third-party dependencies and are not caused or worsened by how this project uses them (please report those upstream as well).
+- Denial-of-service via untrusted infrastructure or intentionally massive inputs, unless there is a clear, low-risk fix we can apply in this project.
+- Generic “missing best practices” feedback without a concrete, demonstrable security impact on this codebase.
 
 ## Coordinated Disclosure
 
