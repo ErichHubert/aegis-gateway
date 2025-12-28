@@ -47,7 +47,7 @@ jobs:
             services/gateway/**/packages.lock.json
 
       - name: Restore
-        run: dotnet restore ./services/gatewayAegis.slnx
+        run: dotnet restore ./services/gateway/Aegis.slnx
 
       - name: Build (Release)
         run: dotnet build ./services/gateway/Aegis.slnx --configuration Release --no-restore
