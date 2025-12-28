@@ -40,20 +40,20 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: "10.0.x"
           cache: true
           cache-dependency-path: |
             services/gateway/**/*.csproj
             services/gateway/**/packages.lock.json
 
       - name: Restore
-        run: dotnet restore ./services/gateway/Aegis.slnx
+        run: dotnet restore Aegis.slnx
 
       - name: Build (Release)
-        run: dotnet build ./services/gateway/Aegis.slnx --configuration Release --no-restore
+        run: dotnet build Aegis.slnx --configuration Release --no-restore
 
       - name: Test (Release)
-        run: dotnet test ./services/gateway/Aegis.slnx --configuration Release --no-build --verbosity normal
+        run: dotnet test Aegis.slnx --configuration Release --no-build --verbosity normal
 
   python-inspection:
     name: Inspection Service — Test
