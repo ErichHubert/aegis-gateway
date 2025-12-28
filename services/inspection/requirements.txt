@@ -46,7 +46,7 @@ detect-secrets==1.5.0
     # via -r requirements.in
 en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl
     # via -r requirements.in
-fastapi==0.123.5
+fastapi==0.128.0
     # via -r requirements.in
 filelock==3.20.0
     # via tldextract
@@ -170,7 +170,7 @@ typing-inspection==0.4.2
     #   pydantic-settings
 urllib3==2.5.0
     # via requests
-uvicorn[standard]==0.38.0
+uvicorn[standard]==0.40.0
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn

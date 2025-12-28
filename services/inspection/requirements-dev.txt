@@ -52,9 +52,11 @@ cymem==2.0.13
     #   thinc
 defusedxml==0.7.1
     # via py-serializable
+detect-secrets==1.5.0
+    # via -r requirements.in
 en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl
     # via -r requirements.in
-fastapi==0.123.4
+fastapi==0.128.0
     # via -r requirements.in
 filelock==3.20.0
     # via
@@ -126,7 +128,7 @@ preshed==3.0.12
     # via
     #   spacy
     #   thinc
-presidio-analyzer==2.2.359
+presidio-analyzer==2.2.360
     # via -r requirements.in
 py-serializable==2.1.0
     # via cyclonedx-python-lib
@@ -150,7 +152,7 @@ pygments==2.19.2
     #   rich
 pyparsing==3.2.5
     # via pip-requirements-parser
-pytest==9.0.1
+pytest==9.0.2
     # via -r requirements-dev.in
 python-dotenv==1.2.1
     # via
@@ -159,6 +161,7 @@ python-dotenv==1.2.1
 pyyaml==6.0.3
     # via
     #   -r requirements.in
+    #   detect-secrets
     #   presidio-analyzer
     #   uvicorn
 regex==2025.11.3
@@ -166,6 +169,7 @@ regex==2025.11.3
 requests==2.32.5
     # via
     #   cachecontrol
+    #   detect-secrets
     #   pip-audit
     #   requests-file
     #   spacy
@@ -225,7 +229,7 @@ typing-inspection==0.4.2
     #   pydantic-settings
 urllib3==2.5.0
     # via requests
-uvicorn[standard]==0.38.0
+uvicorn[standard]==0.40.0
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn
