@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   dotnet-gateway:
-    name: .NET Gateway – Build & Test
+    name: .NET Gateway Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +42,7 @@ jobs:
         run: dotnet test ./services/gateway/Aegis.Gateway.Tests --configuration Release --no-build --verbosity normal
 
   python-inspection:
-    name: Python Inspection Service – Test
+    name: Python Inspection Service Test
     runs-on: ubuntu-latest
 
     env:
