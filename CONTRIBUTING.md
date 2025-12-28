@@ -64,7 +64,7 @@ Before starting larger changes, open an issue describing:
 - Fork the repo
 - Create a feature branch:
   - `feature/<short-description>`
-  - `fix/<short-description>`
+  - `bugfix/<short-description>`
   - `docs/<short-description>`
 
 ### 3) Make Small, Reviewable PRs
