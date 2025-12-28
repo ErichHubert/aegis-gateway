@@ -1,0 +1,79 @@
+name: Build & Test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dotnet-gateway:
+    name: .NET Gateway Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test (Gateway)
+        run: dotnet test ./services/gateway/Aegis.Gateway.Tests --configuration Release --no-build --verbosity normal
+
+  python-inspection:
+    name: Python Inspection Service Test
+    runs-on: ubuntu-latest
+
+    env:
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('src/inspection-service/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        working-directory: src/inspection-service
+        run: |
+          pip install --upgrade pip
+          # Falls du requirements.txt nutzt:
+          pip install -r requirements.txt
+          # Falls du stattdessen pyproject.toml/poetry hast, entsprechend anpassen
+
+      - name: Run tests (pytest)
+        working-directory: src/inspection-service
+        run: |
+          pytest -q

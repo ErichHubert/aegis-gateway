@@ -1,0 +1,8 @@
+/services/gateway/     @ErichHubert
+/services/inspection/  @ErichHubert
+/docker-compose.yml    @ErichHubert
+/Makefile              @ErichHubert
+/docs/                 @ErichHubert
+
+# default fallback
+*                   @ErichHubert
