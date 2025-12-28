@@ -1,6 +1,9 @@
 Aegis Gateway
+Copyright (c) 2025 Erich Hubert
 
-Copyright 2025 Erich Hubert
+This product includes third-party open-source software components.
+See THIRD_PARTY_NOTICES.md for a non-exhaustive list and references.
 
-This product includes third-party software components.
-See THIRD_PARTY_NOTICES.md for third-party dependencies and licenses.
+Portions of the secret-detection test payloads were adapted from the detect-secrets project
+and modified for this repository’s test suite.
+detect-secrets is licensed under the Apache License, Version 2.0.
