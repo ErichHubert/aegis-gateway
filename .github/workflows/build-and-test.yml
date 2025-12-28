@@ -90,4 +90,4 @@ jobs:
       - name: Run tests (pytest)
         run: |
           source .venv/bin/activate
-          pytest -q
+          python -m pytest -q
