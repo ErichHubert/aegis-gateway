@@ -19,6 +19,9 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # Python / pip (Inspection Service)
   - package-ecosystem: "pip"
@@ -39,6 +42,9 @@ updates:
         update-types:
           - "minor"
           - "patch"
+      ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
