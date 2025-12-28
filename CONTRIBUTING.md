@@ -6,7 +6,7 @@ Aegis Gateway is a security-focused reverse proxy (YARP/.NET)
 combined with a prompt inspection service (FastAPI/Python) for detecting **secrets**, **PII**, and **prompt injection**
 signals.
 
-Contributions are welcome — especially improvements to documentation, tests, reliability, and security hardening.
+Contributions are especially welcome in improving detection (rules, heuristics, false-positive/false-negative tuning), as well as documentation, tests, reliability, and security hardening.
 
 ---
 
