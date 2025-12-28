@@ -47,10 +47,10 @@ jobs:
             services/gateway/**/packages.lock.json
 
       - name: Restore
-        run: dotnet restore ./services/Aegis.slnx
+        run: dotnet restore ./services/gatewayAegis.slnx
 
       - name: Build (Release)
-        run: dotnet build ./services/Aegis.slnx --configuration Release --no-restore
+        run: dotnet build ./services/gateway/Aegis.slnx --configuration Release --no-restore
 
       - name: Test (Release)
         run: dotnet test ./services/gateway/Aegis.slnx --configuration Release --no-build --verbosity normal
