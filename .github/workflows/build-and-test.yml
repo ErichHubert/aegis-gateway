@@ -1,4 +1,4 @@
-name: Build & Test
+name: Aegis - Build & Test
 
 on:
   push:
@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   dotnet-gateway:
-    name: .NET Gateway — Build & Test
+    name: Gateway — Build & Test
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
