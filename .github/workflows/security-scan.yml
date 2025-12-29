@@ -23,16 +23,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Gateway image
-        run: |
-          docker build \
-            -t aegis-gateway:ci \
-            -f ./services/gateway/Dockerfile .
+        working-directory: services/gateway
+        run: docker build -t aegis-gateway:ci -f Dockerfile .
 
       - name: Build Inspection Service image
-        run: |
-          docker build \
-            -t aegis-inspection:ci \
-            -f ./services/inspection/Dockerfile .
+        working-directory: services/inspection
+        run: docker build -t aegis-inspection:ci -f Dockerfile .
 
       - name: Trivy scan Gateway image
         uses: aquasecurity/trivy-action@0.33.1
