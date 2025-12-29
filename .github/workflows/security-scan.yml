@@ -35,7 +35,7 @@ jobs:
             -f ./services/inspection/Dockerfile .
 
       - name: Trivy scan Gateway image
-        uses: aquasecurity/trivy-action@v0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: "image"
           image-ref: "aegis-gateway:ci"
@@ -46,7 +46,7 @@ jobs:
           exit-code: "1"
 
       - name: Trivy scan Inspection image
-        uses: aquasecurity/trivy-action@v0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: "image"
           image-ref: "aegis-inspection:ci"
