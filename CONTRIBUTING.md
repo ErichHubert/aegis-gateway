@@ -33,7 +33,7 @@ If you cannot follow this, please do not contribute.
 
 ---
 
-## Project scope and goals
+## Project Goals & Non-Goals
 
 Aegis Gateway aims to provide a secure, configurable gateway layer for LLM/AI backends (and similar HTTP services), including request inspection, policy enforcement, and auditable decisioning.
 
@@ -88,11 +88,53 @@ Your PR description should include:
 - **Docker** + **Docker Compose**
 - **Make**
 - **.NET SDK** (matching the gateway)
-- **Python** (matching the inspection service)
+- **Python 3.11+** (matching the inspection service)
 
 ### Optional (helpful)
 - `curl` (health checks / manual API calls)
 - `jq` (pretty-printing JSON)
+
+### Python environment (Inspection Service)
+
+The inspection service uses a standard virtual environment and pinned dependencies.
+
+**Create and activate a virtual environment**:
+
+```bash
+cd services/inspection
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+```
+
+**Install dependencies** (choose one):
+
+- If you commit compiled/pinned requirements:
+
+  ```bash
+  python -m pip install -r requirements.txt
+  python -m pip install -r requirements-dev.txt
+  ```
+
+- If you use `pip-tools` (`*.in` files) and want to (re)generate pins locally:
+
+  ```bash
+  python -m pip install -U pip-tools
+
+  # Compile lockfiles
+  pip-compile requirements.in -o requirements.txt
+  pip-compile requirements-dev.in -o requirements-dev.txt
+
+  # Install the pinned versions
+  python -m pip install -r requirements.txt
+  python -m pip install -r requirements-dev.txt
+  ```
+
+**Run tests**:
+
+```bash
+python -m pytest -q
+```
 
 ---
 
@@ -102,20 +144,30 @@ Typical layout:
 
 - `services/gateway/` — .NET gateway (YARP reverse proxy, policies, confirm flow)
 - `services/inspection/` — Python FastAPI inspection service (PII, secrets, prompt injection)
-- `docker-compose.yml` — local demo setup
+- `docker-compose*.yml` — local demo setups (echo / optional Ollama)
 - `Makefile` — developer entry points (tests, run, compose, etc.)
-- `.github/` — CI workflows 
-- `docs/` — architecture & threat model 
+- `.github/` — CI workflows
+
 ---
 
 ## Running Locally
 
 ### Recommended: Docker Compose
-Start the full demo stack:
 
-```bash
-make compose-up
-```
+Aegis supports two demo modes:
+
+- **Echo mode (lightweight, no LLM required)**
+
+  ```bash
+  make compose-up-echo
+  ```
+
+- **Ollama / LLM mode (heavier, realistic prompts)**
+
+  ```bash
+  make ollama-pull
+  make compose-up-ollama
+  ```
 
 Stop and clean:
 
@@ -127,14 +179,14 @@ make compose-down
 > Other services should only be reachable inside the Docker network unless explicitly exposed.
 
 ### Run services without Compose (advanced)
-Inspection service:
+Inspection service (run tests, then run the service):
 
 ```bash
 make inspection-test
 make inspection-run
 ```
 
-Gateway:
+Gateway (run tests, then run the service):
 
 ```bash
 make gateway-test
