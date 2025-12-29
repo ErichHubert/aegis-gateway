@@ -26,13 +26,13 @@ jobs:
         run: |
           docker build \
             -t aegis-gateway:ci \
-            -f ./Dockerfile.gateway .
+            -f ./services/gateway/Dockerfile .
 
       - name: Build Inspection Service image
         run: |
           docker build \
-            -t aegis-inspector:ci \
-            -f ./Dockerfile.inspection .
+            -t aegis-inspection:ci \
+            -f ./services/inspection/Dockerfile .
 
       - name: Trivy scan Gateway image
         uses: aquasecurity/trivy-action@v0
@@ -49,7 +49,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0
         with:
           scan-type: "image"
-          image-ref: "aegis-inspector:ci"
+          image-ref: "aegis-inspection:ci"
           format: "table"
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
