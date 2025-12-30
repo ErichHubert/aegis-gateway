@@ -123,11 +123,18 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 .
 ├─ services/
 │  ├─ gateway/                 # ASP.NET + YARP reverse proxy + policy engine
+│  │  ├─ Dockerfile            # Gateway container image
+│  │  └─ Aegis.Gateway/        # Gateway app + YARP routes/policies
+│  │  └─ Aegis.Gateway.Tests/  # Gateway tests
 │  └─ inspection/              # FastAPI inspection service (PII/secrets/prompt heuristics)
-├─ docker-compose.*.yml        # Demo stacks (echo / ollama)
-├─ Dockerfile.gateway          # Gateway container image
-├─ Dockerfile.inspection       # Inspection service container image
+│     ├─ Dockerfile            # Inspection service container image
+│     └─ core/config/          # YAML-based inspection configuration
+│     └─ core/detectors/       # Implementations of injection, pii and secret detectors
+│     └─ infra/                # Code related to infrastructure like logging
+│     └─ tests                 # Insection tests
+├─ docker-compose.yml          # Demo stack using compose profiles (echo / ollama)
 ├─ Makefile                    # Primary DX entry points
+├─ renovate.json               # Dependency automation (Renovate)
 └─ .github/                    # CI, security scans, dependency automation
 ```
 
@@ -184,16 +191,17 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-org>/aegis-gateway.git
+git clone <YOUR_REPO_URL>
 cd aegis-gateway
 ```
+Replace `<YOUR_REPO_URL>` with the GitHub/Gitea URL of your fork.
 
 ### 2. Run the Echo Demo
 
 ```bash
 make compose-up-echo
-# or:
-# docker compose -f docker-compose.echo.yml up --build
+# or (no Makefile):
+# docker compose -f docker-compose.yml --profile echo up --build -d
 ```
 
 This starts:
@@ -205,7 +213,9 @@ This starts:
 ### 3. Send a Test Request
 
 ```bash
-curl -X POST http://localhost:8080/echo   -H "Content-Type: application/json"   -d '{"message": "Hello from Aegis Gateway"}'
+curl -X POST http://localhost:8080/api/echo \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello from Aegis Gateway"}'
 ```
 
 You should see the echo response forwarded through the gateway.
@@ -215,7 +225,9 @@ You should see the echo response forwarded through the gateway.
 Send a request that contains obvious PII or secrets:
 
 ```bash
-curl -X POST http://localhost:8080/echo   -H "Content-Type: application/json"   -d '{"message": "My email is john.doe@example.com and my API key is sk_test_123"}'
+curl -X POST http://localhost:8080/api/echo \
+  -H "Content-Type: application/json" \
+  -d '{"message": "My email is john.doe@example.com and my API key is sk_test_123"}'
 ```
 
 Depending on the configured policy, you should receive:
@@ -237,16 +249,19 @@ Aegis Gateway ships with two demo modes out of the box:
 2. **Ollama / LLM mode (heavier, realistic LLM setup)**
    - First pull a local model: `make ollama-pull` (downloads a small model via Ollama).
    - Then start the stack: `make compose-up-ollama`.
-   - The gateway routes traffic to Ollama running inside the compose network, so you can test real LLM prompts under inspection.
+   - Gateway route for Ollama in this repo: `POST /api/generate` (Ollama-compatible payload).
 
 Both modes expose only the gateway to the host. The inspection service, echo service, and Ollama are reachable only from inside the Docker network.
+
+To stop the stack: `make compose-down` (or `docker compose -f docker-compose.yml --profile echo --profile ollama down -v --remove-orphans`).
 
 ### Ports & Endpoints
 
 By default (compose demos):
 
 - Gateway: `http://localhost:8080`
-- Common demo route: `POST /echo`
+- Echo demo route: `POST /api/echo`
+- Ollama route (when profile `ollama` is running): `POST /api/generate`
 
 > The inspection service and targets are **not** exposed to the host; they are reachable only inside the Docker network.
 
