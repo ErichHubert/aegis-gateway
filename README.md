@@ -217,7 +217,7 @@ This starts:
 ```bash
 curl -X POST http://localhost:8080/api/echo \
   -H "Content-Type: application/json" \
-  -d '{"message": "Hello from Aegis Gateway"}'
+  -d '{"model": "echo", "prompt": "Hello from Aegis Gateway"}'
 ```
 
 You should see the echo response forwarded through the gateway.
@@ -229,7 +229,7 @@ Send a request that contains obvious PII or secrets:
 ```bash
 curl -X POST http://localhost:8080/api/echo \
   -H "Content-Type: application/json" \
-  -d '{"message": "My email is john.doe@example.com and my API key is sk_test_123"}'
+  -d '{"model": "echo", "prompt": "My email is john.doe@example.com and my API key is sk_test_123"}'
 ```
 
 Depending on the configured policy, you should receive:
@@ -238,6 +238,39 @@ Depending on the configured policy, you should receive:
 - A **confirm** response with structured `ProblemDetails`.
 
 Exact behavior is defined in the gateway’s policy configuration.
+
+### Confirm Flow (Example)
+
+If a request is classified as medium risk, the gateway can respond with a **confirm** decision.
+
+- The gateway responds with HTTP **428 Precondition Required** and includes a short-lived confirm token in the response header: `X-Aegis-Confirm-Token`.
+- To confirm, resend the **same request body** and include the token as a request header: `X-Aegis-Confirm-Token`.
+
+```bash
+# 1) Trigger a confirm decision (copy the token from the response header)
+curl -i \
+  -X POST http://localhost:8080/api/echo \
+  -H "Content-Type: application/json" \
+  -d '{"model": "echo", "prompt": "Contact me at john.doe@example.com"}'
+
+# 2) Resend the same request with the confirm token
+curl -i \
+  -X POST http://localhost:8080/api/echo \
+  -H "Content-Type: application/json" \
+  -H "X-Aegis-Confirm-Token: <PASTE_TOKEN_HERE>" \
+  -d '{"model": "echo", "prompt": "Contact me at john.doe@example.com"}'
+```
+
+### Blocked Request (Example)
+
+Some findings are configured to **block** immediately (for example, certain PII types like IBAN). The gateway should respond with HTTP **403** and a blocking `ProblemDetails` response.
+
+```bash
+curl -i \
+  -X POST http://localhost:8080/api/echo \
+  -H "Content-Type: application/json" \
+  -d '{"model": "echo", "prompt": "My IBAN is DE89 3704 0044 0532 0130 00"}'
+```
 
 ### Demo Modes
 
