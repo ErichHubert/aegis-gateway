@@ -1,0 +1,40 @@
+{
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+
+  "timezone": "Europe/Berlin",
+  "schedule": ["* 6-9 * * 1"],
+
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+
+  "enabledManagers": ["nuget", "github-actions", "pip-compile"],
+
+  "pip-compile": {
+    "managerFilePatterns": [
+      "^services/inspection/requirements\\.txt$",
+      "^services/inspection/requirements-dev\\.txt$"
+    ]
+  },
+
+  "pip_requirements": { "enabled": false },
+
+  "packageRules": [
+    { "matchUpdateTypes": ["major"], "enabled": false },
+
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "deps (minor/patch)"
+    },
+
+    {
+      "matchManagers": ["github-actions"],
+      "addLabels": ["ci"]
+    },
+
+    {
+      "matchManagers": ["pip-compile"],
+      "addLabels": ["security"]
+    }
+  ]
+}
