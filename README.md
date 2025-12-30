@@ -98,7 +98,7 @@ Typical risks:
 
 ## Request Lifecycle
 
-1. **Client** sends a request to the gateway (e.g. `/llm/chat`).
+1. **Client** sends a request to the gateway (e.g. `/api/echo`).
 2. **Gateway**:
    - Checks route configuration (inspection enabled? which policy?).
    - Forwards relevant request data to the **Inspection Service**.
@@ -124,14 +124,14 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 ├─ services/
 │  ├─ gateway/                 # ASP.NET + YARP reverse proxy + policy engine
 │  │  ├─ Dockerfile            # Gateway container image
-│  │  └─ Aegis.Gateway/        # Gateway app + YARP routes/policies
+│  │  ├─ Aegis.Gateway/        # Gateway app + YARP routes/policies
 │  │  └─ Aegis.Gateway.Tests/  # Gateway tests
 │  └─ inspection/              # FastAPI inspection service (PII/secrets/prompt heuristics)
 │     ├─ Dockerfile            # Inspection service container image
-│     └─ core/config/          # YAML-based inspection configuration
-│     └─ core/detectors/       # Implementations of injection, pii and secret detectors
-│     └─ infra/                # Code related to infrastructure like logging
-│     └─ tests                 # Insection tests
+│     ├─ core/config/          # YAML-based inspection configuration
+│     ├─ core/detectors/       # Implementations of injection, PII and secret detectors
+│     ├─ infra/                # Infrastructure-related code (logging, wiring)
+│     └─ tests/                # Inspection tests
 ├─ docker-compose.yml          # Demo stack using compose profiles (echo / ollama)
 ├─ Makefile                    # Primary DX entry points
 ├─ renovate.json               # Dependency automation (Renovate)
