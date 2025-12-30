@@ -50,7 +50,7 @@ services:
       start_period: 20s
 
   echo:
-    image: ealen/echo-server:latest
+    image: ealen/echo-server:latest@sha256:ec8a6e95890df937a1eb5fafca033a32172d4f43c1fea1f302931d5f230a137f
     container_name: aegis-echo
     profiles: ["echo"]
     environment:
@@ -65,7 +65,7 @@ services:
       - ALL
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:latest@sha256:2c9595c555fd70a28363489ac03bd5bf9e7c5bdf2890373c3a830ffd7252ce6d
     container_name: aegis-ollama
     profiles: ["ollama"]
     environment:
