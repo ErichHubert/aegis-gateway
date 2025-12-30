@@ -88,7 +88,7 @@ Your PR description should include:
 - **Docker** + **Docker Compose**
 - **Make**
 - **.NET SDK** (matching the gateway)
-- **Python 3.11+** (matching the inspection service)
+- **Python 3.13+** (matching the inspection service)
 
 ### Optional (helpful)
 - `curl` (health checks / manual API calls)
@@ -165,8 +165,8 @@ Aegis supports two demo modes:
 - **Ollama / LLM mode (heavier, realistic prompts)**
 
   ```bash
-  make ollama-pull
   make compose-up-ollama
+  make ollama-pull
   ```
 
 Stop and clean:
