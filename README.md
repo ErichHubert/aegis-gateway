@@ -117,6 +117,22 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 
 ## Components
 
+### Repository Layout
+
+```text
+.
+├─ services/
+│  ├─ gateway/                 # ASP.NET + YARP reverse proxy + policy engine
+│  └─ inspection/              # FastAPI inspection service (PII/secrets/prompt heuristics)
+├─ docker-compose.*.yml        # Demo stacks (echo / ollama)
+├─ Dockerfile.gateway          # Gateway container image
+├─ Dockerfile.inspection       # Inspection service container image
+├─ Makefile                    # Primary DX entry points
+└─ .github/                    # CI, security scans, dependency automation
+```
+
+> Paths may evolve slightly over time, but the `services/` split is the core structure.
+
 ### 1. Gateway (ASP.NET + YARP)
 
 - Reverse proxy routing configuration
@@ -224,6 +240,15 @@ Aegis Gateway ships with two demo modes out of the box:
    - The gateway routes traffic to Ollama running inside the compose network, so you can test real LLM prompts under inspection.
 
 Both modes expose only the gateway to the host. The inspection service, echo service, and Ollama are reachable only from inside the Docker network.
+
+### Ports & Endpoints
+
+By default (compose demos):
+
+- Gateway: `http://localhost:8080`
+- Common demo route: `POST /echo`
+
+> The inspection service and targets are **not** exposed to the host; they are reachable only inside the Docker network.
 
 ---
 
@@ -363,12 +388,22 @@ The repo contains tests for:
 Typical pattern:
 
 ```bash
-# Gateway tests
-dotnet test ./src/Aegis.Gateway.Tests
+# Gateway tests (.NET)
+cd services/gateway
 
-# Inspection service tests
-cd src/inspection-service
-pytest
+dotnet restore Aegis.slnx
+
+dotnet test Aegis.slnx --configuration Release
+
+# Inspection service tests (Python)
+cd ../inspection
+
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
 ```
 
 Unit and integration tests avoid:
@@ -377,6 +412,16 @@ Unit and integration tests avoid:
 - Real user data
 
 ---
+
+## CI, Dependency Updates & Supply-Chain Signals
+
+This repository is intentionally set up to look and behave like an **enterprise-grade** service repo:
+
+- **Build & test workflows** validate both the .NET gateway and the Python inspection service.
+- **Container image scanning (Trivy)** detects vulnerabilities in what you actually ship (including OS packages from the base image).
+- **SBOM generation (Syft)** produces a software bill of materials for auditing and traceability.
+- **Dependency automation (Renovate)** proposes update PRs with rate limits and grouping to avoid PR spam.
+
 
 ## Development Workflow
 
