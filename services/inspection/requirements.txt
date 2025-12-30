@@ -145,7 +145,7 @@ srsly==2.5.2
     #   weasel
 starlette==0.50.0
     # via fastapi
-thinc==8.3.10
+thinc==9.1.1
     # via spacy
 tldextract==5.3.0
     # via presidio-analyzer
