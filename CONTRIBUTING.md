@@ -144,7 +144,7 @@ Typical layout:
 
 - `services/gateway/` — .NET gateway (YARP reverse proxy, policies, confirm flow)
 - `services/inspection/` — Python FastAPI inspection service (PII, secrets, prompt injection)
-- `docker-compose*.yml` — local demo setups (echo / optional Ollama)
+- `docker-compose.yml` — local demo setups (echo / optional Ollama)
 - `Makefile` — developer entry points (tests, run, compose, etc.)
 - `.github/` — CI workflows
 
