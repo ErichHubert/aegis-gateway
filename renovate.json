@@ -46,7 +46,7 @@
     {
       "matchManagers": ["github-actions"],
       "matchDepNames": ["python"],
-      "allowedVersions": "3.11.x",
+      "allowedVersions": "3.13.x",
       "addLabels": ["ci"]
     },
     {
