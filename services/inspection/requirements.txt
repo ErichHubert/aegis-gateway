@@ -85,7 +85,7 @@ packaging==25.0
     #   spacy
     #   thinc
     #   weasel
-phonenumbers==9.0.19
+phonenumbers==9.0.21
     # via presidio-analyzer
 preshed==3.0.12
     # via
