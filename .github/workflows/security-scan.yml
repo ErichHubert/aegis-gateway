@@ -1,11 +1,29 @@
 name: Aegis - Security Scan
 
 on:
-  #push:
-  #  branches: ["main"]
-  #pull_request:
-  #  branches: ["main"]
+  # Run periodically to catch newly disclosed CVEs even when code didn’t change.
+  schedule:
+    # Mondays 05:30 UTC (06:30 Europe/Berlin in winter).
+    - cron: "30 5 * * 1"
+
+  # Run on PRs only when changes could affect the container contents.
+  pull_request:
+    branches: ["main"]
+    paths:
+    - ".github/workflows/security-scan.yml"
+    - "**/Dockerfile*"
+    - "**/*.csproj"
+    - "**/*.slnx"
+    - "**/requirements*.txt"
+    - "**/requirements*.in"
+    - "**/docker-compose*.yml"
+    - "**/.dockerignore"
+
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
