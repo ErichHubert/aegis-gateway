@@ -97,7 +97,7 @@ murmurhash==1.0.15
     #   preshed
     #   spacy
     #   thinc
-numpy==2.3.5
+numpy==2.4.0
     # via
     #   blis
     #   spacy
