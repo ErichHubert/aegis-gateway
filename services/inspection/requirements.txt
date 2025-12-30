@@ -151,7 +151,7 @@ tldextract==5.3.0
     # via presidio-analyzer
 tqdm==4.67.1
     # via spacy
-typer-slim==0.20.0
+typer-slim==0.21.0
     # via
     #   spacy
     #   weasel

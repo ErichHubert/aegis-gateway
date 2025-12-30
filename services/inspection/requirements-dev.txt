@@ -209,7 +209,7 @@ tomli-w==1.2.0
     # via pip-audit
 tqdm==4.67.1
     # via spacy
-typer-slim==0.20.0
+typer-slim==0.21.0
     # via
     #   spacy
     #   weasel
