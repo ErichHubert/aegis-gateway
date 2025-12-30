@@ -13,7 +13,7 @@ It is a **reference implementation for LLM / API egress hardening**, with a stro
 
 ## Architecture
 
-At a high level, Aegis Gateway sits between external clients and internal target services. The gateway is the only internet-facing component and terminates HTTP, evaluates policies, and orchestrates calls to the inspection service. The inspection service runs PII and secret detection plus heuristic checks and returns a structured report — it never talks directly to external clients. Target services (Echo, LLM, or any HTTP API) remain unaware of the inspection and behave like normal upstreams. Multiple routes can share a single gateway instance, each with its own policy configuration and target cluster. The inspection service is stateless and can be scaled horizontally behind the gateway.
+At a high level, Aegis Gateway sits between external clients and internal target services. The gateway is the only client-facing component and terminates HTTP, evaluates policies, and orchestrates calls to the inspection service. The inspection service runs PII and secret detection plus heuristic checks and returns a structured report, it never talks directly to external clients. Target services (Echo, LLM, or any HTTP API) remain unaware of the inspection and behave like normal upstreams. Multiple routes can share a single gateway instance, each with its own policy configuration and target cluster. The inspection service is stateless and can be scaled horizontally behind the gateway.
 
 ```text
 Client
@@ -56,7 +56,7 @@ Key properties:
 
 ## Problem & Motivation
 
-Modern applications increasingly call external LLMs or other 3rd-party APIs.  
+Modern applications increasingly call external LLMs (or other 3rd-party APIs).  
 Typical risks:
 
 - Users (or upstream systems) send **sensitive data** (PII, secrets, tokens)
@@ -82,7 +82,6 @@ Typical risks:
   - PII detection using **Presidio** + **spaCy**
   - Secret detection via **detect-secrets**
   - Configuration via **YAML** (analyzers, thresholds, categories)
-  - Stateless & side-effect-free request processing
 
 - **Confirm Flow**
   - Requests that are not “clean” but not critical can be tagged as `confirm`
@@ -146,11 +145,11 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 
 - Reverse proxy routing configuration
 - Route metadata controls:
-  - `InspectionEnabled`
+  - `InspectPrompt`
   - `PromptFormat` / payload extraction hints
   - `PolicyId`
 - Policy engine:
-  - Severity thresholds per policy (e.g. `pii: warn`, `secrets: block`)
+  - Severity thresholds per policy (e.g. `low: allow`, `medium: confirm`, `high: block`)
   - Type-based overrides
   - Centralized mapping to `allow` / `confirm` / `block`
 - Confirm-flow:
@@ -188,7 +187,7 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 
 - `git`
 - `docker` + `docker compose`
-- `make` (recommended for DX, optional if you prefer raw `docker compose`)
+- `make` (recommended for DX)
 
 ### 1. Clone the Repository
 
@@ -196,14 +195,12 @@ All responses in the control flow use **structured error formats** (ASP.NET `Pro
 git clone <YOUR_REPO_URL>
 cd aegis-gateway
 ```
-Replace `<YOUR_REPO_URL>` with the GitHub/Gitea URL of your fork.
+Replace `<YOUR_REPO_URL>` with the GitHub URL of your fork.
 
 ### 2. Run the Echo Demo
 
 ```bash
 make compose-up-echo
-# or (no Makefile):
-# docker compose -f docker-compose.yml --profile echo up --build -d
 ```
 
 This starts:
@@ -215,7 +212,8 @@ This starts:
 ### 3. Send a Test Request
 
 ```bash
-curl -X POST http://localhost:8080/api/echo \
+curl -i \ 
+  -X POST http://localhost:8080/api/echo \
   -H "Content-Type: application/json" \
   -d '{"model": "echo", "prompt": "Hello from Aegis Gateway"}'
 ```
@@ -227,7 +225,8 @@ You should see the echo response forwarded through the gateway.
 Send a request that contains obvious PII or secrets:
 
 ```bash
-curl -X POST http://localhost:8080/api/echo \
+curl -i \
+  -X POST http://localhost:8080/api/echo \
   -H "Content-Type: application/json" \
   -d '{"model": "echo", "prompt": "My email is john.doe@example.com and my API key is sk_test_123"}'
 ```
@@ -282,13 +281,13 @@ Aegis Gateway ships with two demo modes out of the box:
    - Best for quickly validating routing, inspection, and policies without any model downloads.
 
 2. **Ollama / LLM mode (heavier, realistic LLM setup)**
-   - First pull a local model: `make ollama-pull` (downloads a small model via Ollama).
-   - Then start the stack: `make compose-up-ollama`.
+   - First start the stack: `make compose-up-ollama`.
+   - Then pull a local model: `make ollama-pull` (downloads a small model via Ollama).
    - Gateway route for Ollama in this repo: `POST /api/generate` (Ollama-compatible payload).
 
 Both modes expose only the gateway to the host. The inspection service, echo service, and Ollama are reachable only from inside the Docker network.
 
-To stop the stack: `make compose-down` (or `docker compose -f docker-compose.yml --profile echo --profile ollama down -v --remove-orphans`).
+To stop the stack: `make compose-down`.
 
 ### Ports & Endpoints
 
@@ -315,30 +314,46 @@ By default (compose demos):
   - Severity thresholds for `allow` / `confirm` / `block`
   - Type overrides (e.g. `pii_iban` or `secret_generic`)
 
-Example (pseudo):
+Example:
 
 ```jsonc
 {
-  "Routes": [
-    {
-      "RouteId": "echo-secured",
-      "ClusterId": "echo",
-      "Inspection": {
-        "Enabled": true,
-        "PolicyId": "default"
+  "ReverseProxy": {
+    "Routes": {
+      "echo" : {
+        "ClusterId": "echo_cluster",
+        "Match": {
+          "Path": "/api/echo"
+        },
+        "Metadata" : {
+          "InspectPrompt" : true,
+          "PromptFormat": "ollama",
+          "PolicyId" : "Default"
+        }
+      }
+    },
+    "Clusters": {
+      "echo_cluster": {
+        "Destinations": {
+          "echo": {
+            "Address": "http://echo:8080/"
+          }
+        }
       }
     }
-  ],
-  "Policies": {
-    "default": {
-      "SeverityThresholds": {
-        "allow": 1,
-        "confirm": 2,
-        "block": 3
+    },
+    "Policies": {
+    "Default": {
+      "DefaultAction": "Confirm",
+      "SeverityToAction": {
+        "low": "Allow",
+        "medium": "Confirm",
+        "high": "Block"
       },
-      "Overrides": {
-        "pii_iban": "block",
-        "secret_generic": "block"
+      "TypeOverrides": {
+        "pii_email":   { "Action": "Confirm" },
+        "pii_iban":    { "Action": "Block" },
+        "secret_jwt":  { "Action": "Block" }
       }
     }
   }
@@ -358,16 +373,28 @@ Example (pseudo):
 ```yaml
 pii:
   enabled: true
-  entities:
-    - PERSON
-    - EMAIL_ADDRESS
-    - IBAN
+  detectors:
+    person:
+      enabled: true
+      severity: low
+    email:
+      enabled: true
+      severity: medium
+    iban:
+      enabled: true
+      severity: high
 secrets:
   enabled: true
   detectors:
-    - high_entropy_strings
-    - aws_keys
-    - generic_api_keys
+    high_entropy_strings:
+      enabled: true
+      severity: high
+    aws_keys:
+      enabled: true
+      severity: high
+    generic_api_keys:
+      enabled: true
+      severity: high
 ```
 
 ---
