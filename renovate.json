@@ -1,6 +1,67 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:best-practices"
+  ],
+
+  "dependencyDashboard": true,
+  "timezone": "Europe/Berlin",
+  "schedule": [
+    "before 9am on Monday"
+  ],
+
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+
+  "enabledManagers": [
+    "nuget",
+    "github-actions",
+    "pip-compile",
+    "dockerfile",
+    "docker-compose"
+  ],
+
+  "pip-compile": {
+    "managerFilePatterns": [
+      "^services/inspection/requirements\\.txt$",
+      "^services/inspection/requirements-dev\\.txt$"
+    ]
+  },
+
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "schedule": ["at any time"]
+  },
+
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "deps (minor/patch)"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "addLabels": ["ci"]
+    },
+    {
+      "matchManagers": ["pip-compile"],
+      "addLabels": ["python"]
+    },
+    {
+      "matchManagers": ["nuget"],
+      "addLabels": ["dotnet"]
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "addLabels": ["docker", "container"]
+    },
+    {
+      "matchManagers": ["docker-compose"],
+      "addLabels": ["docker", "container"]
+    }
   ]
 }
