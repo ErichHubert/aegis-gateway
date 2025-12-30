@@ -1,7 +1,7 @@
 # services/inspection/Dockerfile
 
 # Use a specific, slim Python base image (avoid 'latest' for reproducibility)
-FROM python:3.13.1-slim
+FROM python:3.14.2-slim
 
 # Runtime-focused defaults:
 # - no .pyc files in long-running containers (smaller image, fewer stale-cache surprises)
