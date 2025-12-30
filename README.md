@@ -43,6 +43,8 @@ flowchart LR
   G --> T2[LLM / Ollama]
 ```
 
+> Echo and Ollama are **alternative** demo targets (enabled via Docker Compose profiles).
+
 Key properties:
 
 - **Only the gateway** is publicly reachable
