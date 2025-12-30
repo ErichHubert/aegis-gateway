@@ -24,8 +24,8 @@
 
   "pip-compile": {
     "managerFilePatterns": [
-      "^services/inspection/requirements\\.txt$",
-      "^services/inspection/requirements-dev\\.txt$"
+      "/^services\\/inspection\\/requirements\\.txt$/",
+      "/^services\\/inspection\\/requirements-dev\\.txt$/"
     ]
   },
 
