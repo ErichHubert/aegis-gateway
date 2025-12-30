@@ -45,6 +45,8 @@
     },
     {
       "matchManagers": ["github-actions"],
+      "matchDepNames": ["python"],
+      "allowedVersions": "3.11.x",
       "addLabels": ["ci"]
     },
     {
