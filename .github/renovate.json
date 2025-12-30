@@ -10,13 +10,6 @@
 
   "enabledManagers": ["nuget", "github-actions", "pip-compile"],
 
-  "pip-compile": {
-    "managerFilePatterns": [
-      "^services/inspection/requirements\\.txt$",
-      "^services/inspection/requirements-dev\\.txt$"
-    ]
-  },
-
   "pip_requirements": { "enabled": false },
 
   "packageRules": [
