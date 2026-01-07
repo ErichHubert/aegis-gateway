@@ -26,7 +26,7 @@ catalogue==2.0.10
     #   spacy
     #   srsly
     #   thinc
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   httpcore
     #   httpx
@@ -58,7 +58,7 @@ en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_
     # via -r requirements.in
 fastapi==0.128.0
     # via -r requirements.in
-filelock==3.20.1
+filelock==3.20.2
     # via
     #   cachecontrol
     #   tldextract
