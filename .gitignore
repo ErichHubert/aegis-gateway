@@ -394,3 +394,9 @@ __pycache__/
 .vscode/
 .env
 
+# Angular files
+.angular/
+.cache/
+dist/
+node_modules/
+
