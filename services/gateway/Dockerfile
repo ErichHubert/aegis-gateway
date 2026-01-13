@@ -1,7 +1,7 @@
 ﻿# services/gateway/Dockerfile
 
 # Runtime image (Ubuntu 24.04 "noble")
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble@sha256:eaa79205c3ade4792a7f7bf310a3aac51fe0e1d91c44e40f70b7c6423d475fe0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled@sha256:ba111738d21b4898f433fd8724ba1ed2e450adcb295c58f31d4137751922c83c AS base
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ EXPOSE 8080
 ENV DOTNET_EnableDiagnostics=0
 
 # Build image stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0-noble@sha256:d1823fecac3689a2eb959e02ee3bfe1c2142392808240039097ad70644566190 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble@sha256:5504edd1267dd4deab3443f960cfab219249c8bd935fbcc358f1c24aeae23fe0 AS build
 
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
