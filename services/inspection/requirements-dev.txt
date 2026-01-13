@@ -8,7 +8,7 @@ annotated-doc==0.0.4
     # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.12.0
+anyio==4.12.1
     # via
     #   httpx
     #   starlette
@@ -58,7 +58,7 @@ en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_
     # via -r requirements.in
 fastapi==0.128.0
     # via -r requirements.in
-filelock==3.20.2
+filelock==3.20.3
     # via
     #   cachecontrol
     #   tldextract
@@ -97,7 +97,7 @@ murmurhash==1.0.15
     #   preshed
     #   spacy
     #   thinc
-numpy==2.4.0
+numpy==2.4.1
     # via
     #   blis
     #   spacy
@@ -203,13 +203,13 @@ thinc==8.3.10
     # via spacy
 tldextract==5.3.1
     # via presidio-analyzer
-tomli==2.3.0
+tomli==2.4.0
     # via pip-audit
 tomli-w==1.2.0
     # via pip-audit
 tqdm==4.67.1
     # via spacy
-typer-slim==0.21.0
+typer-slim==0.21.1
     # via
     #   spacy
     #   weasel
@@ -224,7 +224,7 @@ typing-inspection==0.4.2
     # via
     #   pydantic
     #   pydantic-settings
-urllib3==2.6.2
+urllib3==2.6.3
     # via requests
 uvicorn[standard]==0.40.0
     # via -r requirements.in
@@ -239,7 +239,7 @@ watchfiles==1.1.1
     # via uvicorn
 weasel==0.4.3
     # via spacy
-websockets==15.0.1
+websockets==16.0
     # via uvicorn
 wrapt==2.0.1
     # via smart-open
