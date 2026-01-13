@@ -1,0 +1,12 @@
+<div class="message" [class.message--user]="isUser">
+  <div class="message__bubble">
+    <app-highlighted-text
+      [text]="message.text"
+      [findings]="message.findings"
+    ></app-highlighted-text>
+  </div>
+  <div class="message__meta">
+    <span>{{ senderLabel }}</span>
+    <span>{{ message.createdAt | date: 'shortTime' }}</span>
+  </div>
+</div>

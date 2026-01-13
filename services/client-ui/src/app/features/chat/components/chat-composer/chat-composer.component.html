@@ -1,0 +1,11 @@
+<form class="composer" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="composer__field">
+    <input
+      type="text"
+      formControlName="message"
+      placeholder="Write a message to inspect..."
+      aria-label="Message"
+    />
+  </div>
+  <button type="submit" [disabled]="form.invalid">Send</button>
+</form>

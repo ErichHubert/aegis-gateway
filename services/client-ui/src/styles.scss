@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@400;600&display=swap');
+
+:root {
+  --bg: #f6f0e7;
+  --bg-accent: #e7efe7;
+  --surface: #fffaf4;
+  --surface-strong: #ffffff;
+  --ink: #1f1b16;
+  --muted: #6f6962;
+  --border: #e3d7c8;
+  --accent: #2f6b5a;
+  --accent-soft: #cfe2da;
+  --low: #2f7d45;
+  --medium: #c26a1d;
+  --high: #b12828;
+  --shadow: 0 20px 60px rgba(27, 23, 18, 0.12);
+  --shadow-soft: 0 12px 30px rgba(27, 23, 18, 0.1);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'IBM Plex Sans', 'Avenir Next', 'Segoe UI', sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top left, rgba(231, 239, 231, 0.9), transparent 55%),
+    radial-gradient(circle at 75% 20%, rgba(255, 240, 224, 0.9), transparent 50%),
+    linear-gradient(160deg, var(--bg), #fbf6ee 60%);
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Space Grotesk', 'Trebuchet MS', sans-serif;
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(47, 107, 90, 0.2);
+}

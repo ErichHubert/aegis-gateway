@@ -1,0 +1,9 @@
+<div class="thread">
+  <div class="thread__empty" *ngIf="messages.length === 0">
+    Start a new conversation.
+  </div>
+  <app-chat-message
+    *ngFor="let message of messages; trackBy: trackById"
+    [message]="message"
+  ></app-chat-message>
+</div>

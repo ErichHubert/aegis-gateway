@@ -1,0 +1,13 @@
+<span class="highlighted-text">
+  <ng-container *ngFor="let segment of segments">
+    <span
+      *ngIf="segment.finding; else plain"
+      class="highlight"
+      [ngClass]="'highlight--' + segment.finding.severity"
+      [attr.data-tooltip]="tooltipFor(segment.finding)"
+    >
+      {{ segment.text }}
+    </span>
+    <ng-template #plain>{{ segment.text }}</ng-template>
+  </ng-container>
+</span>

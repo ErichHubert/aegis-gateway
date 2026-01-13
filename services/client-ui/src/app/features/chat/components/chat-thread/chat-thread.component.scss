@@ -1,0 +1,22 @@
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 8px 4px;
+  max-height: 55vh;
+  overflow: auto;
+}
+
+.thread__empty {
+  padding: 24px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .thread {
+    max-height: 50vh;
+  }
+}

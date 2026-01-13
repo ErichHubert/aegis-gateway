@@ -1,0 +1,15 @@
+<div class="bot-select">
+  <label class="bot-select__label" for="bot-select">Chatbot</label>
+  <div class="bot-select__field">
+    <select
+      id="bot-select"
+      [ngModel]="selected"
+      (ngModelChange)="onSelect($event)"
+    >
+      <option *ngFor="let bot of bots" [ngValue]="bot.id">
+        {{ bot.label }}
+      </option>
+    </select>
+  </div>
+  <span class="bot-select__hint">{{ selectedOption?.description }}</span>
+</div>

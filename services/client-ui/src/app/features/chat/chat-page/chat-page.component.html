@@ -1,0 +1,20 @@
+<section class="chat-shell">
+  <header class="chat-shell__header">
+    <div>
+      <h2>Conversation</h2>
+      <p>Highlighting PII and secrets inline with hover details.</p>
+    </div>
+    <app-chat-bot-selector
+      [bots]="bots"
+      [selected]="(selectedBot$ | async) ?? 'echo'"
+      (selectedChange)="onBotChange($event)"
+    ></app-chat-bot-selector>
+  </header>
+
+  <app-chat-thread
+    class="chat-shell__thread"
+    [messages]="(messages$ | async) ?? []"
+  ></app-chat-thread>
+
+  <app-chat-composer (send)="onSend($event)"></app-chat-composer>
+</section>

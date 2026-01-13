@@ -1,0 +1,70 @@
+.highlighted-text {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.highlight {
+  position: relative;
+  padding: 0 2px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.highlight--low {
+  background: rgba(47, 125, 69, 0.18);
+  box-shadow: inset 0 -0.35em 0 rgba(47, 125, 69, 0.18);
+}
+
+.highlight--medium {
+  background: rgba(194, 106, 29, 0.2);
+  box-shadow: inset 0 -0.35em 0 rgba(194, 106, 29, 0.18);
+}
+
+.highlight--high {
+  background: rgba(177, 40, 40, 0.22);
+  box-shadow: inset 0 -0.35em 0 rgba(177, 40, 40, 0.2);
+}
+
+@media (hover: hover) {
+  .highlight[data-tooltip]:hover::after,
+  .highlight[data-tooltip]:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .highlight[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 125%;
+    left: 20px;
+    width: 10px;
+    height: 10px;
+    background: #1e1a16;
+    transform: translateY(6px) rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    border-radius: 2px;
+    z-index: 10;
+  }
+
+  .highlight[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 135%;
+    left: 16px;
+    min-width: 180px;
+    max-width: 240px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #1e1a16;
+    color: #fef7ef;
+    font-size: 12px;
+    line-height: 1.3;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 10;
+    white-space: normal;
+  }
+}
