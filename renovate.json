@@ -50,6 +50,12 @@
       "addLabels": ["ci"]
     },
     {
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchPackageNames": ["python"],
+      "matchUpdateTypes": ["minor"],
+      "enabled": false
+    },
+    {
       "matchManagers": ["pip-compile"],
       "addLabels": ["python"]
     },
