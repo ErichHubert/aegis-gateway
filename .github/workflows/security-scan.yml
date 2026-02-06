@@ -90,7 +90,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
       - name: Generate SBOM (SPDX JSON)
-        uses: anchore/sbom-action@0b82b0b1a22399a1c542d4d656f70cd903571b5c # v0
+        uses: anchore/sbom-action@28d71544de8eaf1b958d335707167c5f783590ad # v0
         with:
           path: .
           format: spdx-json
