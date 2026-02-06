@@ -97,14 +97,14 @@ murmurhash==1.0.15
     #   preshed
     #   spacy
     #   thinc
-numpy==2.4.1
+numpy==2.4.2
     # via
     #   blis
     #   spacy
     #   thinc
 packageurl-python==0.17.6
     # via cyclonedx-python-lib
-packaging==25.0
+packaging==26.0
     # via
     #   pip-audit
     #   pip-requirements-parser
@@ -112,7 +112,7 @@ packaging==25.0
     #   spacy
     #   thinc
     #   weasel
-phonenumbers==9.0.21
+phonenumbers==9.0.22
     # via presidio-analyzer
 pip-api==0.0.34
     # via pip-audit
@@ -150,7 +150,7 @@ pygments==2.19.2
     #   -r requirements-dev.in
     #   pytest
     #   rich
-pyparsing==3.3.1
+pyparsing==3.3.2
     # via pip-requirements-parser
 pytest==9.0.2
     # via -r requirements-dev.in
@@ -164,7 +164,7 @@ pyyaml==6.0.3
     #   detect-secrets
     #   presidio-analyzer
     #   uvicorn
-regex==2025.11.3
+regex==2026.1.15
     # via presidio-analyzer
 requests==2.32.5
     # via
@@ -177,7 +177,7 @@ requests==2.32.5
     #   weasel
 requests-file==3.0.1
     # via tldextract
-rich==14.2.0
+rich==14.3.2
     # via pip-audit
 smart-open==7.5.0
     # via weasel
@@ -207,7 +207,7 @@ tomli==2.4.0
     # via pip-audit
 tomli-w==1.2.0
     # via pip-audit
-tqdm==4.67.1
+tqdm==4.67.2
     # via spacy
 typer-slim==0.21.1
     # via
@@ -241,7 +241,7 @@ weasel==0.4.3
     # via spacy
 websockets==16.0
     # via uvicorn
-wrapt==2.0.1
+wrapt==2.1.0
     # via smart-open
 
 # The following packages are considered to be unsafe in a requirements file:

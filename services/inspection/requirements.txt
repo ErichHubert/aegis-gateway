@@ -75,17 +75,17 @@ murmurhash==1.0.15
     #   preshed
     #   spacy
     #   thinc
-numpy==2.4.1
+numpy==2.4.2
     # via
     #   blis
     #   spacy
     #   thinc
-packaging==25.0
+packaging==26.0
     # via
     #   spacy
     #   thinc
     #   weasel
-phonenumbers==9.0.21
+phonenumbers==9.0.22
     # via presidio-analyzer
 preshed==3.0.12
     # via
@@ -116,7 +116,7 @@ pyyaml==6.0.3
     #   detect-secrets
     #   presidio-analyzer
     #   uvicorn
-regex==2025.11.3
+regex==2026.1.15
     # via presidio-analyzer
 requests==2.32.5
     # via
@@ -149,7 +149,7 @@ thinc==8.3.10
     # via spacy
 tldextract==5.3.1
     # via presidio-analyzer
-tqdm==4.67.1
+tqdm==4.67.2
     # via spacy
 typer-slim==0.21.1
     # via
@@ -183,7 +183,7 @@ weasel==0.4.3
     # via spacy
 websockets==16.0
     # via uvicorn
-wrapt==2.0.1
+wrapt==2.1.0
     # via smart-open
 
 # The following packages are considered to be unsafe in a requirements file:
