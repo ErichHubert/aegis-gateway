@@ -1,7 +1,7 @@
 # services/inspection/Dockerfile
 
 # Use a specific, slim Python base image (avoid 'latest' for reproducibility)
-FROM python:3.13.11-slim-trixie@sha256:2b9c9803c6a287cafa0a8c917211dddd23dcd2016f049690ee5219f5d3f1636e
+FROM python:3.13.12-slim-trixie@sha256:739e7213785e88c0f702dcdc12c0973afcbd606dbf021a589cab77d6b00b579d
 
 # Runtime-focused defaults:
 # - no .pyc files in long-running containers (smaller image, fewer stale-cache surprises)
