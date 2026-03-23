@@ -5,7 +5,9 @@
 #    pip-compile --output-file=requirements.txt requirements.in
 #
 annotated-doc==0.0.4
-    # via fastapi
+    # via
+    #   fastapi
+    #   typer
 annotated-types==0.7.0
     # via pydantic
 anyio==4.12.1
@@ -20,16 +22,16 @@ catalogue==2.0.10
     #   spacy
     #   srsly
     #   thinc
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   httpcore
     #   httpx
     #   requests
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
     # via requests
 click==8.3.1
     # via
-    #   typer-slim
+    #   typer
     #   uvicorn
 cloudpathlib==0.23.0
     # via weasel
@@ -46,9 +48,9 @@ detect-secrets==1.5.0
     # via -r requirements.in
 en-core-web-lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl
     # via -r requirements.in
-fastapi==0.128.0
+fastapi==0.135.1
     # via -r requirements.in
-filelock==3.20.3
+filelock==3.25.2
     # via tldextract
 h11==0.16.0
     # via
@@ -68,14 +70,18 @@ idna==3.11
     #   tldextract
 jinja2==3.1.6
     # via spacy
+markdown-it-py==4.0.0
+    # via rich
 markupsafe==3.0.3
     # via jinja2
+mdurl==0.1.2
+    # via markdown-it-py
 murmurhash==1.0.15
     # via
     #   preshed
     #   spacy
     #   thinc
-numpy==2.4.2
+numpy==2.4.3
     # via
     #   blis
     #   spacy
@@ -85,28 +91,31 @@ packaging==26.0
     #   spacy
     #   thinc
     #   weasel
-phonenumbers==9.0.22
+phonenumbers==9.0.26
     # via presidio-analyzer
 preshed==3.0.12
     # via
     #   spacy
     #   thinc
-presidio-analyzer==2.2.360
+presidio-analyzer==2.2.362
     # via -r requirements.in
 pydantic==2.12.5
     # via
     #   -r requirements.in
     #   confection
     #   fastapi
+    #   presidio-analyzer
     #   pydantic-settings
     #   spacy
     #   thinc
     #   weasel
 pydantic-core==2.41.5
     # via pydantic
-pydantic-settings==2.12.0
+pydantic-settings==2.13.1
     # via -r requirements.in
-python-dotenv==1.2.1
+pygments==2.19.2
+    # via rich
+python-dotenv==1.2.2
     # via
     #   pydantic-settings
     #   uvicorn
@@ -116,7 +125,7 @@ pyyaml==6.0.3
     #   detect-secrets
     #   presidio-analyzer
     #   uvicorn
-regex==2026.1.15
+regex==2026.2.28
     # via presidio-analyzer
 requests==2.32.5
     # via
@@ -127,7 +136,11 @@ requests==2.32.5
     #   weasel
 requests-file==3.0.1
     # via tldextract
-smart-open==7.5.0
+rich==14.3.3
+    # via typer
+shellingham==1.5.4
+    # via typer
+smart-open==7.5.1
     # via weasel
 spacy==3.8.11
     # via
@@ -143,15 +156,17 @@ srsly==2.5.2
     #   spacy
     #   thinc
     #   weasel
-starlette==0.50.0
+starlette==1.0.0
     # via fastapi
-thinc==8.3.10
+thinc==8.3.11
     # via spacy
 tldextract==5.3.1
     # via presidio-analyzer
-tqdm==4.67.2
+tqdm==4.67.3
     # via spacy
-typer-slim==0.21.1
+typer==0.24.1
+    # via typer-slim
+typer-slim==0.24.0
     # via
     #   spacy
     #   weasel
@@ -160,15 +175,15 @@ typing-extensions==4.15.0
     #   fastapi
     #   pydantic
     #   pydantic-core
-    #   typer-slim
     #   typing-inspection
 typing-inspection==0.4.2
     # via
+    #   fastapi
     #   pydantic
     #   pydantic-settings
 urllib3==2.6.3
     # via requests
-uvicorn[standard]==0.40.0
+uvicorn[standard]==0.42.0
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn
@@ -183,7 +198,7 @@ weasel==0.4.3
     # via spacy
 websockets==16.0
     # via uvicorn
-wrapt==2.1.0
+wrapt==2.1.2
     # via smart-open
 
 # The following packages are considered to be unsafe in a requirements file:
