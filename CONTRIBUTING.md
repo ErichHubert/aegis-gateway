@@ -35,13 +35,15 @@ If you cannot follow this, please do not contribute.
 
 ## Project Goals & Non-Goals
 
-Aegis Gateway aims to provide a secure, configurable gateway layer for LLM/AI backends (and similar HTTP services), including request inspection, policy enforcement, and auditable decisioning.
+Aegis Gateway aims to provide a security-oriented, configurable gateway layer for LLM/AI backends (and similar HTTP services), including request inspection, policy enforcement, and auditable decisioning.
 
 Primary goals:
-- **Security & compliance controls**: detect and handle secrets, PII, and prompt-injection signals.
+- **Security-oriented inspection controls**: detect and handle secrets, PII, and prompt-injection signals.
 - **Policy-driven enforcement**: allow/confirm/block flows with transparent, testable rules.
 - **Operational readiness**: container-first, health checks, reproducible builds, and sensible defaults.
 - **Extensibility**: detectors and policies should be easy to extend without rewriting the system.
+
+These controls may support internal compliance programs, but the repo itself is not a compliance certification or legal guarantee.
 
 Non-goals (for now):
 - Being a full IAM product (AuthN/AuthZ can integrate with existing identity providers later).
@@ -79,8 +81,6 @@ Your PR description should include:
 - what changed and why
 - how to test it locally
 - any security implications
-
----
 
 ## Development Setup
 
@@ -245,7 +245,7 @@ If you believe you found a security issue:
 ### Threat Model Expectations (high level)
 - The gateway should not expose internal services directly.
 - Confirm tokens must be short-lived and bound to request context.
-- Findings may include sensitive metadata — avoid returning full secrets or raw prompt content by default.
+- Findings may include sensitive metadata — avoid returning raw prompt content or secrets in client-facing responses by default.
 
 ---
 
