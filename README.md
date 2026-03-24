@@ -4,16 +4,18 @@
 
 It is a **reference implementation for LLM / API egress hardening**, with a strong focus on:
 
-- Preventing **PII leaks** and **secret exposure**
-- Mitigating **prompt injection** and unsafe request patterns
+- Helping detect and reduce the risk of **PII leaks** and **secret exposure**
+- Helping identify common **prompt injection** patterns and unsafe request patterns
 - Enforcing **policy-based decisions** (`allow` / `confirm` / `block`)
-- Staying **operationally realistic**: Docker → Compose → K3s / Service Mesh
+- Remaining **operationally realistic** from Docker / Compose toward Kubernetes or service-mesh deployments
+
+> Important: Aegis Gateway is a reference implementation and demo stack. It can support security review and policy enforcement, but it does **not** by itself guarantee compliance, eliminate all data leakage, or stop all prompt-injection techniques. Detection quality depends on configuration, deployment, and surrounding controls.
 
 ---
 
 ## Architecture
 
-At a high level, Aegis Gateway sits between external clients and internal target services. The gateway is the only client-facing component and terminates HTTP, evaluates policies, and orchestrates calls to the inspection service. The inspection service runs PII and secret detection plus heuristic checks and returns a structured report, it never talks directly to external clients. Target services (Echo, LLM, or any HTTP API) remain unaware of the inspection and behave like normal upstreams. Multiple routes can share a single gateway instance, each with its own policy configuration and target cluster. The inspection service is stateless and can be scaled horizontally behind the gateway.
+At a high level, Aegis Gateway sits between external clients and internal target services. The gateway is the client-facing component in the reference architecture and terminates HTTP, evaluates policies, and orchestrates calls to the inspection service. The inspection service runs PII and secret detection plus heuristic checks and returns a structured report to the gateway; in the shipped Docker Compose demo it is not exposed directly to the host. Target services (Echo, LLM, or any HTTP API) remain unaware of the inspection and behave like normal upstreams. Multiple routes can share a single gateway instance, each with its own policy configuration and target cluster. The inspection service is intended to be stateless and can be scaled horizontally behind the gateway once the surrounding deployment controls are in place.
 
 ```text
 Client
@@ -47,8 +49,8 @@ flowchart LR
 
 Key properties:
 
-- **Only the gateway** is publicly reachable
-- **Inspection Service** is internal, stateless and configuration-driven
+- In the provided Docker Compose demo, **only the gateway** is published to the host
+- **Inspection Service** is intended to run as an internal, stateless, configuration-driven service
 - **Policies live in the gateway** (not in the inspector) for clear separation of concerns
 - Supports **multiple routes and targets** behind a single gateway
 
@@ -87,13 +89,14 @@ Typical risks:
   - Requests that are not “clean” but not critical can be tagged as `confirm`
   - User / operator can explicitly confirm once
   - Confirm-tokens are server-side validated and time-bound
+  - Current limitation: confirm tokens are stored in the gateway process memory; multi-instance deployments currently require a single replica or request affinity
 
 - **Security & Robustness**
-  - Non-root Docker images
-  - Read-only file systems with `tmpfs` for temp data
+  - Non-root container images for the shipped services
+  - Read-only file systems with `tmpfs` for temp data in the provided Compose demo
   - Health endpoints for gateway, inspector and (optional) LLM
-  - No runtime model downloads
-  - No secrets in logs or responses (only references / IDs)
+  - No dynamic model downloads at runtime in the shipped images
+  - Structured client-facing control responses that operators should review and minimize for production use
 
 ---
 
@@ -105,14 +108,14 @@ Typical risks:
    - Forwards relevant request data to the **Inspection Service**.
 3. **Inspection Service**:
    - Runs PII, secret, and heuristic checks.
-   - Returns a structured report with findings + computed severity.
+   - Returns a structured report with findings and severities.
 4. **Gateway Policy Engine** decides:
    - `allow` → forward request to target
    - `confirm` → return a `ProblemDetails` response requiring confirmation
    - `block` → return a blocking `ProblemDetails` with high-level reason
 5. On `confirm`, the client can send a follow-up request with a **confirm token**.
 
-All responses in the control flow use **structured error formats** (ASP.NET `ProblemDetails`) so clients can react programmatically.
+All responses in the control flow use **structured error formats** (ASP.NET `ProblemDetails`) so clients can react programmatically. Before using this project with real data, review whether client-facing findings, detector messages, and exception handling are appropriate for your deployment.
 
 ---
 
@@ -409,7 +412,7 @@ This project focuses on **outbound HTTP/LLM request inspection**. It is not a fu
 - **Accidental secret exposure**, such as API keys, tokens, or high-entropy strings that match the configured detectors.
 - **Obvious prompt injection patterns**, when you configure heuristic checks for "ignore previous instructions", attempts to exfiltrate system prompts, or similar patterns.
 - **Missing central egress control** by forcing certain targets (e.g. LLMs) through a single gateway + inspection path.
-- **Uncontrolled logging of sensitive payloads**, by making logging behavior explicit and configurable at the gateway.
+- **Accidental logging of sensitive payloads**, when deployments keep logging, redaction, and sink access controls aligned with their own data-handling requirements.
 
 ### Does *not* protect against
 
@@ -428,11 +431,19 @@ You should treat Aegis Gateway as a **layer** in a defense-in-depth strategy, al
 
 Aegis Gateway intentionally includes several hardening measures:
 
-- Non-root containers
-- Read-only filesystems (with minimal temp dirs)
-- No dynamic downloads at runtime
+- Non-root container images for the shipped services
+- Read-only filesystems (with minimal temp dirs) in the provided demo deployment
+- No dynamic downloads at runtime in the shipped images
 - Health endpoints for all major components
-- No logging of raw secrets or full prompts (configurable, but discouraged)
+- Structured control responses via ASP.NET `ProblemDetails`
+
+Server-side logs and client-facing response detail remain the operator’s responsibility. Review log sinks, retention, access controls, finding payloads, and exception handling before treating a deployment as production-ready.
+
+See [`DATA_HANDLING.md`](./DATA_HANDLING.md) for:
+
+- The data categories this repo processes
+- Default logging and response-redaction behavior
+- Operator responsibilities for retention, deletion, access control, and legal review
 
 See [`SECURITY.md`](./SECURITY.md) for:
 
@@ -450,8 +461,10 @@ To keep the project focused and understandable:
   - Use existing solutions (OIDC, mTLS, API gateways, service mesh) in front of or around Aegis Gateway.
 - ❌ No multi-tenant configuration model in the inspector
   - A single inspector instance has a single configuration.
+- ❌ No shared **confirm-token persistence**
+  - Confirm tokens are currently stored in process-local memory. Multi-instance deployments need a single gateway replica or request affinity until shared persistence is added.
 - ❌ Not a full “product”
-  - This is a **security-focused reference architecture**, not a turnkey SaaS.
+  - This is a **security-focused reference architecture**, not a turnkey SaaS, compliance certification, or legal guarantee.
 
 ---
 
@@ -492,7 +505,7 @@ Unit and integration tests avoid:
 
 ## CI, Dependency Updates & Supply-Chain Signals
 
-This repository is intentionally set up to look and behave like an **enterprise-grade** service repo:
+This repository intentionally includes several controls commonly used in **production-oriented** service repos:
 
 - **Build & test workflows** validate both the .NET gateway and the Python inspection service.
 - **Container image scanning (Trivy)** detects vulnerabilities in what you actually ship (including OS packages from the base image).

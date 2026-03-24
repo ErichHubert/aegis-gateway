@@ -1,6 +1,8 @@
 # Security Policy
 
-This project (**Aegis Gateway**) is a security-focused reverse proxy and inspection service. Security issues are taken seriously.
+This project (**Aegis Gateway**) is a security-focused reverse proxy and inspection service. Security issues are handled on a best-effort basis for this personal/open-source project.
+
+This document describes the project’s disclosure workflow and security intent. It does **not** create service-level commitments, contractual response times, warranty obligations, or compliance guarantees.
 
 ## Reporting a Vulnerability
 
@@ -45,7 +47,7 @@ Out of scope (typically):
 
 ## Coordinated Disclosure
 
-If you report a valid vulnerability, the maintainer will:
+If you report a valid vulnerability, the maintainer will typically aim to:
 - Acknowledge receipt
 - Work with you on a fix
 - Coordinate disclosure timing if public disclosure is planned
@@ -58,7 +60,9 @@ Security fixes are typically applied to the **latest** version on the default br
 
 ## Security Notes (Project Intent)
 
-This repository includes demo and local development configurations. Even with security-minded defaults, it is **not** a drop-in production deployment.
+This repository includes demo and local development configurations. Even with security-minded defaults, it is **not** a drop-in production deployment and does not by itself provide compliance certification or legal assurances.
+
+The current confirm flow stores tokens in process-local memory inside the gateway. Multi-instance deployments therefore need a single gateway replica or request affinity until shared token persistence is added.
 
 For production hardening you would typically add:
 - Strong authentication/authorization at the edge (OIDC, mTLS, or both)
@@ -67,6 +71,8 @@ For production hardening you would typically add:
 - Centralized audit logging and alerting
 - Secret management and key persistence (e.g., ASP.NET DataProtection keys)
 - Network policies/service mesh mTLS in Kubernetes
+
+See [`DATA_HANDLING.md`](./DATA_HANDLING.md) for the technical data-handling posture of the shipped repo, including current response/logging considerations and operator responsibilities for logs and retention.
 
 ## Thank You
 
