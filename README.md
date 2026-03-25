@@ -477,6 +477,10 @@ cd ../inspection
 
 python -m venv .venv
 source .venv/bin/activate
+
+# requirements-dev.txt already includes the runtime dependencies from
+# requirements.txt. Use requirements.txt only for runtime-only installs
+# such as the container image build.
 python -m pip install --require-hashes -r requirements-dev.txt
 python -m pip_audit --local
 python -m pytest -q
