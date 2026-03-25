@@ -47,7 +47,10 @@ jobs:
             services/gateway/**/packages.lock.json
 
       - name: Restore
-        run: dotnet restore Aegis.slnx
+        run: dotnet restore Aegis.slnx --locked-mode
+
+      - name: Audit NuGet packages
+        run: dotnet list Aegis.slnx package --vulnerable --include-transitive
 
       - name: Build (Release)
         run: dotnet build Aegis.slnx --configuration Release --no-restore
@@ -85,8 +88,14 @@ jobs:
         run: |
           python -m venv .venv
           source .venv/bin/activate
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt -r requirements-dev.txt
+          python -m pip install --require-hashes -r requirements-dev.txt
+
+      - name: Audit Python packages
+        run: |
+          source .venv/bin/activate
+          # CVE-2026-4539 is currently reported for Pygments 2.19.2 without a
+          # published fix version. Keep auditing active for all other findings.
+          python -m pip_audit --local --ignore-vuln CVE-2026-4539
 
       - name: Run tests (pytest)
         run: |

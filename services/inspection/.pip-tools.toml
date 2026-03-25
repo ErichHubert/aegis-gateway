@@ -1,0 +1,3 @@
+generate-hashes = true
+allow-unsafe = true
+strip-extras = true

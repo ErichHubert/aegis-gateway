@@ -23,7 +23,7 @@ INSPECTION_IMAGE := aegis-inspection:dev
 GATEWAY_IMAGE := aegis-gateway:dev
 
 .PHONY: help \
-        inspection-venv inspection-deps inspection-test inspection-run inspection-docker-build inspection-docker-run \
+        inspection-venv inspection-deps inspection-dev-deps inspection-test inspection-run inspection-docker-build inspection-docker-run \
         gateway-restore gateway-build gateway-test gateway-run gateway-docker-build gateway-docker-run \
         compose-up compose-up-ollama compose-up-echo compose-down compose-ps \
         ollama-pull ollama-list
@@ -31,7 +31,8 @@ GATEWAY_IMAGE := aegis-gateway:dev
 help:
 	@echo "Available targets:"
 	@echo "  inspection-venv          Create virtualenv for inspection service"
-	@echo "  inspection-deps          Install Python dependencies for inspection service"
+	@echo "  inspection-deps          Install runtime Python dependencies for inspection service"
+	@echo "  inspection-dev-deps      Install runtime + dev/test Python dependencies"
 	@echo "  inspection-test          Run Python tests for inspection service"
 	@echo "  inspection-run           Run inspection service locally with uvicorn"
 	@echo "  inspection-docker-build  Build inspection service Docker image"
@@ -61,9 +62,12 @@ inspection-venv:
 	test -d $(INSPECTION_VENV) || (cd $(INSPECTION_DIR) && $(PYTHON) -m venv .venv)
 
 inspection-deps: inspection-venv
-	cd $(INSPECTION_DIR) && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r requirements.txt
+	cd $(INSPECTION_DIR) && .venv/bin/python -m pip install --require-hashes -r requirements.txt
 
-inspection-test: inspection-deps
+inspection-dev-deps: inspection-deps
+	cd $(INSPECTION_DIR) && .venv/bin/python -m pip install --require-hashes -r requirements-dev.txt
+
+inspection-test: inspection-dev-deps
 	cd $(INSPECTION_DIR) && PYTHONPATH=. .venv/bin/pytest
 
 inspection-run: inspection-deps

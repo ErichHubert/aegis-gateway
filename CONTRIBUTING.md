@@ -104,7 +104,6 @@ The inspection service uses a standard virtual environment and pinned dependenci
 cd services/inspection
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
 ```
 
 **Install dependencies** (choose one):
@@ -112,22 +111,22 @@ python -m pip install --upgrade pip
 - If you commit compiled/pinned requirements:
 
   ```bash
-  python -m pip install -r requirements.txt
-  python -m pip install -r requirements-dev.txt
+  python -m pip install --require-hashes -r requirements.txt
+  python -m pip install --require-hashes -r requirements-dev.txt
   ```
 
 - If you use `pip-tools` (`*.in` files) and want to (re)generate pins locally:
 
   ```bash
-  python -m pip install -U pip-tools
+  python -m pip install pip-tools
 
   # Compile lockfiles
-  pip-compile requirements.in -o requirements.txt
-  pip-compile requirements-dev.in -o requirements-dev.txt
+  pip-compile --generate-hashes --allow-unsafe requirements.in -o requirements.txt
+  pip-compile --generate-hashes --allow-unsafe requirements-dev.in -o requirements-dev.txt
 
   # Install the pinned versions
-  python -m pip install -r requirements.txt
-  python -m pip install -r requirements-dev.txt
+  python -m pip install --require-hashes -r requirements.txt
+  python -m pip install --require-hashes -r requirements-dev.txt
   ```
 
 **Run tests**:
