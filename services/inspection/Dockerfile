@@ -22,10 +22,8 @@ WORKDIR /app
 # Copy only dependency manifest first (better layer caching)
 COPY requirements.txt ./
 
-# Install Python dependencies
-# NOTE: If you later want maximum supply-chain hardening, generate a pinned
-# requirements.txt (pip-compile) and consider `--require-hashes`.
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies from the compiled, hash-pinned lockfile.
+RUN python -m pip install --no-cache-dir --require-hashes -r requirements.txt
 
 # Copy the application code
 # Use --chown to avoid an extra chown layer and ensure the non-root user can read files.

@@ -6,6 +6,10 @@
 
   "dependencyDashboard": true,
   "timezone": "Europe/Berlin",
+  "minimumReleaseAge": "14 days",
+  "minimumReleaseAgeBehaviour": "timestamp-required",
+  "internalChecksFilter": "strict",
+  "prCreation": "not-pending",
   "schedule": [
     "before 9am on Monday"
   ],
