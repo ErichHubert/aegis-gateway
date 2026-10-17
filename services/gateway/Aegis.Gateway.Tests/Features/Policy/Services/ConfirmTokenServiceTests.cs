@@ -128,7 +128,7 @@ public sealed class ConfirmTokenServiceTests
         var token = sut.IssueToken(req, ttl: TimeSpan.FromMilliseconds(50));
 
         // Act
-        await Task.Delay(150);
+        await Task.Delay(150, TestContext.Current.CancellationToken);
         var ok = sut.TryConsumeToken(token, req);
 
         // Assert

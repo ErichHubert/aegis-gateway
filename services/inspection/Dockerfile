@@ -1,7 +1,7 @@
 # services/inspection/Dockerfile
 
 # Use a specific, slim Python base image (avoid 'latest' for reproducibility)
-FROM python:3.13.12-slim-trixie@sha256:f1927c75e81efd1e091dbd64b6c0ecaa5630b38635a3d1c04034ac636e1f94c8
+FROM python:3.13.16-slim-trixie@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f
 
 # Runtime-focused defaults:
 # - no .pyc files in long-running containers (smaller image, fewer stale-cache surprises)
@@ -23,7 +23,10 @@ WORKDIR /app
 COPY requirements.txt ./
 
 # Install Python dependencies from the compiled, hash-pinned lockfile.
-RUN python -m pip install --no-cache-dir --require-hashes -r requirements.txt
+# pip is only needed to build the image; remove it and its vendored libraries
+# from the runtime image in the same layer.
+RUN python -m pip install --no-cache-dir --require-hashes -r requirements.txt \
+    && python -m pip uninstall --yes pip
 
 # Copy the application code
 # Use --chown to avoid an extra chown layer and ensure the non-root user can read files.
