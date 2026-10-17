@@ -35,7 +35,7 @@ public class PromptInspectionClientTests(FakeHttpClientFixture fixture)
 
         // Act
         var client = new PromptInspectionClient(fakeHttpClient, _loggerMock.Object);
-        await client.InspectAsync(prompt, meta);
+        await client.InspectAsync(prompt, meta, TestContext.Current.CancellationToken);
 
         // Assert
         // Ensure the client sends exactly one HTTP request per InspectAsync call
@@ -75,7 +75,7 @@ public class PromptInspectionClientTests(FakeHttpClientFixture fixture)
         
         await Assert.ThrowsAsync<HttpRequestException>(async () =>
         {
-            await client.InspectAsync("any prompt");
+            await client.InspectAsync("any prompt", ct: TestContext.Current.CancellationToken);
         });
     }
     
@@ -92,7 +92,7 @@ public class PromptInspectionClientTests(FakeHttpClientFixture fixture)
         
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
-            await client.InspectAsync("any prompt");
+            await client.InspectAsync("any prompt", ct: TestContext.Current.CancellationToken);
         });
     }
 }

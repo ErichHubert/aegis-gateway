@@ -93,9 +93,7 @@ jobs:
       - name: Audit Python packages
         run: |
           source .venv/bin/activate
-          # CVE-2026-4539 is currently reported for Pygments 2.19.2 without a
-          # published fix version. Keep auditing active for all other findings.
-          python -m pip_audit --local --ignore-vuln CVE-2026-4539
+          python -m pip_audit --local
 
       - name: Run tests (pytest)
         run: |
