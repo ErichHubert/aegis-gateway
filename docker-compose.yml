@@ -65,7 +65,7 @@ services:
       - ALL
 
   ollama:
-    image: ollama/ollama:latest@sha256:d00473cb58f0082c07cd6ed0d326a8a86f443ab69c51f8fc2b1a41687d45c661
+    image: ollama/ollama:latest@sha256:5d3a2f25f9825628daba94dc0b1d421c7d57d6c03ae5faa9ba050e058bab8241
     container_name: aegis-ollama
     profiles: ["ollama"]
     environment:
